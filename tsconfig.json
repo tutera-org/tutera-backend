@@ -3,11 +3,12 @@
   "compilerOptions": {
     // File Layout
     // "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "esnext",
     "types": [],
     // For nodejs:
@@ -32,14 +33,16 @@
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
 
     // Recommended Options
     "strict": true,
-    "jsx": "react-jsx",
+    // "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
+    "moduleDetection": "auto",
     "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"]
