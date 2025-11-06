@@ -37,5 +37,5 @@ export const JWT_REFRESH_SECRET = getEnvironmentVariable(
 export const NODE_ENV = getEnvironmentVariable('NODE_ENV', 'development');
 export const ALLOWED_ORIGINS = getEnvironmentVariable(
   'ALLOWED_ORIGINS',
-  'http://localhost:3000'
+  '*'
 ).split(',');
