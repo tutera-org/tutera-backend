@@ -1,0 +1,64 @@
+{
+  "name": "tutera-backend",
+  "version": "1.0.0",
+  "description": "The Backend App for the Tutera Frontend",
+  "homepage": "https://github.com/tutera-org/tutera-backend#readme",
+  "bugs": {
+    "url": "https://github.com/tutera-org/tutera-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tutera-org/tutera-backend.git"
+  },
+  "license": "ISC",
+  "author": "Tutera-org",
+  "type": "module",
+  "main": "server.ts",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest --passWithNoTests",
+    "swagger": "ts-node src/swagger.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "jiti": "^2.6.1",
+    "lint-staged": "^16.2.6",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/morgan": "^1.9.10",
+    "@types/swagger-ui-express": "^4.1.8",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.19.3",
+    "morgan": "^1.10.1",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.18.3"
+  }
+}
