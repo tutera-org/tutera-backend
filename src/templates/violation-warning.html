@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Violation Warning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9fafb;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+        }
+        .danger {
+            background: #FEE2E2;
+            border-left: 4px solid #EF4444;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚠️ Content Violation Warning</h1>
+    </div>
+    <div class="content">
+        <h2>Important Notice</h2>
+        
+        <div class="danger">
+            <strong>Action Required:</strong> Content has been flagged for violation of our policies.
+        </div>
+
+        <p>Dear {{tenantName}},</p>
+
+        <p>We have identified content that violates Tutera LMS policies and international standards.</p>
+
+        <h3>Violation Details:</h3>
+        <ul>
+            <li><strong>Content Type:</strong> {{contentType}}</li>
+            <li><strong>Violation Date:</strong> {{violationDate}}</li>
+            <li><strong>Reason:</strong> {{reason}}</li>
+            <li><strong>Total Violations:</strong> {{violationCount}}</li>
+        </ul>
+
+        <div class="danger">
+            <strong>Status:</strong> The flagged content has been removed from the platform.
+        </div>
+
+        <h3>What You Need to Do:</h3>
+        <ol>
+            <li>Review our content policies</li>
+            <li>Ensure all future uploads comply with guidelines</li>
+            <li>Contact support if you believe this is an error</li>
+        </ol>
+
+        <p><strong>Warning:</strong> Repeated violations may result in account suspension or termination.</p>
+
+        <h3>Content Guidelines:</h3>
+        <ul>
+            <li>✅ Educational content only</li>
+            <li>✅ Original or properly licensed material</li>
+            <li>✅ No copyrighted content without permission</li>
+            <li>❌ No adult or explicit content</li>
+            <li>❌ No hate speech or discrimination</li>
+            <li>❌ No illegal activities</li>
+        </ul>
+
+        <p>For questions or appeals, contact: compliance@tutera.com</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 Tutera LMS. All rights reserved.</p>
+        <p>This is an automated message from our compliance system.</p>
+    </div>
+</body>
+</html>

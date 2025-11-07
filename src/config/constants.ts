@@ -1,10 +1,18 @@
 import dotenv from 'dotenv';
-
+import path from 'path';
 // Determine the environment and load the corresponding file
 // for local test, it uses `.env.local` while in production uses .env
-const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
-dotenv.config({ path: envFile });
+// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 
+// dotenv.config({ path: envFile });
+
+const envFile =
+  process.env.NODE_ENV === 'production'
+    ? '.env.production'
+    : '.env.development';
+
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+dotenv.config();
 export const getEnvironmentVariable = (
   key: string,
   defaultVal?: string
@@ -39,3 +47,34 @@ export const ALLOWED_ORIGINS = getEnvironmentVariable(
   'ALLOWED_ORIGINS',
   '*'
 ).split(',');
+export const TRIAL_PERIOD_DAYS = getEnvironmentVariableNumber(
+  'TRIAL_PERIOD_DAYS',
+  60
+);
+export const BCRYPT_ROUNDS = getEnvironmentVariableNumber('BCRYPT_ROUNDS', 12);
+export const RATE_LIMIT_WINDOW = getEnvironmentVariableNumber(
+  'RATE_LIMIT_WINDOW',
+  15
+);
+export const RATE_LIMIT_MAX = getEnvironmentVariableNumber(
+  'RATE_LIMIT_MAX_REQUESTS',
+  100
+);
+export const SMTP_HOST = getEnvironmentVariable(
+  'SMTP_HOST',
+  'smtp.example.com'
+);
+export const SMTP_PORT = getEnvironmentVariableNumber('SMTP_PORT', 587);
+export const SMTP_USER = getEnvironmentVariable('SMTP_USER', 'username');
+export const SMTP_PASSWORD = getEnvironmentVariable(
+  'SMTP_PASSWORD',
+  'password'
+);
+export const FROM_EMAIL = getEnvironmentVariable(
+  'FROM_EMAIL',
+  'noreply@lms.com'
+);
+export const FROM_NAME = getEnvironmentVariable(
+  'FROM_NAME',
+  'Tutera Learning Platform'
+);

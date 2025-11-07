@@ -43,6 +43,7 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "auto",
+    "esModuleInterop": true,
     "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"]
