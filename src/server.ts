@@ -31,9 +31,7 @@ const startServer = async (): Promise<void> => {
 
       // Force shutdown after 30 seconds
       setTimeout(() => {
-        logger.error(
-          'Could not close connections in time, forcefully shutting down'
-        );
+        logger.error('Could not close connections in time, forcefully shutting down');
         process.exit(1);
       }, 30000);
     };
@@ -42,13 +40,10 @@ const startServer = async (): Promise<void> => {
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
     // Handle unhandled promise rejections
-    process.on(
-      'unhandledRejection',
-      (reason: Error, promise: Promise<void>) => {
-        logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-        server.close(() => process.exit(1));
-      }
-    );
+    process.on('unhandledRejection', (reason: Error, promise: Promise<void>) => {
+      logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+      server.close(() => process.exit(1));
+    });
 
     // Handle uncaught exceptions
     process.on('uncaughtException', (error: Error) => {

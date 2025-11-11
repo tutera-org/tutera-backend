@@ -5,9 +5,9 @@ import { logger } from '../config/logger.ts';
 /**
  * Error handler middleware
  */
-export const errorHandler = (err: Error | AppError, req: Request, res: Response): void => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof AppError) {
-    logger.error(`AppError: ${err.message}`, {
+    void logger.error(`AppError: ${err.message}`, {
       statusCode: err.statusCode,
       path: req.path,
       method: req.method,
@@ -15,8 +15,9 @@ export const errorHandler = (err: Error | AppError, req: Request, res: Response)
     res.status(err.statusCode).json({
       success: false,
       message: err.message,
-      errors: err.errors,
+      ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
     });
+    next();
     return;
   }
 
@@ -29,12 +30,13 @@ export const errorHandler = (err: Error | AppError, req: Request, res: Response)
     success: false,
     message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
   });
+  next();
 };
 
 /**
  * Handle 404 errors
  */
-export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => {
-  const error = new AppError(`Route ${req.originalUrl} not found`, 404);
-  next(error);
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
+  res.status(404).json({ success: false, message: 'Not found. Invalid Url path' });
+  next();
 };
