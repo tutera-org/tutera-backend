@@ -14,12 +14,7 @@ export class ApiResponse {
     });
   }
 
-  static error(
-    res: Response,
-    message: string,
-    statusCode: number = 500,
-    errors?: unknown[]
-  ): void {
+  static error(res: Response, message: string, statusCode: number = 500, errors?: unknown[]): void {
     res.status(statusCode).json({
       success: false,
       message,

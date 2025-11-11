@@ -22,10 +22,7 @@ const TenantSchema = new Schema<ITenant>(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^[a-z0-9-]+$/,
-        'Slug can only contain lowercase letters, numbers, and hyphens',
-      ],
+      match: [/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'],
     },
     email: {
       type: String,

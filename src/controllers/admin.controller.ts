@@ -10,14 +10,10 @@ export class AdminController {
     this.adminService = new AdminService();
   }
 
-  getAllUsers = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  getAllUsers = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page, limit, role, isActive } = req.query;
-      const filter: any = {};
+      const filter: Record<string, unknown> = {};
       if (role) filter.role = role;
       if (isActive !== undefined) filter.isActive = isActive === 'true';
 
@@ -52,11 +48,7 @@ export class AdminController {
   //     }
   //   };
 
-  suspendUser = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  suspendUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { reason } = req.body;
       const user = await this.adminService.suspendUser(
@@ -70,33 +62,21 @@ export class AdminController {
     }
   };
 
-  activateUser = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  activateUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = await this.adminService.activateUser(
-        req.params.id as string,
-        req.user!.userId
-      );
+      const user = await this.adminService.activateUser(req.params.id as string, req.user!.userId);
       ApiResponse.success(res, user, 'User activated');
     } catch (error) {
       next(error);
     }
   };
 
-  getAllTenants = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  getAllTenants = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page, limit, type, subscriptionStatus } = req.query;
-      const filter: any = {};
+      const filter: Record<string, unknown> = {};
       if (type) filter.type = type;
-      if (subscriptionStatus)
-        filter['subscription.status'] = subscriptionStatus;
+      if (subscriptionStatus) filter['subscription.status'] = subscriptionStatus;
 
       const result = await this.adminService.getAllTenants(filter, {
         page: Number(page),
@@ -116,11 +96,7 @@ export class AdminController {
     }
   };
 
-  suspendTenant = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  suspendTenant = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { reason } = req.body;
       const tenant = await this.adminService.suspendTenant(
@@ -134,11 +110,7 @@ export class AdminController {
     }
   };
 
-  activateTenant = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  activateTenant = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenant = await this.adminService.activateTenant(
         req.params.id as string,
@@ -150,14 +122,10 @@ export class AdminController {
     }
   };
 
-  getAuditLogs = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  getAuditLogs = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page, limit, action, resource, userId, tenantId } = req.query;
-      const filter: any = {};
+      const filter: Record<string, unknown> = {};
       if (action) filter.action = action;
       if (resource) filter.resource = resource;
       if (userId) filter.userId = userId;

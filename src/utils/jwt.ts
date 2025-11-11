@@ -10,17 +10,13 @@ export const generateToken = (payload: JwtPayload): string => {
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  const refreshSecret: Secret =
-    process.env.JWT_REFRESH_SECRET || 'default_refresh_secret';
+  const refreshSecret: Secret = process.env.JWT_REFRESH_SECRET || 'default_refresh_secret';
   const options: SignOptions = { expiresIn: '15m' };
   return jwt.sign(payload, refreshSecret, options);
 };
 
 export const verifyToken = (token: string): JwtPayload => {
-  return jwt.verify(
-    token,
-    process.env.JWT_SECRET || 'default_secret'
-  ) as JwtPayload;
+  return jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as JwtPayload;
 };
 
 export const verifyRefreshToken = (token: string): JwtPayload => {

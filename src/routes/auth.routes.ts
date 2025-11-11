@@ -67,12 +67,7 @@ router.post(
   authController.registerLearner
 );
 
-router.post(
-  '/login',
-  authLimiter,
-  RequestValidator(loginSchema),
-  authController.login
-);
+router.post('/login', authLimiter, RequestValidator(loginSchema), authController.login);
 
 router.post('/refresh-token', authController.refreshToken);
 
@@ -86,7 +81,9 @@ export default router;
 // // import * as authController from '../controllers/auth.controller';
 // // import { protect } from '../middlewares/auth.middleware';
 // // import { validate } from '../middlewares/validation.middleware';
-// // import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '../validators';
+// // import {
+// registerSchema,
+// loginSchema, forgotPasswordSchema, resetPasswordSchema } from '../validators';
 // import * as authController from '../controllers/auth.controller';
 // import { authenticate } from '../middlewares/auth.middleware';
 // import { validate } from '../middlewares/validation.middleware';
@@ -283,7 +280,8 @@ export default router;
 //  *       400:
 //  *         description: Invalid or expired token
 //  */
-// router.put('/reset-password/:token', validate(resetPasswordSchema), authController.resetPassword);
+// router.put(
+// '/reset-password/:token', validate(resetPasswordSchema), authController.resetPassword);
 
 // /**
 //  * @swagger
@@ -316,6 +314,8 @@ export default router;
 //  *       401:
 //  *         description: Current password is incorrect
 //  */
-// router.put('/update-password', protect, validate(changePasswordSchema), authController.updatePassword);
+// router.put(
+// '/update-password', protect,
+// validate(changePasswordSchema), authController.updatePassword);
 
 // export default router;

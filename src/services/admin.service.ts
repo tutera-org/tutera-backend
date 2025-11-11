@@ -6,38 +6,31 @@ import { AppError } from '../utils/AppError.ts';
 import { SubscriptionStatus, UserRole } from '../interfaces/index.ts';
 import { createAuditLog } from '../utils/audit.ts';
 import { sendEmail } from '../config/email.ts';
-import { getPaginationParams, getSortParams } from '../utils/pagination.ts';
+import { paginate, type PaginationOptions } from '../utils/pagination.ts';
+import { buildMongoFilter } from '../utils/queryFilterBuilder.ts';
 
 export class AdminService {
   // User Management
-  async getAllUsers(filter: any = {}, options: any = {}) {
-    const {
-      page = 1,
-      limit = 20,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-    } = options;
-    const { skip, limit: limitNum } = getPaginationParams(page, limit);
-    const sort = getSortParams(sortBy, sortOrder);
+  async getAllUsers(filter: Record<string, unknown>, options: Partial<PaginationOptions>) {
+    const query = buildMongoFilter(filter);
 
-    const [users, total] = await Promise.all([
-      User.find(filter)
-        .select('-password')
-        .populate('tenantId', 'name type')
-        .sort(sort)
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-      User.countDocuments(filter),
-    ]);
-
+    const users = await paginate(
+      User,
+      options.page,
+      options.limit,
+      '-password',
+      'tenantId:name type',
+      query,
+      options.sortBy,
+      options.sortOrder
+    );
     return {
-      users,
+      users: users.data,
       pagination: {
-        page,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum),
+        page: users.page,
+        limit: users.limit,
+        total: users.total,
+        totalPages: users.totalPages,
       },
     };
   }
@@ -129,14 +122,15 @@ export class AdminService {
       user.tenantId
     );
 
-    await sendEmail(
-      user.email,
-      'Account Suspended',
-      `<h1>Account Suspended</h1>
-      <p>Your account has been suspended.</p>
-      <p>Reason: ${reason}</p>
-      <p>Please contact support for more information.</p>`
-    );
+    // TODO: send suspension email
+    // await sendEmail(
+    //   user.email,
+    //   'Account Suspended',
+    //   `<h1>Account Suspended</h1>
+    //   <p>Your account has been suspended.</p>
+    //   <p>Reason: ${reason}</p>
+    //   <p>Please contact support for more information.</p>`
+    // );
 
     return user;
   }
@@ -160,45 +154,49 @@ export class AdminService {
       user.tenantId
     );
 
-    await sendEmail(
-      user.email,
-      'Account Activated',
-      `<h1>Account Activated</h1>
-      <p>Your account has been reactivated.</p>
-      <p>You can now access all features.</p>`
-    );
+    // TODO: Send activation email
+    // await sendEmail(
+    //   user.email,
+    //   'Account Activated',
+    //   `<h1>Account Activated</h1>
+    //   <p>Your account has been reactivated.</p>
+    //   <p>You can now access all features.</p>`
+    // );
 
     return user;
   }
 
   // Tenant Management
-  async getAllTenants(filter: any = {}, options: any = {}) {
-    const {
-      page = 1,
-      limit = 20,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-    } = options;
-    const { skip, limit: limitNum } = getPaginationParams(page, limit);
-    const sort = getSortParams(sortBy, sortOrder);
+  async getAllTenants(filter: Record<string, unknown> = {}, options: Partial<PaginationOptions>) {
+    const query = buildMongoFilter(filter);
 
-    const [tenants, total] = await Promise.all([
-      Tenant.find(filter)
-        .populate('ownerId', 'firstName lastName email')
-        .sort(sort)
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-      Tenant.countDocuments(filter),
-    ]);
+    const tenants = await paginate(
+      Tenant,
+      options.page,
+      options.limit,
+      undefined,
+      'ownerId:firstName lastName email',
+      query,
+      options.sortBy,
+      options.sortOrder
+    );
+    // const [tenants, total] = await Promise.all([
+    //   Tenant.find(filter)
+    //     .populate('ownerId', 'firstName lastName email')
+    //     .sort(sort)
+    //     .skip(skip)
+    //     .limit(limitNum)
+    //     .lean(),
+    //   Tenant.countDocuments(filter),
+    // ]);
 
     return {
-      tenants,
+      tenants: tenants.data,
       pagination: {
-        page,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum),
+        page: tenants.page,
+        limit: tenants.limit,
+        total: tenants.total,
+        totalPages: tenants.totalPages,
       },
     };
   }
@@ -275,34 +273,41 @@ export class AdminService {
   }
 
   // Audit Logs
-  async getAuditLogs(filter: any = {}, options: any = {}) {
-    const {
-      page = 1,
-      limit = 50,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-    } = options;
-    const { skip, limit: limitNum } = getPaginationParams(page, limit);
-    const sort = getSortParams(sortBy, sortOrder);
+  async getAuditLogs(
+    filter: Record<string, unknown> = {},
+    options: Partial<PaginationOptions> = {}
+  ) {
+    const query = buildMongoFilter(filter);
 
-    const [logs, total] = await Promise.all([
-      AuditLog.find(filter)
-        .populate('userId', 'firstName lastName email role')
-        .populate('tenantId', 'name')
-        .sort(sort)
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-      AuditLog.countDocuments(filter),
-    ]);
+    const auditLogs = await paginate(
+      AuditLog,
+      options.page,
+      options.limit,
+      undefined,
+      ['userId:firstName lastName email role', 'tenantId:name'],
+      query,
+      options.sortBy,
+      options.sortOrder
+    );
+
+    // const [logs, total] = await Promise.all([
+    //   AuditLog.find(filter)
+    //     .populate('userId', 'firstName lastName email role')
+    //     .populate('tenantId', 'name')
+    //     .sort(sort)
+    //     .skip(skip)
+    //     .limit(limitNum)
+    //     .lean(),
+    //   AuditLog.countDocuments(filter),
+    // ]);
 
     return {
-      logs,
+      logs: auditLogs.data,
       pagination: {
-        page,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum),
+        page: auditLogs.page,
+        limit: auditLogs.limit,
+        total: auditLogs.total,
+        totalPages: auditLogs.totalPages,
       },
     };
   }

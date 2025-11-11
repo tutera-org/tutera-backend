@@ -7,7 +7,17 @@ const options: swaggerJsdoc.Options = {
       title: 'Tutera LMS API Documentation',
       version: '1.0.0',
       description:
-        'Comprehensive API documentation for Tutera Learning Management System \n\n## Quick Start\n1. Register an account using /auth/register/institution or /auth/register/learner\n2. Login using /auth/login to get JWT token\n3. Use the token in Authorization header: Bearer YOUR_TOKEN\n\n## Key Features\n- Multitenant architecture\n- 60-day free trial\n- Secure content delivery (no downloads)\n- Stripe payment integration\n- Role-based access control',
+        'Comprehensive API documentation for Tutera Learning Management System \n\n ' +
+        '## Quick Start\n' +
+        '1. Register an account using /auth/register/institution or /auth/register/learner\n' +
+        '2. Login using /auth/login to get JWT token\n' +
+        '3. Use the token in Authorization header: Bearer YOUR_TOKEN\n\n' +
+        '## Key Features\n' +
+        '- Multi tenant architecture\n' +
+        '- 60-day free trial\n' +
+        '- Secure content delivery (no downloads)\n' +
+        '- Transzakt payment integration\n' +
+        '- Role-based access control',
       contact: {
         name: 'Tutera Support',
         email: 'support@tutera.com',
@@ -77,13 +87,7 @@ const options: swaggerJsdoc.Options = {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: [
-                    'email',
-                    'password',
-                    'firstName',
-                    'lastName',
-                    'role',
-                  ],
+                  required: ['email', 'password', 'firstName', 'lastName', 'role'],
                   properties: {
                     email: {
                       type: 'string',
@@ -165,13 +169,7 @@ const options: swaggerJsdoc.Options = {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: [
-                    'email',
-                    'password',
-                    'firstName',
-                    'lastName',
-                    'tenantId',
-                  ],
+                  required: ['email', 'password', 'firstName', 'lastName', 'tenantId'],
                   properties: {
                     email: {
                       type: 'string',

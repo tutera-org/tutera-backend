@@ -2,46 +2,45 @@ import { User } from '../models/User.ts';
 import { Tenant } from '../models/Tenant.ts';
 import { UserRole, SubscriptionStatus } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
-import {
-  generateToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from '../utils/jwt.ts';
+import { generateToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.ts';
 import { addDays } from '../utils/date.ts';
 import { TRIAL_PERIOD_DAYS } from '../config/constants.ts';
-import { sendEmail } from '../config/email.ts';
+// import { sendEmail } from '../config/email.ts';
 import { createAuditLog } from '../utils/audit.ts';
+import type { ClientSession } from 'mongoose';
 
 export class AuthService {
   /**
    * Register Institution or Independent User with Trial
    */
-  async registerInstitutionOrIndependent(data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    role: UserRole;
-    phoneNumber?: string;
-    tenantName?: string;
-    tenantType?: 'institution' | 'independent_user';
-  }) {
+  async registerInstitutionOrIndependent(
+    data: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+      role: UserRole;
+      phoneNumber?: string;
+      tenantName?: string;
+      tenantType?: 'INSTITUTION' | 'INDEPENDENT_CREATOR';
+    },
+    session?: ClientSession
+  ) {
     // Check if email already exists
-    const existingUser = await User.findOne({ email: data.email });
+    const existingUser = await User.findOne({ email: data.email })
+      .session(session ?? null)
+      .exec();
     if (existingUser) {
       throw new AppError('Email already registered', 409);
     }
 
     // Validate role
-    if (
-      data.role !== UserRole.INSTITUTION &&
-      data.role !== UserRole.INDEPENDENT_CREATOR
-    ) {
+    if (data.role !== UserRole.INSTITUTION && data.role !== UserRole.INDEPENDENT_CREATOR) {
       throw new AppError('Invalid role for this registration', 400);
     }
 
     // Create user
-    const user = await User.create({
+    const user = new User({
       email: data.email,
       password: data.password,
       firstName: data.firstName,
@@ -51,18 +50,19 @@ export class AuthService {
       isActive: true,
     });
 
+    console.log('Creating user:', user);
+
     // Calculate trial end date (60 days)
     const trialEndDate = addDays(new Date(), TRIAL_PERIOD_DAYS);
 
     // Create tenant with trial subscription
-    const tenant = await Tenant.create({
-      name: data.tenantName || `${data.firstName} ${data.lastName}'s Space`,
+    const tenant = new Tenant({
+      name: data.tenantName || `${data.firstName}-${data.lastName}-Space`,
       ownerId: user._id,
+      email: data.email,
       type:
         data.tenantType ||
-        (data.role === UserRole.INSTITUTION
-          ? 'institution'
-          : 'independent_user'),
+        (data.role === UserRole.INSTITUTION ? 'INSTITUTION' : 'INDEPENDENT_CREATOR'),
       subscription: {
         status: SubscriptionStatus.TRIAL,
         startDate: new Date(),
@@ -75,7 +75,10 @@ export class AuthService {
 
     // Link user to tenant
     user.tenantId = tenant.id;
-    await user.save();
+    await user.save({ session: session ?? null });
+    await tenant.save({ session: session ?? null });
+
+    console.log('Created tenant:', tenant);
 
     // Create audit log
     await createAuditLog(user.id, 'USER_REGISTRATION', 'User', user.id, {
@@ -84,14 +87,14 @@ export class AuthService {
     });
 
     // Send welcome email
-    await sendEmail(
-      user.email,
-      'Welcome to Tutera LMS',
-      `<h1>Welcome ${user.firstName}!</h1>
-      <p>Your account has been created successfully.</p>
-      <p>You have ${TRIAL_PERIOD_DAYS} days of free trial.</p>
-      <p>Trial expires on: ${trialEndDate.toDateString()}</p>`
-    );
+    // await sendEmail(
+    //   user.email,
+    //   'Welcome to Tutera LMS',
+    //   `<h1>Welcome ${user.firstName}!</h1>
+    //   <p>Your account has been created successfully.</p>
+    //   <p>You have ${TRIAL_PERIOD_DAYS} days of free trial.</p>
+    //   <p>Trial expires on: ${trialEndDate.toDateString()}</p>`
+    // );
 
     // Generate tokens
     const token = generateToken({
@@ -158,10 +161,7 @@ export class AuthService {
       tenant.subscription.status === SubscriptionStatus.EXPIRED ||
       tenant.subscription.status === SubscriptionStatus.ACTIVE
     ) {
-      throw new AppError(
-        'This institution/provider is not currently accepting new students',
-        403
-      );
+      throw new AppError('This institution/provider is not currently accepting new students', 403);
     }
 
     // Create learner
@@ -182,14 +182,14 @@ export class AuthService {
       tenantId: data.tenantId,
     });
 
-    // Send welcome email
-    await sendEmail(
-      user.email,
-      'Welcome to Tutera LMS',
-      `<h1>Welcome ${user.firstName}!</h1>
-      <p>Your learner account has been created successfully under ${tenant.name}.</p>
-      <p>You can now browse and enroll in courses.</p>`
-    );
+    // TODO: Send welcome email
+    // await sendEmail(
+    //   user.email,
+    //   'Welcome to Tutera LMS',
+    //   `<h1>Welcome ${user.firstName}!</h1>
+    //   <p>Your learner account has been created successfully under ${tenant.name}.</p>
+    //   <p>You can now browse and enroll in courses.</p>`
+    // );
 
     // Generate tokens
     const token = generateToken({
@@ -225,12 +225,7 @@ export class AuthService {
   /**
    * User Login
    */
-  async login(
-    email: string,
-    password: string,
-    ipAddress?: string,
-    userAgent?: string
-  ) {
+  async login(email: string, password: string, ipAddress?: string, userAgent?: string) {
     // Find user with password field
     const user = await User.findOne({ email }).select('+password');
 
@@ -251,10 +246,7 @@ export class AuthService {
 
       // Check if tenant is active
       if (tenant && !tenant.isActive) {
-        throw new AppError(
-          'Your account has been suspended. Please contact support.',
-          403
-        );
+        throw new AppError('Your account has been suspended. Please contact support.', 403);
       }
     }
 
@@ -357,10 +349,7 @@ export class AuthService {
    * Get Current User Profile
    */
   // async getCurrentUser(userId: string) {
-  //   const user = await User.findById(userId)
-  //     .select('-password')
-  //     .populate('tenantId')
-  //     .lean();
+  //   const user = await User.findById(userId).select('-password').populate('tenantId').lean();
 
   //   if (!user) {
   //     throw new AppError('User not found', 404);
@@ -377,7 +366,8 @@ export class AuthService {
   //     });
 
   //     additionalData.enrollmentCount = enrollmentCount;
-  //   } else if (user.role === UserRole.INSTITUTION || user.role === UserRole.INDEPENDENT_CREATOR) {
+  //   } else if (
+  // user.role === UserRole.INSTITUTION || user.role === UserRole.INDEPENDENT_CREATOR) {
   //     const Course = (await import('../models/Course')).Course;
   //     const courseCount = await Course.countDocuments({
   //       creatorId: user._id,
@@ -396,11 +386,7 @@ export class AuthService {
   /**
    * Change Password
    */
-  async changePassword(
-    userId: string,
-    currentPassword: string,
-    newPassword: string
-  ) {
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await User.findById(userId).select('+password');
 
     if (!user) {
@@ -419,14 +405,14 @@ export class AuthService {
 
     await createAuditLog(user.id, 'PASSWORD_CHANGED', 'User', user.id, {});
 
-    // Send notification email
-    await sendEmail(
-      user.email,
-      'Password Changed',
-      `<h1>Password Changed Successfully</h1>
-      <p>Your password has been changed.</p>
-      <p>If you did not make this change, please contact support immediately.</p>`
-    );
+    //TODO: Send notification email
+    // await sendEmail(
+    //   user.email,
+    //   'Password Changed',
+    //   `<h1>Password Changed Successfully</h1>
+    //   <p>Your password has been changed.</p>
+    //   <p>If you did not make this change, please contact support immediately.</p>`
+    // );
 
     return { message: 'Password changed successfully' };
   }
@@ -442,31 +428,25 @@ export class AuthService {
       return { message: 'If the email exists, a reset link will be sent' };
     }
 
-    // Generate reset token (in production, store in database with expiration)
-    const resetToken = generateToken({
+    //TODO: Generate reset token (in production, store in database with expiration)
+    generateToken({
       userId: user.id.toString(),
       email: user.email,
       role: user.role,
     });
 
-    await createAuditLog(
-      user.id,
-      'PASSWORD_RESET_REQUESTED',
-      'User',
-      user.id,
-      {}
-    );
+    await createAuditLog(user.id, 'PASSWORD_RESET_REQUESTED', 'User', user.id, {});
 
-    // Send reset email
-    await sendEmail(
-      user.email,
-      'Password Reset Request',
-      `<h1>Password Reset</h1>
-      <p>Click the link below to reset your password:</p>
-      <a href="${process.env.FRONTEND_URL}/reset-password?token=${resetToken}">Reset Password</a>
-      <p>This link will expire in 1 hour.</p>
-      <p>If you didn't request this, please ignore this email.</p>`
-    );
+    // TODO: Send reset email
+    // await sendEmail(
+    //   user.email,
+    //   'Password Reset Request',
+    //   `<h1>Password Reset</h1>
+    //   <p>Click the link below to reset your password:</p>
+    //   <a href="${process.env.FRONTEND_URL}/reset-password?token=${resetToken}">Reset Password</a>
+    //   <p>This link will expire in 1 hour.</p>
+    //   <p>If you didn't request this, please ignore this email.</p>`
+    // );
 
     return { message: 'If the email exists, a reset link will be sent' };
   }
@@ -492,19 +472,12 @@ export class AuthService {
     // Update allowed fields
     if (updateData.firstName) user.firstName = updateData.firstName;
     if (updateData.lastName) user.lastName = updateData.lastName;
-    if (updateData.phoneNumber !== undefined)
-      user.phone = updateData.phoneNumber;
+    if (updateData.phoneNumber !== undefined) user.phone = updateData.phoneNumber;
     if (updateData.avatar) user.avatar = updateData.avatar;
 
     await user.save();
 
-    await createAuditLog(
-      user.id,
-      'PROFILE_UPDATED',
-      'User',
-      user.id,
-      updateData
-    );
+    await createAuditLog(user.id, 'PROFILE_UPDATED', 'User', user.id, updateData);
 
     return {
       id: user.id,

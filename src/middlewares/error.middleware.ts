@@ -5,12 +5,7 @@ import { logger } from '../config/logger.ts';
 /**
  * Error handler middleware
  */
-export const errorHandler = (
-  err: Error | AppError,
-  req: Request,
-  res: Response
-): void => {
-  // eslint-disable-next-line prettier/prettier
+export const errorHandler = (err: Error | AppError, req: Request, res: Response): void => {
   if (err instanceof AppError) {
     logger.error(`AppError: ${err.message}`, {
       statusCode: err.statusCode,
@@ -32,21 +27,14 @@ export const errorHandler = (
   });
   res.status(500).json({
     success: false,
-    message:
-      process.env.NODE_ENV === 'production'
-        ? 'Internal Server Error'
-        : err.message,
+    message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
   });
 };
 
 /**
  * Handle 404 errors
  */
-export const notFoundHandler = (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): void => {
+export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => {
   const error = new AppError(`Route ${req.originalUrl} not found`, 404);
   next(error);
 };

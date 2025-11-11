@@ -42,10 +42,12 @@ const UserSchema = new Schema<IUser, IUserModel>(
     },
     avatar: {
       type: String,
+      default: '',
     },
     phone: {
       type: String,
       trim: true,
+      default: '',
     },
     isActive: {
       type: Boolean,
@@ -79,9 +81,7 @@ const UserSchema = new Schema<IUser, IUserModel>(
 UserSchema.index({ tenantId: 1, role: 1 });
 
 // Compare password method
-UserSchema.methods.comparePassword = async function (
-  enteredPassword: string
-): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
   return bcrypt.compare(enteredPassword, this.password);
 };
 

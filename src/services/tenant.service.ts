@@ -16,11 +16,7 @@ export class TenantService {
     return tenant;
   }
 
-  async getTenantsByFilter(
-    filter: Record<string, unknown>,
-    page: number = 1,
-    limit: number = 20
-  ) {
+  async getTenantsByFilter(filter: Record<string, unknown>, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const [tenants, total] = await Promise.all([

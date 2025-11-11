@@ -2,15 +2,14 @@ import mongoose from 'mongoose';
 import { logger } from './logger.ts';
 import { MONGO_URI } from '../config/constants.ts';
 
-export const connectDatabase = async (): Promise<void> => {
+export async function connectDatabase(): Promise<void> {
   try {
     const mongoUri = MONGO_URI;
+    mongoose.Promise = global.Promise;
     console.log('Connecting to MongoDB at', mongoUri);
-    await mongoose.connect(mongoUri, {
+    mongoose.connect(mongoUri, {
       maxPoolSize: 10,
       minPoolSize: 5,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
     });
 
     logger.info('MongoDB connected successfully');
@@ -32,4 +31,4 @@ export const connectDatabase = async (): Promise<void> => {
     logger.error('Database connection failed:', error);
     process.exit(1);
   }
-};
+}

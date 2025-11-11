@@ -10,15 +10,9 @@ export class TenantController {
     this.tenantService = new TenantService();
   }
 
-  getTenantById = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  getTenantById = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const tenant = await this.tenantService.getTenantById(
-        req.params.id as string
-      );
+      const tenant = await this.tenantService.getTenantById(req.params.id as string);
       ApiResponse.success(res, tenant, 'Tenant retrieved successfully');
     } catch (error) {
       next(error);
@@ -49,11 +43,7 @@ export class TenantController {
   //     }
   //   };
 
-  updateTenant = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  updateTenant = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenant = await this.tenantService.updateTenant(
         req.params.id as string,

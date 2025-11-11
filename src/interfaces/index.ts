@@ -12,10 +12,10 @@ import { Document, Types, Model } from 'mongoose';
 // export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
+  SUPER_ADMIN = 'SUPER_ADMIN',
   INSTITUTION = 'INSTITUTION',
   INDEPENDENT_CREATOR = 'INDEPENDENT_CREATOR',
-  STUDENT = 'student',
+  STUDENT = 'STUDENT',
 }
 
 // Subscription Plans
@@ -34,8 +34,8 @@ export enum SubscriptionStatus {
 }
 
 export enum TenantType {
-  INSTITUTION = 'institution',
-  INDEPENDENT_CREATOR = 'independent_creator',
+  INSTITUTION = 'INSTITUTION',
+  INDEPENDENT_CREATOR = 'INDEPENDENT_CREATOR',
 }
 
 export enum PaymentStatus {

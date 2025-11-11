@@ -1,82 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trial Expiring Soon</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-        }
-        .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-        }
-        .button {
-            display: inline-block;
-            background: #3B82F6;
-            color: white;
-            padding: 12px 30px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .warning {
-            background: #FEF3C7;
-            border-left: 4px solid #F59E0B;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #6b7280;
-            font-size: 12px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+      }
+      .content {
+        background: #f9fafb;
+        padding: 30px;
+        border: 1px solid #e5e7eb;
+      }
+      .button {
+        display: inline-block;
+        background: #3b82f6;
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .warning {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #6b7280;
+        font-size: 12px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <h1>⏰ Your Trial is Expiring Soon</h1>
+      <h1>⏰ Your Trial is Expiring Soon</h1>
     </div>
     <div class="content">
-        <h2>Hello {{firstName}}!</h2>
-        
-        <div class="warning">
-            <strong>Important Notice:</strong> Your free trial will expire in {{daysRemaining}} days on {{expiryDate}}.
-        </div>
+      <h2>Hello {{firstName}}!</h2>
 
-        <p>We hope you've been enjoying Tutera LMS! Your trial period is coming to an end, but you can continue using all features by subscribing to one of our plans.</p>
+      <div class="warning">
+        <strong>Important Notice:</strong> Your free trial will expire in
+        {{daysRemaining}} days on {{expiryDate}}.
+      </div>
 
-        <h3>Choose Your Plan:</h3>
-        <ul>
-            <li><strong>Monthly:</strong> $29.99/month</li>
-            <li><strong>Quarterly:</strong> $79.99 (Save 11%)</li>
-            <li><strong>Semi-Annual:</strong> $149.99 (Save 17%)</li>
-            <li><strong>Annual:</strong> $279.99 (Save 22%)</li>
-        </ul>
+      <p>
+        We hope you've been enjoying Tutera LMS! Your trial period is coming to
+        an end, but you can continue using all features by subscribing to one of
+        our plans.
+      </p>
 
-        <a href="{{subscribeUrl}}" class="button">Subscribe Now</a>
+      <h3>Choose Your Plan:</h3>
+      <ul>
+        <li><strong>Monthly:</strong> $29.99/month</li>
+        <li><strong>Quarterly:</strong> $79.99 (Save 11%)</li>
+        <li><strong>Semi-Annual:</strong> $149.99 (Save 17%)</li>
+        <li><strong>Annual:</strong> $279.99 (Save 22%)</li>
+      </ul>
 
-        <p>After your trial expires, your account will be suspended until you choose a subscription plan. Don't worry - your data will be safe and ready when you return!</p>
+      <a href="{{subscribeUrl}}" class="button">Subscribe Now</a>
 
-        <p>Questions? We're here to help at support@tutera.com</p>
+      <p>
+        After your trial expires, your account will be suspended until you
+        choose a subscription plan. Don't worry - your data will be safe and
+        ready when you return!
+      </p>
+
+      <p>Questions? We're here to help at support@tutera.com</p>
     </div>
     <div class="footer">
-        <p>&copy; 2025 Tutera LMS. All rights reserved.</p>
+      <p>&copy; 2025 Tutera LMS. All rights reserved.</p>
     </div>
-</body>
+  </body>
 </html>

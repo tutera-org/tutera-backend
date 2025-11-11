@@ -30,10 +30,7 @@ export const authenticate = async (
       throw new AppError('Not authorized to access this route', 401);
     }
     // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'default_secret'
-    ) as JwtPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as JwtPayload;
 
     // Get user from token
     const user = await User.findById(decoded.userId).select('-password');
@@ -86,8 +83,7 @@ export const checkTenantOwnership = async (
     if (req.user.role === UserRole.SUPER_ADMIN) {
       return next();
     }
-    const tenantId =
-      req.params.tenantId || req.body.tenantId || req.user.tenantId;
+    const tenantId = req.params.tenantId || req.body.tenantId || req.user.tenantId;
 
     if (!tenantId) {
       throw new AppError('Tenant ID is required', 400);
