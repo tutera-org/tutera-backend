@@ -4,10 +4,7 @@ import type { AuthRequest, JwtPayload } from '../interfaces/index.ts';
 import { UserRole } from '../interfaces/index.ts';
 import { User } from '../models/User.ts';
 import { AppError } from '../utils/AppError.ts';
-
-// export interface AuthRequest extends Request {
-//   user?: JwtPayload;
-// }
+import { JWT_SECRET } from '../config/constants.ts';
 
 /**
  * Protect routes - Verify JWT token
@@ -19,7 +16,7 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     // Check for token in headers
-    const token = req.headers.authorization?.replace('Bearer', '');
+    const token = req.cookies.token || req.header('Authorization')?.replace('Bearer ', '');
 
     // Check for token in cookies
     // else if (req.cookies.token) {
@@ -30,7 +27,7 @@ export const authenticate = async (
       throw new AppError('Not authorized to access this route', 401);
     }
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as JwtPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
     // Get user from token
     const user = await User.findById(decoded.userId).select('-password');
@@ -42,7 +39,7 @@ export const authenticate = async (
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      next(new AppError('Invalid token', 401));
+      next(new AppError('Invalid token', 403));
     } else {
       next(error);
     }
@@ -61,7 +58,6 @@ export const authorize = (...roles: UserRole[]) => {
     if (!roles.includes(req.user.role)) {
       throw new AppError('Insufficient permissions', 403);
     }
-
     next();
   };
 };
@@ -86,12 +82,12 @@ export const checkTenantOwnership = async (
     const tenantId = req.params.tenantId || req.body.tenantId || req.user.tenantId;
 
     if (!tenantId) {
-      throw new AppError('Tenant ID is required', 400);
+      throw new AppError('Tenant Id is required', 400);
     }
 
     // Check if user belongs to the tenant
     if (req.user.tenantId !== tenantId) {
-      throw new AppError('Not authorized to access this tenant', 403);
+      throw new AppError('Not authorized to access this domain', 403);
     }
 
     next();
