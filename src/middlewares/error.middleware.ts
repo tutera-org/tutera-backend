@@ -12,7 +12,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
       path: req.path,
       method: req.method,
     });
-    res.status(500).json({
+    res.status(err.statusCode).json({
       success: false,
       message: err.message,
       ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
@@ -21,14 +21,12 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     return;
   }
 
-  // Known AppError — log and respond
-  logger.error(`AppError: ${err.message}`, {
-    statusCode: err.statusCode,
+  logger.error(`Unhandled Error: ${err.message}`, {
+    stack: err.stack,
     path: req.path,
     method: req.method,
-    errors: err.errors,
   });
-  res.status(err.statusCode).json({
+  res.status(500).json({
     success: false,
     message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
   });

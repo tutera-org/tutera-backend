@@ -12,7 +12,8 @@ export class TenantController {
 
   getTenantById = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const tenant = await this.tenantService.getTenantById(req.params.id as string);
+      const userId = req.user?.userId || req.params.id;
+      const tenant = await this.tenantService.getTenantById(userId!);
       ApiResponse.success(res, tenant, 'Tenant retrieved successfully');
     } catch (error) {
       next(error);

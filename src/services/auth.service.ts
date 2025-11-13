@@ -64,7 +64,7 @@ export class AuthService {
 
     // Create tenant with trial subscription
     const tenant = new Tenant({
-      name: data.tenantName || `${data.firstName}-${data.lastName}-Space`,
+      name: data.tenantName || `${data.firstName} ${data.lastName}'s Space`,
       ownerId: user._id,
       email: data.email,
       website: data.tenantName?.replace(/\s+/g, '').toLocaleLowerCase(),
@@ -139,6 +139,7 @@ export class AuthService {
         name: tenant.name,
         type: tenant.type,
         subscription: tenant.subscription,
+        website: tenant.website,
       },
       tokens: {
         accessToken: token,
@@ -171,7 +172,7 @@ export class AuthService {
     // Check if tenant subscription is active
     if (
       tenant.subscription.status === SubscriptionStatus.EXPIRED ||
-      tenant.subscription.status === SubscriptionStatus.ACTIVE
+      tenant.subscription.status !== SubscriptionStatus.ACTIVE
     ) {
       throw new AppError('This institution/provider is not currently accepting new students', 403);
     }
@@ -244,6 +245,25 @@ export class AuthService {
     };
   }
 
+  updateUserDetails(data: {
+    userId: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    avatar?: string;
+  }) {
+    return User.findByIdAndUpdate(
+      data.userId,
+      {
+        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.lastName && { lastName: data.lastName }),
+        ...(data.phoneNumber && { phone: data.phoneNumber }),
+        ...(data.avatar && { avatar: data.avatar }),
+      },
+      { new: true }
+    ).select('-password');
+  }
+
   /**
    * User Login
    */
@@ -312,6 +332,7 @@ export class AuthService {
       tenant: tenant
         ? {
             id: tenant._id,
+            website: tenant?.website ? tenant.website[0] : null,
             name: tenant.name,
             type: tenant.type,
             logo: tenant.logo,

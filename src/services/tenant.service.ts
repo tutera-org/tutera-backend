@@ -2,12 +2,11 @@ import { Types } from 'mongoose';
 import { Tenant } from '../models/Tenant.ts';
 import { AppError } from '../utils/AppError.ts';
 import { createAuditLog } from '../utils/audit.ts';
+import { User } from '../models/User.ts';
 
 export class TenantService {
-  async getTenantById(tenantId: string) {
-    const tenant = await Tenant.findById(tenantId)
-      .populate('ownerId', 'firstName lastName email')
-      .lean();
+  async getTenantById(userId: string) {
+    const tenant = await User.findById(userId).populate('tenantId').lean();
 
     if (!tenant) {
       throw new AppError('Tenant not found', 404);
@@ -21,7 +20,7 @@ export class TenantService {
 
     const [tenants, total] = await Promise.all([
       Tenant.find(filter)
-        .populate('ownerId', 'firstName lastName email')
+        .populate('userId', 'firstName lastName email')
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })

@@ -159,6 +159,69 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+      '/auth/users/update': {
+        patch: {
+          tags: ['Authentication'],
+          summary: 'Update User Details',
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    firstName: {
+                      type: 'string',
+                      example: 'John',
+                    },
+                    lastName: {
+                      type: 'string',
+                      example: 'Doe',
+                    },
+                    phoneNumber: {
+                      type: 'string',
+                      example: '08034567890',
+                    },
+                    avatar: {
+                      type: 'string',
+                      format: 'url',
+                      example: 'https://example.com/avatar.jpg',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'User details updated successfully',
+              content: {
+                'application/json': {
+                  example: {
+                    success: true,
+                    message: 'User details updated successfully',
+                    data: {
+                      id: '507f1f77bcf86cd799439011',
+                      email: 'exampl@emil.com',
+                      firstName: 'John',
+                      lastName: 'Doe',
+                      phoneNumber: '+2348034567890',
+                      avatar: 'https://example.com/avatar.jpg',
+                    },
+                  },
+                },
+              },
+            },
+            '400': {
+              description: 'Validation error',
+            },
+            '401': {
+              description: 'Unauthorized',
+            },
+          },
+        },
+      },
       '/auth/register/learner': {
         post: {
           tags: ['Authentication'],

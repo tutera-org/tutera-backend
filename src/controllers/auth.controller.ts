@@ -51,6 +51,22 @@ export class AuthController {
 
   /**
    * @swagger
+   * /auth/users/update:
+   *   patch:
+   *     summary: Update user details
+   *     tags: [Authentication]
+   */
+  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await this.authService.updateUserDetails(req.body);
+      ApiResponse.success(res, result, 'User details updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @swagger
    * /auth/login:
    *   post:
    *     summary: User login
