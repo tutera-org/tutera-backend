@@ -1,4 +1,5 @@
 import { connectDatabase } from './config/database.ts';
+import { scheduleEmails } from './services/email.service.ts';
 import { logger } from './config/logger.ts';
 import app from './app.ts';
 import { PORT } from './config/constants.ts';
@@ -7,6 +8,7 @@ const startServer = async (): Promise<void> => {
   try {
     // Connect to database
     await connectDatabase();
+    scheduleEmails();
 
     // Start server
     const server = app.listen(PORT, () => {
@@ -14,9 +16,9 @@ const startServer = async (): Promise<void> => {
         ╔══════════════════════════════════════════════════════════════════╗
         ║   Tutera LMS Server Started Successfully                         ║
         ╠══════════════════════════════════════════════════════════════════╣
-        ║   Environment: ${process.env.NODE_ENV?.toUpperCase().padEnd(28)} ║
-        ║   Port: ${PORT.toString().padEnd(34)}                            ║
-        ║   API Docs: http://localhost:${PORT}/api/v1/docs                 ║
+        ║   Environment: ${process.env.NODE_ENV?.toUpperCase().padEnd(28)}                      ║
+        ║   Port: ${PORT.toString().padEnd(34)}                       ║
+        ║   API Docs: http://localhost:${PORT}/api/v1/docs                    ║
         ╚══════════════════════════════════════════════════════════════════╝
       `);
     });

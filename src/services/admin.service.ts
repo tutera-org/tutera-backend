@@ -5,7 +5,7 @@ import { AuditLog } from '../models/AuditLog.ts';
 import { AppError } from '../utils/AppError.ts';
 import { SubscriptionStatus, UserRole } from '../interfaces/index.ts';
 import { createAuditLog } from '../utils/audit.ts';
-import { sendEmail } from '../config/email.ts';
+import { handleEmailEvent } from '../config/email/emailEvent.ts';
 import { paginate, type PaginationOptions } from '../utils/pagination.ts';
 import { buildMongoFilter } from '../utils/queryFilterBuilder.ts';
 
@@ -226,14 +226,14 @@ export class AdminService {
 
     const owner = await User.findById(tenant.ownerId);
     if (owner) {
-      await sendEmail(
-        owner.email,
-        'Tenant Suspended',
-        `<h1>Your Tenant Account Has Been Suspended</h1>
-        <p>Reason: ${reason}</p>
-        <p>Violation count: ${tenant.violations.count}</p>
-        <p>Please contact support immediately.</p>`
-      );
+      await handleEmailEvent('admin.alert', {
+        to: 'admin@tutera.com',
+        data: {
+          userEmail: 'suspicious@domain.com',
+          ipAddress: '192.168.1.10',
+          time: new Date().toISOString(),
+        },
+      });
     }
 
     return tenant;
@@ -261,12 +261,17 @@ export class AdminService {
 
     const owner = await User.findById(tenant.ownerId);
     if (owner) {
-      await sendEmail(
-        owner.email,
-        'Tenant Activated',
-        `<h1>Your Tenant Account Has Been Reactivated</h1>
-        <p>Your account is now active again.</p>`
-      );
+      await handleEmailEvent('user.subscriptionActivation', {
+        to: tenant.email,
+        data: {
+          firstName: tenant.name,
+          subscriptionType: 'Annual',
+          amount: 279.99,
+          startDate: '2025-11-13',
+          nextBillingDate: '2026-11-13',
+          autoRenew: 'Yes',
+        },
+      });
     }
 
     return tenant;

@@ -1,26 +1,68 @@
 import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import path from 'path';
+import fs from 'fs';
 
+// Ensure log directory exists
+const logDir = path.resolve('logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+// 🧩 Define log level based on environment
+const level: string = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
+
+// 🧩 Create custom log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
-  winston.format.json()
+
+  winston.format.printf(({ timestamp, level, message, stack }) => {
+    return stack
+      ? `${timestamp} [${level}] ${message}\n${stack}`
+      : `${timestamp} [${level}] ${message}`;
+  })
 );
 
+// 🧩 Create the Winston logger
 export const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level,
   format: logFormat,
   defaultMeta: { service: 'tutera-lms' },
   transports: [
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' }),
+    // Separate error and combined logs using daily rotation
+    new DailyRotateFile({
+      dirname: logDir,
+      filename: 'error-%DATE%.log',
+      level: 'error',
+      datePattern: 'YYYY-MM-DD',
+      zippedArchive: true,
+      maxFiles: '14d',
+    }),
+    new DailyRotateFile({
+      dirname: logDir,
+      filename: 'combined-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      zippedArchive: true,
+      maxFiles: '14d',
+    }),
   ],
 });
 
+// 🧩 Add colorized console output in non-production
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
-      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+      format: winston.format.combine(
+        winston.format.colorize({ all: true }),
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.printf(({ timestamp, level, message, stack }) => {
+          return stack
+            ? `${timestamp} [${level}] ${message}\n${stack}`
+            : `${timestamp} [${level}] ${message}`;
+        })
+      ),
     })
   );
 }

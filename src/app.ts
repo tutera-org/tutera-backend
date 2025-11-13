@@ -11,6 +11,7 @@ import { apiLimiter } from './middlewares/rateLimit.middleware.ts';
 //import { sanitizeData } from './middlewares/sanitize.middleware.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
 import { ALLOWED_ORIGINS, PORT } from './config/constants.ts';
+import emailRoutes from './routes/email.routes.ts';
 import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
 import adminRoutes from './routes/admin.routes.ts';
@@ -106,6 +107,7 @@ app.get('/health', (_req, res) => {
   });
 });
 // API routes
+app.use('/api/v1/email', emailRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
@@ -115,6 +117,14 @@ function startServer() {
     console.log(`server running on http://localhost:${PORT} `);
   });
 }
+
+// Catch-all route (for undefined endpoints)
+app.all('/{*any}', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Cannot find ${req.originalUrl} n this server`,
+  });
+});
 
 // 404 handler
 app.use(notFoundHandler);

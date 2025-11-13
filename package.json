@@ -35,6 +35,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
+    "@types/handlebars": "^4.0.40",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -49,6 +50,7 @@
     "typescript-eslint": "^8.46.3"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
@@ -67,15 +69,19 @@
     "express": "^5.1.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
+    "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3",
     "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.10",
     "swagger-jsdoc": "^6.2.8",
+    "nodemailer-express-handlebars": "^7.0.0",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^4.1.12"
   }
 }

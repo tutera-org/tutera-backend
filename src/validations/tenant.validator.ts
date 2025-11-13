@@ -32,8 +32,6 @@ export const updateTenantSchema = z.object({
 });
 
 export const subscribeSchema = z.object({
-  body: z.object({
-    subscriptionType: z.nativeEnum(SubscriptionPlan),
-    paymentMethodId: z.string().min(1, 'Payment method is required'),
-  }),
+  subscriptionType: z.enum(SubscriptionPlan),
+  paymentMethodId: z.string().min(1, 'Payment method is required'),
 });

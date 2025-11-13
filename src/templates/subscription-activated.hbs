@@ -1,0 +1,36 @@
+{{#> layout
+  title="Subscription Activated"
+  headerGradientStart="#10B981"
+  headerGradientEnd="#3B82F6"
+  headerText="🎉 Subscription Activated!"
+  footerNote="Thank you for choosing Tutera LMS."
+}}
+  <h2>Hello {{firstName}}!</h2>
+  <p>Your subscription has been successfully activated. Thank you for choosing Tutera LMS!</p>
+  
+  <div class="pricing-box">
+    <h3>Subscription Details</h3>
+    <ul>
+      <li><strong>Plan:</strong> {{subscriptionType}}</li>
+      <li><strong>Amount:</strong> ${{amount}}</li>
+      <li><strong>Start Date:</strong> {{startDate}}</li>
+      <li><strong>Next Billing Date:</strong> {{nextBillingDate}}</li>
+      <li><strong>Auto-Renewal:</strong> {{autoRenew}}</li>
+    </ul>
+  </div>
+
+  <h3>What's Included:</h3>
+  <ul>
+    <li>✅ Unlimited course creation</li>
+    <li>✅ Video and PDF upload</li>
+    <li>✅ Student enrollment management</li>
+    <li>✅ Progress tracking</li>
+    <li>✅ Custom branding</li>
+    <li>✅ Analytics and reports</li>
+    <li>✅ Priority support</li>
+  </ul>
+
+  <p>Your payment has been processed successfully. A receipt has been sent to your email.</p>
+
+  <p><strong>Need help?</strong> Contact us at support@tutera.com</p>
+{{/layout}}

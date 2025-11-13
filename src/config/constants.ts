@@ -36,9 +36,11 @@ export const TRIAL_PERIOD_DAYS = getEnvironmentVariableNumber('TRIAL_PERIOD_DAYS
 export const BCRYPT_ROUNDS = getEnvironmentVariableNumber('BCRYPT_ROUNDS', 12);
 export const RATE_LIMIT_WINDOW = getEnvironmentVariableNumber('RATE_LIMIT_WINDOW', 15);
 export const RATE_LIMIT_MAX = getEnvironmentVariableNumber('RATE_LIMIT_MAX_REQUESTS', 100);
-export const SMTP_HOST = getEnvironmentVariable('SMTP_HOST', 'smtp.example.com');
-export const SMTP_PORT = getEnvironmentVariableNumber('SMTP_PORT', 587);
+export const SMTP_HOST = getEnvironmentVariable('SMTP_HOST', 'smtp.gmail.com');
+export const SMTP_PORT = getEnvironmentVariableNumber('SMTP_PORT', 465);
 export const SMTP_USER = getEnvironmentVariable('SMTP_USER', 'username');
 export const SMTP_PASSWORD = getEnvironmentVariable('SMTP_PASSWORD', 'password');
 export const FROM_EMAIL = getEnvironmentVariable('FROM_EMAIL', 'noreply@lms.com');
 export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Platform');
+
+export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://localhost:3000');

@@ -1,0 +1,16 @@
+{{#> layout
+  title="Welcome to Tutera LMS"
+  headerGradientStart="#3B82F6"
+  headerGradientEnd="#10B981"
+  headerText="Welcome to Tutera LMS!"
+  footerNote="You're receiving this email because you created an account on Tutera."
+}}
+  <h2>Hello {{firstName}}!</h2>
+  <p>Thank you for joining Tutera LMS. Your account has been created.</p>
+  <ul>
+    <li><strong>Email:</strong> {{email}}</li>
+    <li><strong>Role:</strong> {{role}}</li>
+    <li><strong>Trial Period:</strong> {{trialDays}} days</li>
+  </ul>
+  <a href="{{dashboardUrl}}" class="button">Go to Dashboard</a>
+{{/layout}}

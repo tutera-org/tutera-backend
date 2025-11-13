@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { UserRole } from '../interfaces/index.ts';
 
 export const registerSchema = z.object({
-  email: z.email('Invalid email address'),
+  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address'),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -18,17 +18,23 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address'),
+  password: z
+    .string()
+    .min(8, 'Password is required')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
+      'Password must be at least 8 characters'
+    ),
 });
 
 export const learnerRegisterSchema = z.object({
-  email: z.email('Invalid email address'),
+  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address'),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(
-      /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
       'Password must contain uppercase, lowercase, number and special character'
     ),
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
