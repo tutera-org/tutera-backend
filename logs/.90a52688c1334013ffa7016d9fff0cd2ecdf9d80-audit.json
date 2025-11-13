@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/sylva/Desktop/tutera-backend/logs/.90a52688c1334013ffa7016d9fff0cd2ecdf9d80-audit.json",
+    "files": [
+        {
+            "date": 1762937097234,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-12.log",
+            "hash": "8a6d48f89714ec734b8bdcff964af37f41ed10e768509f1fbf6dd2a32b57f7b0"
+        },
+        {
+            "date": 1762991259955,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-13.log",
+            "hash": "e8292b1d4d7a653db5f5df5e969ede8318f69b6c748e6edfcf03211fa8e4b21d"
+        }
+    ],
+    "hashType": "sha256"
+}

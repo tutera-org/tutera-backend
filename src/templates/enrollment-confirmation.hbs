@@ -1,0 +1,31 @@
+{{#> layout
+  title="Enrollment Confirmation"
+  headerGradientStart="#8B5CF6"
+  headerGradientEnd="#3B82F6"
+  headerText="🎓 Enrollment Successful!"
+  footerNote="Receipt #{{receiptId}}"
+}}
+  <h2>Congratulations {{firstName}}!</h2>
+  <p>You have successfully enrolled in the course. Start learning now!</p>
+  
+  <div class="course-box">
+    <h3>{{courseTitle}}</h3>
+    <p><strong>Instructor:</strong> {{instructorName}}</p>
+    <p><strong>Duration:</strong> {{courseDuration}}</p>
+    <p><strong>Level:</strong> {{courseLevel}}</p>
+    <p><strong>Amount Paid:</strong> ${{amount}}</p>
+  </div>
+
+  <a href="{{courseUrl}}" class="button">Start Learning</a>
+
+  <h3>What's Next:</h3>
+  <ol>
+    <li>Access your course dashboard</li>
+    <li>Watch video lectures</li>
+    <li>Download course materials (PDFs)</li>
+    <li>Track your progress</li>
+    <li>Leave a review after completion</li>
+  </ol>
+
+  <p><strong>Need Help?</strong> Contact the instructor or our support team.</p>
+{{/layout}}

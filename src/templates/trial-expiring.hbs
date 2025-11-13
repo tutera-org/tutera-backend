@@ -1,0 +1,29 @@
+{{#> layout
+  title="Trial Expiring Soon"
+  headerGradientStart="#F59E0B"
+  headerGradientEnd="#EF4444"
+  headerText="⏰ Your Trial is Expiring Soon"
+  footerNote="You're receiving this reminder because your Tutera LMS trial is ending soon."
+}}
+  <h2>Hello {{firstName}}!</h2>
+
+  <div class="warning">
+    <strong>Important Notice:</strong> Your free trial will expire in {{daysRemaining}} days on {{expiryDate}}.
+  </div>
+
+  <p>We hope you've been enjoying Tutera LMS! Your trial period is coming to an end, but you can continue using all features by subscribing to one of our plans.</p>
+
+  <h3>Choose Your Plan:</h3>
+  <ul>
+    <li><strong>Monthly:</strong> $29.99/month</li>
+    <li><strong>Quarterly:</strong> $79.99 (Save 11%)</li>
+    <li><strong>Semi-Annual:</strong> $149.99 (Save 17%)</li>
+    <li><strong>Annual:</strong> $279.99 (Save 22%)</li>
+  </ul>
+
+  <a href="{{subscribeUrl}}" class="button">Subscribe Now</a>
+
+  <p>After your trial expires, your account will be suspended until you choose a subscription plan. Don't worry — your data will be safe and ready when you return!</p>
+
+  <p>Questions? We're here to help at support@tutera.com</p>
+{{/layout}}
