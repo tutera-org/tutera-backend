@@ -1,29 +1,27 @@
 import jwt from 'jsonwebtoken';
 import type { JwtPayload } from '../interfaces/index.ts';
 import type { Secret, SignOptions } from 'jsonwebtoken';
+import { JWT_REFRESH_SECRET, JWT_SECRET } from '../config/constants.ts';
 
 export const generateToken = (payload: JwtPayload): string => {
-  const secret: Secret = process.env.JWT_SECRET || 'default_secret';
+  const secret: Secret = JWT_SECRET;
   const options: SignOptions = { expiresIn: '30s' };
 
   return jwt.sign(payload, secret, options);
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  const refreshSecret: Secret = process.env.JWT_REFRESH_SECRET || 'default_refresh_secret';
+  const refreshSecret: Secret = JWT_REFRESH_SECRET;
   const options: SignOptions = { expiresIn: '15m' };
   return jwt.sign(payload, refreshSecret, options);
 };
 
 export const verifyToken = (token: string): JwtPayload => {
-  return jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as JwtPayload;
+  return jwt.verify(token, JWT_SECRET) as JwtPayload;
 };
 
 export const verifyRefreshToken = (token: string): JwtPayload => {
-  return jwt.verify(
-    token,
-    process.env.JWT_REFRESH_SECRET || 'default_refresh_secret'
-  ) as JwtPayload;
+  return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
 };
 
 // // Generate password reset token
