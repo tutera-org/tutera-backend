@@ -6,7 +6,7 @@ export interface ILesson extends Document {
   moduleId: Types.ObjectId;
   title: string;
   description?: string;
-  type: 'VIDEO' | 'PDF' | 'QUIZ' | 'ASSIGNMENT';
+  type: 'VIDEO' | 'PDF' | 'ASSIGNMENT';
   order: number;
   contentId?: Types.ObjectId;
   duration?: number;
@@ -29,7 +29,7 @@ const lessonSchema = new Schema<ILesson>(
     description: { type: String },
     type: {
       type: String,
-      enum: ['VIDEO', 'PDF', 'QUIZ', 'ASSIGNMENT'],
+      enum: ['VIDEO', 'PDF', 'ASSIGNMENT'],
       required: true,
     },
     order: { type: Number, required: true },
