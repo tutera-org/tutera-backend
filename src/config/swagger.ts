@@ -323,6 +323,13 @@ const options: swaggerJsdoc.Options = {
         get: {
           tags: ['Authentication'],
           summary: 'Get Current User',
+          parameters: [
+            {
+              name: 'token',
+              in: 'cookie',
+              required: true,
+            },
+          ],
           security: [{ bearerAuth: [] }],
           responses: {
             '200': {

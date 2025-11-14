@@ -9,6 +9,10 @@ export type EmailEvent =
   | 'user.subscriptionActivation'
   | 'user.trialExpiring'
   | 'user.violation'
+  | 'user.accountSuspended'
+  | 'user.accountActivated'
+  | 'tenant.suspended'
+  | 'tenant.activated'
   | 'admin.alert';
 
 interface EmailPayload {
@@ -25,6 +29,10 @@ const subjectMap: Record<EmailEvent, string> = {
   'user.subscriptionActivation': 'Subscription Activated',
   'user.trialExpiring': 'Your Trial is Expiring Soon',
   'user.violation': 'Content Violation Warning',
+  'user.accountSuspended': 'Account Suspended',
+  'user.accountActivated': 'Account Activated',
+  'tenant.suspended': 'Tenant Suspended',
+  'tenant.activated': 'Tenant Activated',
   'admin.alert': 'Admin Alert: Suspicious Activity',
 };
 
@@ -37,6 +45,10 @@ const templateMap: Record<EmailEvent, string> = {
   'user.subscriptionActivation': 'subscription-activated',
   'user.trialExpiring': 'trial-expiring',
   'user.violation': 'violation-warning',
+  'user.accountSuspended': 'account-suspended',
+  'user.accountActivated': 'Account Activated',
+  'tenant.suspended': 'tenant-suspended',
+  'tenant.activated': 'tenant-activated',
   'admin.alert': 'admin-alert',
 };
 
