@@ -78,7 +78,7 @@ router.post('/login', authLimiter, RequestValidator(loginSchema), authController
 
 router.post('/refresh-token', authController.refreshToken);
 
-// router.get('/me', authenticate, authController.getCurrentUser);
+router.get('/me', authenticate, authController.getCurrentUser);
 
 router.post('/logout', authenticate, authController.logout);
 

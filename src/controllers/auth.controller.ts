@@ -3,6 +3,7 @@ import { AuthService } from '../services/auth.service.ts';
 import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
+import type { AuthRequest } from '../interfaces/index.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
 // import { AuthRequest } from '../interfaces';
 
@@ -56,8 +57,17 @@ export class AuthController {
    *     summary: Update user details
    *     tags: [Authentication]
    */
-  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateUserDetails = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        throw new AppError('User not authenticated', 401);
+      }
+      req.body.userId = userId;
       const result = await this.authService.updateUserDetails(req.body);
       ApiResponse.success(res, result, 'User details updated successfully');
     } catch (error) {
@@ -156,17 +166,15 @@ export class AuthController {
    *       - bearerAuth: []
    */
 
-  // getCurrentUser = async (
-  // req: AuthRequest,
-  // res: Response,
-  // next: NextFunction): Promise<void> => {
-  //   try {
-  //     const result = await this.authService.getCurrentUser(req.user!.userId);
-  //     ApiResponse.success(res, result, 'User profile retrieved');
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user!.userId;
+      const result = await this.authService.getCurrentUser(userId!);
+      ApiResponse.success(res, result, 'User profile retrieved');
+    } catch (error) {
+      next(error);
+    }
+  };
 
   /**
    * @swagger

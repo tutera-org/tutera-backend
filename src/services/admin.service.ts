@@ -122,15 +122,12 @@ export class AdminService {
       user.tenantId
     );
 
-    // TODO: send suspension email
-    // await sendEmail(
-    //   user.email,
-    //   'Account Suspended',
-    //   `<h1>Account Suspended</h1>
-    //   <p>Your account has been suspended.</p>
-    //   <p>Reason: ${reason}</p>
-    //   <p>Please contact support for more information.</p>`
-    // );
+    await handleEmailEvent('user.accountSuspended', {
+      to: user.email,
+      data: {
+        reason,
+      },
+    });
 
     return user;
   }
@@ -154,14 +151,12 @@ export class AdminService {
       user.tenantId
     );
 
-    // TODO: Send activation email
-    // await sendEmail(
-    //   user.email,
-    //   'Account Activated',
-    //   `<h1>Account Activated</h1>
-    //   <p>Your account has been reactivated.</p>
-    //   <p>You can now access all features.</p>`
-    // );
+    await handleEmailEvent('user.accountActivated', {
+      to: user.email,
+      data: {
+        firstName: user.firstName,
+      },
+    });
 
     return user;
   }
@@ -226,12 +221,11 @@ export class AdminService {
 
     const owner = await User.findById(tenant.ownerId);
     if (owner) {
-      await handleEmailEvent('admin.alert', {
-        to: 'admin@tutera.com',
+      await handleEmailEvent('tenant.suspended', {
+        to: owner.email,
         data: {
-          userEmail: 'suspicious@domain.com',
-          ipAddress: '192.168.1.10',
-          time: new Date().toISOString(),
+          reason,
+          violationCount: tenant.violations.count,
         },
       });
     }
@@ -261,15 +255,10 @@ export class AdminService {
 
     const owner = await User.findById(tenant.ownerId);
     if (owner) {
-      await handleEmailEvent('user.subscriptionActivation', {
-        to: tenant.email,
+      await handleEmailEvent('tenant.activated', {
+        to: owner.email,
         data: {
-          firstName: tenant.name,
-          subscriptionType: 'Annual',
-          amount: 279.99,
-          startDate: '2025-11-13',
-          nextBillingDate: '2026-11-13',
-          autoRenew: 'Yes',
+          firstName: owner.firstName,
         },
       });
     }

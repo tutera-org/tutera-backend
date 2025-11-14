@@ -34,9 +34,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json(course);
   } catch (error) {
     if (error === 11000) {
-      res
-        .status(400)
-        .json({ message: 'Course with this slug already exists.' });
+      res.status(400).json({ message: 'Course with this slug already exists.' });
     } else {
       res.status(400).json({ message: error });
     }
@@ -55,9 +53,7 @@ router.get('/:id/modules', async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Course not found.' });
     }
 
-    const modules = await Module.find({ tenantId, courseId })
-      .select('-__v')
-      .sort({ order: 1 });
+    const modules = await Module.find({ tenantId, courseId }).select('-__v').sort({ order: 1 });
 
     res.json(modules);
   } catch (error) {
@@ -102,9 +98,7 @@ router.get('modules/:id/lessons', async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Module not found.' });
     }
 
-    const lessons = await Lessons.find({ tenantId, moduleId })
-      .select('-__v')
-      .sort({ order: 1 });
+    const lessons = await Lessons.find({ tenantId, moduleId }).select('-__v').sort({ order: 1 });
     res.json(lessons);
   } catch (error) {
     res.status(500).json({ message: error });
