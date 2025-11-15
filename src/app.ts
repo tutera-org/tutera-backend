@@ -10,7 +10,7 @@ import { swaggerSpec } from './config/swagger.ts';
 import { apiLimiter } from './middlewares/rateLimit.middleware.ts';
 //import { sanitizeData } from './middlewares/sanitize.middleware.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
-import { ALLOWED_ORIGINS, PORT } from './config/constants.ts';
+import { ALLOWED_ORIGINS } from './config/constants.ts';
 import emailRoutes from './routes/email.routes.ts';
 import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
@@ -48,7 +48,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Validation', 'X-Requested-With', 'Accept'],
+    // allowedHeaders: ['Content-Type', 'Validation', 'X-Requested-With', 'Accept'],
     // => {
     //   if (!origin || allowedOrigins.includes(origin)) {
     //     callback(null, true);
@@ -112,17 +112,11 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-function startServer() {
-  app.listen(PORT, () => {
-    console.log(`server running on http://localhost:${PORT} `);
-  });
-}
-
 // Catch-all route (for undefined endpoints)
 app.all('/{*any}', (req, res) => {
   res.status(404).json({
     success: false,
-    message: `Cannot find ${req.originalUrl} n this server`,
+    message: `Cannot find ${req.originalUrl} in this server`,
   });
 });
 
@@ -132,5 +126,4 @@ app.use(notFoundHandler);
 // Error handler
 app.use(errorHandler);
 
-startServer();
 export default app;
