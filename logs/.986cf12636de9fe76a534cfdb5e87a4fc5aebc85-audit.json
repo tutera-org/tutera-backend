@@ -9,6 +9,21 @@
             "date": 1763028268750,
             "name": "/home/kingsleycj/dev/projects/tutera-backend/logs/combined-2025-11-13.log",
             "hash": "d1eeb0dc84b4d0abe388d12c30cbe6f8a352567aca55bc4a94c37dd9818cfe74"
+        },
+        {
+            "date": 1763113168288,
+            "name": "/home/kingsleycj/dev/projects/tutera-backend/logs/combined-2025-11-14.log",
+            "hash": "f2f41ddce96cb08c0bb8faa060094786b752c51dcc656ddbdb0ed9b6823d06ba"
+        },
+        {
+            "date": 1763317433693,
+            "name": "/home/kingsleycj/dev/projects/tutera-backend/logs/combined-2025-11-16.log",
+            "hash": "30b5e452797b5ff1d50467d70d936f0fdff83f60cfe8b3f83177a4aa67d39932"
+        },
+        {
+            "date": 1763365629786,
+            "name": "/home/kingsleycj/dev/projects/tutera-backend/logs/combined-2025-11-17.log",
+            "hash": "32664ad4dec03d5125b4c8831b564d73205dd8e334cbe1295f60fc26d12d89c3"
         }
     ],
     "hashType": "sha256"

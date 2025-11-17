@@ -5,7 +5,7 @@ import { JWT_REFRESH_SECRET, JWT_SECRET } from '../config/constants.ts';
 
 export const generateToken = (payload: JwtPayload): string => {
   const secret: Secret = JWT_SECRET;
-  const options: SignOptions = { expiresIn: '30s' };
+  const options: SignOptions = { expiresIn: '7d' };
 
   return jwt.sign(payload, secret, options);
 };
