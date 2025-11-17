@@ -44,9 +44,10 @@ app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = ALLOWED_ORIGINS;
+console.log('Allowed Origins for CORS:', allowedOrigins, typeof allowedOrigins);
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: 'http://localhost:5500',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     // allowedHeaders: ['Content-Type', 'Validation', 'X-Requested-With', 'Accept'],
     // => {

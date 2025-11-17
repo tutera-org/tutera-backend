@@ -170,10 +170,7 @@ export class AuthService {
     }
 
     // Check if tenant subscription is active
-    if (
-      tenant.subscription.status === SubscriptionStatus.EXPIRED ||
-      tenant.subscription.status !== SubscriptionStatus.ACTIVE
-    ) {
+    if (tenant.subscription.status === SubscriptionStatus.EXPIRED) {
       throw new AppError('This institution/provider is not currently accepting new students', 403);
     }
 

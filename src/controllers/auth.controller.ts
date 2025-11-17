@@ -3,7 +3,9 @@ import { AuthService } from '../services/auth.service.ts';
 import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
-import type { AuthRequest } from '../interfaces/index.ts';
+import { UserRole, type AuthRequest } from '../interfaces/index.ts';
+import { getSocketManager } from '../sockets/index.ts';
+import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
 // import { AuthRequest } from '../interfaces';
 
@@ -45,6 +47,18 @@ export class AuthController {
     try {
       const result = await this.authService.registerLearner(req.body);
       ApiResponse.success(res, result, 'Learner registration successful', 201);
+      const ownerId = await User.findOne({
+        role: { $in: [UserRole.INDEPENDENT_CREATOR, UserRole.INSTITUTION] },
+        tenantId: result.tenant.id,
+      }).select('id');
+      console.log('ownerId: ', ownerId);
+      setTimeout(async () => {
+        getSocketManager().sendNotification('info', ownerId?.id, {
+          userId: result.user.id as string,
+          message: `new student ${result.user.firstName} ${result.user.lastName} just onboarded`,
+          type: 'onboarding',
+        });
+      }, 3000);
     } catch (error) {
       next(error);
     }
@@ -96,6 +110,13 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+
+      res.cookie('accessToken', result.tokens.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000, // 60 minutes
       });
 
       ApiResponse.success(res, result, 'Login successful');
@@ -193,158 +214,3 @@ export class AuthController {
   };
 }
 export default new AuthController();
-
-// import type { Request, Response, NextFunction } from 'express';
-// import { catchAsync } from '../utils/catchAsync.ts';
-// import { AuthService } from '../services/auth.service.ts';
-// import { ApiResponse } from '../utils/ApiResponse.ts';
-// // import { AuthRequest } from '../interfaces';
-
-// export class AuthController {
-//   private authService: AuthService;
-
-//   constructor() {
-//     this.authService = new AuthService();
-//   }
-
-//   /**
-//    * @swagger
-//    * /auth/register/institution:
-//    *   post:
-//    *     summary: Register institution or independent user
-//    *     tags: [Authentication]
-//    */
-//   registerInstitution = catchAsync(
-//     async (req: Request, res: Response, next: NextFunction) => {
-//       try {
-//         const result = await this.authService.registerInstitutionOrIndependent(
-//           req.body
-//         );
-//         ApiResponse.success(res, result, 'Registration successful', 201);
-//       } catch (error) {
-//         next(error);
-//       }
-//     }
-//   );
-
-//   /**
-//    * @swagger
-//    * /auth/register/learner:
-//    *   post:
-//    *     summary: Register learner (student)
-//    *     tags: [Authentication]
-//    */
-//   registerLearner = catchAsync(
-//     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//       try {
-//         const result = await this.authService.registerLearner(req.body);
-//         ApiResponse.success(
-//           res,
-//           result,
-//           'Learner registration successful',
-//           201
-//         );
-//       } catch (error) {
-//         next(error);
-//       }
-//     }
-//   );
-
-//   /**
-//    * @swagger
-//    * /auth/login:
-//    *   post:
-//    *     summary: User login
-//    *     tags: [Authentication]
-//    */
-//   login = catchAsync(
-//     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//       try {
-//         const { email, password } = req.body;
-//         const ipAddress = req.ip;
-//         const userAgent = req.get('user-agent');
-
-//         const result = await this.authService.login(
-//           email,
-//           password,
-//           ipAddress,
-//           userAgent
-//         );
-
-//         // Set refresh token in HTTP-only cookie
-//         res.cookie('refreshToken', result.tokens.refreshToken, {
-//           httpOnly: true,
-//           secure: process.env.NODE_ENV === 'production',
-//           sameSite: 'strict',
-//           maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-//         });
-
-//         ApiResponse.success(res, result, 'Login successful');
-//       } catch (error) {
-//         next(error);
-//       }
-//     }
-//   );
-
-//   /**
-//    * @swagger
-//    * /auth/refresh-token:
-//    *   post:
-//    *     summary: Refresh access token
-//    *     tags: [Authentication]
-//    */
-//   refreshToken = catchAsync(
-//     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//       try {
-//         const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
-//         const result = await this.authService.refreshToken(refreshToken);
-//         ApiResponse.success(res, result, 'Token refreshed successfully');
-//       } catch (error) {
-//         next(error);
-//       }
-//     }
-//   );
-
-//   /**
-//    * @swagger
-//    * /auth/me:
-//    *   get:
-//    *     summary: Get current user profile
-//    *     tags: [Authentication]
-//    *     security:
-//    *       - bearerAuth: []
-//    */
-
-//   // getCurrentUser = async (
-//   //   req: AuthRequest,
-//   //   res: Response,
-//   //   next: NextFunction
-//   // ): Promise<void> => {
-//   //   try {
-//   //     const result = await this.authService.getCurrentUser(req.user!.userId);
-//   //     ApiResponse.success(res, result, 'User profile retrieved');
-//   //   } catch (error) {
-//   //     next(error);
-//   //   }
-//   // };
-
-//   /**
-//    * @swagger
-//    * /auth/logout:
-//    *   post:
-//    *     summary: Logout user
-//    *     tags: [Authentication]
-//    */
-//   logout = catchAsync(
-//     async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
-//       try {
-//         res.clearCookie('refreshToken');
-//         ApiResponse.success(res, null, 'Logout successful');
-//       } catch (error) {
-//         next(error);
-//       }
-//     }
-//   );
-// }
-
-// export default new AuthController();

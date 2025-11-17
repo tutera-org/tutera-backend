@@ -1,10 +1,11 @@
 // src/socket.ts
 import { Server as HTTPServer } from 'node:http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { ALLOWED_ORIGINS } from './config/constants.ts';
-import { socketAuth } from './middlewares/sockets/auth.middleware.ts';
-import { Notification } from './models/Notifications.ts';
-import type { NotificationPayload } from './interfaces/index.ts';
+import { ALLOWED_ORIGINS } from '../config/constants.ts';
+import { socketAuth } from '../middlewares/sockets/auth.middleware.ts';
+import { Notification } from '../models/Notifications.ts';
+import { UserRole, type NotificationPayload } from '../interfaces/index.ts';
+import { User } from '../models/User.ts';
 
 export class SocketManager {
   private socketIOServer: SocketIOServer;
@@ -28,17 +29,21 @@ export class SocketManager {
     this.socketIOServer.on('connection', this.handleSocketConnection.bind(this));
   }
 
-  private handleSocketConnection(socket: Socket) {
+  private async handleSocketConnection(socket: Socket) {
     console.log(`Socket connected: ${socket.id}`);
 
     const user = socket.data.user;
     const userId = user.userId;
+    const tenantId = user.tenantId;
+
     if (userId) {
       // Add socket.id to the user's set
       if (!this.onlineUsers.has(userId)) {
         this.onlineUsers.set(userId, new Set());
       }
       this.onlineUsers.get(userId)!.add(socket.id);
+      socket.join(userId);
+      socket.join(`tenant-${tenantId}`);
     }
 
     setTimeout(() => {
@@ -72,23 +77,38 @@ export class SocketManager {
     return this.socketIOServer;
   }
 
-  getOnlineUsers(): Map<string, Set<string>> {
+  public getOnlineUsers(): Map<string, Set<string>> {
     return this.onlineUsers;
   }
 
-  async sendNotification(event: string, userId: string, payload: NotificationPayload) {
+  public async sendNotification(event: string, userId: string, payload: NotificationPayload) {
     const notification = await Notification.create({
       userId: payload.userId,
       message: payload.message,
       type: payload.type,
     });
-    const sockets = this.onlineUsers.get(userId);
-    console.log('online users service: ', sockets);
-    console.log('online users: ', [...this.onlineUsers.entries()]);
+    const sockets = this.onlineUsers.get(userId.toString());
     if (!sockets) return;
 
     for (const socketId of sockets) {
-      this.socketIOServer.to(socketId).emit(event, notification.toJSON);
+      this.socketIOServer.to(socketId).emit(event, {
+        type: notification.type,
+        message: notification.message,
+        isRead: notification.read,
+        date: notification.createdAt,
+      });
+    }
+  }
+
+  public async sendBroadcastToStudents(tenantId: string, payload: NotificationPayload) {
+    const students = await User.find({ role: UserRole.STUDENT, tenantId });
+
+    for (const student of students) {
+      await this.sendNotification('info', student.id, {
+        userId: student.id,
+        message: payload.message,
+        type: payload.type,
+      });
     }
   }
 }
