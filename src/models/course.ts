@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { slugify } from '../utils/slugify.ts';
 
 export interface ICourse extends Document {
   id: Types.ObjectId;
@@ -43,6 +44,7 @@ const courseSchema = new Schema<ICourse>(
       type: String,
       enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
       required: true,
+      default: 'DRAFT',
     },
     totalEnrollments: { type: Number, default: 0 },
     averageRating: { type: Number, default: 0 },
@@ -53,5 +55,8 @@ const courseSchema = new Schema<ICourse>(
 );
 
 courseSchema.index({ tenantId: 1, slug: 1 }, { unique: true });
-
+courseSchema.pre('save', function (next) {
+  this.slug = slugify(this.title);
+  next();
+});
 export default model<ICourse>('Course', courseSchema);
