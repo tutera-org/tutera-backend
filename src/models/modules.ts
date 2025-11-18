@@ -6,6 +6,7 @@ export interface IModule extends Document {
   courseId: Types.ObjectId;
   title: string;
   order: number;
+  quizId: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +23,11 @@ const ModuleSchema = new Schema<IModule>(
     courseId: { type: Schema.Types.ObjectId, required: true, ref: 'Course' },
     title: { type: String, required: true },
     order: { type: Number, required: true },
+    quizId: {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'Quiz',
+    },
   },
   { timestamps: true }
 );

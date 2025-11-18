@@ -1,6 +1,6 @@
 import type { ModuleDTO } from '../interfaces/index.ts';
 import CourseModel from '../models/Course.ts';
-import ModuleModel from '../models/modules.ts';
+import ModuleModel from '../models/Modules.ts';
 import { AppError } from '../utils/AppError.ts';
 
 export class ModuleService {

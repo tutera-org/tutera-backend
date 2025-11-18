@@ -33,7 +33,7 @@ const lessonSchema = new Schema<ILesson>(
       required: true,
     },
     order: { type: Number, required: true },
-    contentId: { type: Schema.Types.ObjectId },
+    contentId: { type: Schema.Types.ObjectId, ref: 'Content' },
     duration: { type: Number },
     isPreview: { type: Boolean, default: false },
   },

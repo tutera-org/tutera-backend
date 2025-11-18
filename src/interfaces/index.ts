@@ -371,7 +371,7 @@ export interface CourseFilter {
   status?: CourseStatus;
 }
 
-// Course Creation DTO
+// Course DTO
 export interface CreateCourseDTO {
   title: string;
   description: string;
@@ -379,7 +379,19 @@ export interface CreateCourseDTO {
   level: CourseLevel;
 }
 
+// Module DTO
 export interface ModuleDTO {
   title: string;
   order: number;
+  quizId?: string;
+}
+
+export interface LessonDTO {
+  title: string;
+  description?: string;
+  type: 'VIDEO' | 'PDF' | 'ASSIGNMENT';
+  order: number;
+  duration?: number;
+  isPreview?: boolean;
+  contentId: string;
 }

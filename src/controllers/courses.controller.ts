@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express';
-import Module from '../models/modules.ts';
-import Lessons from '../models/lessons.ts';
+import Module from '../models/Modules.ts';
+import Lessons from '../models/Lessons.ts';
 import Course from '../models/Course.ts';
 
 // Get all courses for the current tenant
