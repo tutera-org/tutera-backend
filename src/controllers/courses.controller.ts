@@ -1,7 +1,7 @@
 import { type Request, type Response } from 'express';
 import Module from '../models/Modules.ts';
 import Lessons from '../models/Lessons.ts';
-import Course from '../models/Course.ts';
+import Course from '../models/Courses.ts';
 
 // Get all courses for the current tenant
 export const getCourses = async (req: Request, res: Response) => {

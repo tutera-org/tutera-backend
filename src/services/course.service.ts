@@ -1,6 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import type { CreateCourseDTO } from '../interfaces/index.ts';
-import CourseModel from '../models/Course.ts';
+import CourseModel from '../models/Courses.ts';
 import { AppError } from '../utils/AppError.ts';
 import { slugify } from '../utils/slugify.ts';
 
@@ -24,8 +24,8 @@ export class CourseService {
     await course.save({ session: session ?? null });
     return course;
   }
-  async getAllCourses(tenantId: string) {
-    return CourseModel.find({ tenantId });
+  async getAllCourses(tenantId: string, session?: ClientSession) {
+    return CourseModel.find({ tenantId }).session(session ?? null);
   }
 
   async getCourseById(courseId: string, tenantId: string) {
@@ -34,16 +34,23 @@ export class CourseService {
     return course;
   }
 
-  async updateCourse(courseId: string, data: Partial<CreateCourseDTO>, tenantId: string) {
+  async updateCourse(
+    courseId: string,
+    data: Partial<CreateCourseDTO>,
+    tenantId: string,
+    session?: ClientSession
+  ) {
     const course = await CourseModel.findOneAndUpdate({ _id: courseId, tenantId }, data, {
       new: true,
-    });
+    }).session(session ?? null);
     if (!course) throw new AppError('Course not found', 404);
     return course;
   }
 
-  async deleteCourse(courseId: string, tenantId: string) {
-    const result = await CourseModel.findOneAndDelete({ _id: courseId, tenantId });
+  async deleteCourse(courseId: string, tenantId: string, session?: ClientSession) {
+    const result = await CourseModel.findOneAndDelete({ _id: courseId, tenantId }).session(
+      session ?? null
+    );
     if (!result) throw new AppError('Course not found', 404);
   }
 }
