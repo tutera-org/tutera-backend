@@ -130,6 +130,8 @@ export interface IUser extends Document {
   emailVerificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  failedOtpAttempts: number;
+  otpLockedUntil?: Date;
   lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;

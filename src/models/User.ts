@@ -68,6 +68,8 @@ const UserSchema = new Schema<IUser, IUserModel>(
     lastLogin: {
       type: Date,
     },
+    failedOtpAttempts: { type: Number, default: 0 },
+    otpLockedUntil: { type: Date },
   },
   {
     timestamps: true,
@@ -82,7 +84,8 @@ UserSchema.index({ tenantId: 1, role: 1 });
 
 // Compare password method
 UserSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
-  return bcrypt.compare(enteredPassword, this.password);
+  const isMatch = await bcrypt.compare(enteredPassword, this.password);
+  return isMatch;
 };
 
 // Hash password before saving

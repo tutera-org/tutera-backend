@@ -32,7 +32,7 @@ export const JWT_SECRET = getEnvironmentVariable('JWT_SECRET', 'secret_key');
 export const JWT_REFRESH_SECRET = getEnvironmentVariable('JwT_REFRESH_SECRET', 'secret_refresh');
 export const NODE_ENV = getEnvironmentVariable('NODE_ENV', 'development');
 export const ALLOWED_ORIGINS = getEnvironmentVariable('ALLOWED_ORIGINS', '*').split(',');
-export const TRIAL_PERIOD_DAYS = getEnvironmentVariableNumber('TRIAL_PERIOD_DAYS', 60);
+export const TRIAL_PERIOD_DAYS = getEnvironmentVariableNumber('TRIAL_PERIOD_DAYS', 30);
 export const BCRYPT_ROUNDS = getEnvironmentVariableNumber('BCRYPT_ROUNDS', 12);
 export const RATE_LIMIT_WINDOW = getEnvironmentVariableNumber('RATE_LIMIT_WINDOW', 15);
 export const RATE_LIMIT_MAX = getEnvironmentVariableNumber('RATE_LIMIT_MAX_REQUESTS', 100);
@@ -43,4 +43,4 @@ export const SMTP_PASSWORD = getEnvironmentVariable('SMTP_PASSWORD', 'password')
 export const FROM_EMAIL = getEnvironmentVariable('FROM_EMAIL', 'noreply@lms.com');
 export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Platform');
 
-export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://localhost:3000');
+export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://tuteraafrica.xyz');

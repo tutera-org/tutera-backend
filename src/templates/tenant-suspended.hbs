@@ -1,10 +1,22 @@
-{{> layout 
-    title="Your Tenant Account Has Been Suspended"
-    headerGradientStart="#EF4444"
-    headerGradientEnd="#DC2626"
-    headerText="Your Tenant Account Has Been Suspended"
-    footerNote="You're receiving this email because your tenant account has been suspended."}}
-<h1>Your Tenant Account Has Been Suspended</h1>
-<p>Reason: {{reason}}</p>
-<p>Violation count: {{violationCount}}</p>
-<p>Please contact support immediately.</p>
+{{#> layout
+  title="Tenant Account Suspended"
+  headerGradientStart="#EF4444"
+  headerGradientEnd="#DC2626"
+  headerText="Tenant Account Suspended"
+  footerNote="You are receiving this email because your tenant account has been suspended."
+}}
+  <h2>Hello {{tenantName}},</h2>
+
+  <p>We regret to inform you that your tenant account has been suspended due to policy violations.</p>
+
+  <div class="account-details">
+    <ul>
+      <li><strong>Reason for Suspension:</strong> {{reason}}</li>
+      <li><strong>Violation Count:</strong> {{violationCount}}</li>
+    </ul>
+  </div>
+
+  <p>Please contact our support team immediately to discuss this suspension and any next steps.</p>
+
+  <p>Kind regards,<br/>Tutera LMS Support Team</p>
+{{/layout}}
