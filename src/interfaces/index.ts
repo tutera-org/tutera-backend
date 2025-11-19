@@ -311,6 +311,23 @@ export interface IAuditLog extends Document {
   createdAt: Date;
 }
 
+export interface IQuiz extends Document {
+  title: string;
+  description?: string;
+  moduleId: Types.ObjectId;
+  tenantId: string;
+  createdBy: string;
+  questions: {
+    question: string;
+    options: string[];
+    correctAnswerIndex: number;
+    explanation?: string;
+  }[];
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Custom Request with file support
 export interface CustomRequest extends Request {
   user?: JwtPayload;

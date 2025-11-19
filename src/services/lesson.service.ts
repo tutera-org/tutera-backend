@@ -46,7 +46,7 @@ export class LessonService {
     const lesson = await LessonModel.findOneAndDelete({ _id: lessonId, tenantId }).session(
       session ?? null
     );
-    if (!module) throw new AppError('Lesson not found', 404);
+    if (!lesson) throw new AppError('Lesson not found', 404);
     return lesson;
   }
 
