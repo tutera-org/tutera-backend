@@ -21,7 +21,7 @@
     "start": "node dist/index.js",
     "test": "jest --passWithNoTests",
     "swagger": "ts-node src/swagger.ts",
-    "prepare": "husky"
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi"
   },
   "lint-staged": {
     "src/**/*.ts": [
