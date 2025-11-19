@@ -4,6 +4,9 @@ import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
 import { createOtp } from '../utils/otpCode.ts';
+import { UserRole } from '../interfaces/index.ts';
+import { getSocketManager } from '../sockets/index.ts';
+import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
 // import { AuthRequest } from '../interfaces';
 
@@ -45,6 +48,18 @@ export class AuthController {
     try {
       const result = await this.authService.registerLearner(req.body);
       ApiResponse.success(res, result, 'Learner registration successful', 201);
+      const ownerId = await User.findOne({
+        role: { $in: [UserRole.INDEPENDENT_CREATOR, UserRole.INSTITUTION] },
+        tenantId: result.tenant.id,
+      }).select('id');
+      console.log('ownerId: ', ownerId);
+      setTimeout(async () => {
+        getSocketManager().sendNotification('info', ownerId?.id, {
+          userId: result.user.id as string,
+          message: `new student ${result.user.firstName} ${result.user.lastName} just onboarded`,
+          type: 'onboarding',
+        });
+      }, 3000);
     } catch (error) {
       next(error);
     }
@@ -88,6 +103,13 @@ export class AuthController {
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         path: '/',
+      });
+
+      res.cookie('accessToken', result.tokens.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 1000, // 60 minutes
       });
 
       ApiResponse.success(res, result, 'Login successful');

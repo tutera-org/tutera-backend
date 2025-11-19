@@ -3,24 +3,28 @@ import { scheduleEmails } from './services/email.service.ts';
 import { logger } from './config/logger.ts';
 import app from './app.ts';
 import { PORT } from './config/constants.ts';
+import { createServer } from 'node:http';
+import { initSocket } from './sockets/index.ts';
 
 const startServer = async (): Promise<void> => {
   try {
     // Connect to database
     await connectDatabase();
     scheduleEmails();
+    const server = createServer(app);
+    initSocket(server);
 
     // Start server
-    const server = app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(`
-        ╔══════════════════════════════════════════════════════════════════╗
-        ║   Tutera LMS Server Started Successfully                         ║
-        ╠══════════════════════════════════════════════════════════════════╣
-        ║   Environment: ${process.env.NODE_ENV?.toUpperCase().padEnd(28)}                      ║
-        ║   Port: ${PORT.toString().padEnd(34)}                       ║
-        ║   API Docs: http://localhost:${PORT}/api/v1/docs                    ║
-        ╚══════════════════════════════════════════════════════════════════╝
-      `);
+          ╔══════════════════════════════════════════════════════════════════╗
+          ║   Tutera LMS Server Started Successfully                         ║
+          ╠══════════════════════════════════════════════════════════════════╣
+          ║   Environment: ${process.env.NODE_ENV?.toUpperCase().padEnd(28)}                      ║
+          ║   Port: ${PORT.toString().padEnd(34)}                       ║
+          ║   API Docs: http://localhost:${PORT}/api/v1/docs                    ║
+          ╚══════════════════════════════════════════════════════════════════╝
+          `);
     });
 
     // Graceful shutdown
