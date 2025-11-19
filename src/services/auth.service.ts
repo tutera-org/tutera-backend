@@ -1,3 +1,4 @@
+import { createOtp, verifyOtp } from '../utils/otpCode.ts';
 import { User } from '../models/User.ts';
 import { Tenant } from '../models/Tenant.ts';
 import { UserRole, SubscriptionStatus } from '../interfaces/index.ts';
@@ -85,8 +86,6 @@ export class AuthService {
     user.tenantId = tenant.id;
     await user.save({ session: session ?? null });
     await tenant.save({ session: session ?? null });
-
-    console.log('Created tenant:', tenant);
 
     await createAuditLog(user.id, 'USER_REGISTRATION', 'User', user.id, {
       email: data.email,
@@ -191,13 +190,13 @@ export class AuthService {
     });
 
     try {
-      await handleEmailEvent('user.registered', {
+      await handleEmailEvent('user.studentRegistration', {
         to: user.email,
         data: {
           name: user.firstName,
-          email: user.email,
+          mail: user.email,
           role: user.role,
-          dashboardUrl: `${FRONTEND_URL}/dashboard`,
+          loginUrl: `${FRONTEND_URL}/login`,
           year: new Date().getFullYear(),
         },
       });
@@ -388,19 +387,51 @@ export class AuthService {
   /**
    * Get Current User Profile
    */
-  async getCurrentUser(userId: string) {
-    const user = User.findById(userId).select('-password').populate('tenantId').lean();
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-    return user;
-  }
+  // async getCurrentUser(userId: string) {
+  //   const user = await User.findById(userId).select('-password').populate('tenantId').lean();
+
+  //   if (!user) {
+  //     throw new AppError('User not found', 404);
+  //   }
+
+  //   // Get additional stats based on role
+  //   let additionalData: any = {};
+
+  //   if (user.role === UserRole.STUDENT) {
+  //     const Enrollment = (await import('../models/Enrollment')).Enrollment;
+  //     const enrollmentCount = await Enrollment.countDocuments({
+  //       learnerId: user._id,
+  //       isActive: true,
+  //     });
+
+  //     additionalData.enrollmentCount = enrollmentCount;
+  //   } else if (
+  // user.role === UserRole.INSTITUTION || user.role === UserRole.INDEPENDENT_CREATOR) {
+  //     const Course = (await import('../models/Course')).Course;
+  //     const courseCount = await Course.countDocuments({
+  //       creatorId: user._id,
+  //       isActive: true,
+  //     });
+
+  //     additionalData.courseCount = courseCount;
+  //   }
+
+  //   return {
+  //     ...user,
+  //     ...additionalData,
+  //   };
+  // }
+
   /**
    * Change Password
    */
-  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    otpCode: string,
+    newPassword: string
+  ) {
     const user = await User.findById(userId).select('+password');
-
     if (!user) {
       throw new AppError('User not found', 404);
     }
@@ -411,6 +442,9 @@ export class AuthService {
       throw new AppError('Current password is incorrect', 401);
     }
 
+    const valid = await verifyOtp(user.id, otpCode);
+    if (!valid) throw new Error('Invalid or expired OTP');
+
     user.password = newPassword;
     await user.save();
 
@@ -418,11 +452,10 @@ export class AuthService {
 
     // Send notification email
     try {
-      await handleEmailEvent('user.passwordReset', {
+      await handleEmailEvent('user.passwordConfirmation', {
         to: user.email,
         data: {
           name: user.firstName,
-          resetLink: `${FRONTEND_URL}/reset-password?token=`,
         },
       });
     } catch (e) {
@@ -439,30 +472,67 @@ export class AuthService {
     const user = await User.findOne({ email });
     if (!user) {
       // Hide existence of email
-      return { message: 'If the email exists, a reset link will be sent' };
+      return { message: 'If the email exists, a reset Otp will be sent' };
     }
 
-    //TODO: Generate reset token (in production, store in database with expiration)
-    generateToken({
-      userId: user.id.toString(),
-      email: user.email,
-      role: user.role,
-    });
-
-    await createAuditLog(user.id, 'PASSWORD_RESET_REQUESTED', 'User', user.id, {});
-
+    const code = await createOtp(user.id);
     try {
       await handleEmailEvent('user.passwordReset', {
         to: user.email,
         data: {
           name: user.firstName,
-          resetLink: `${FRONTEND_URL}/reset-password?token=`,
+          otp: code,
         },
       });
+
+      await createAuditLog(user.id, 'PASSWORD_RESET_REQUESTED', 'User', user.id, {});
     } catch (e) {
       logger.warn('Failed to send password change email', { error: e });
     }
-    return { message: 'If the email exists, a reset link will be sent' };
+    return { message: 'If the email exists, a reset Otp will be sent' };
+  }
+
+  /**
+   * Reset Password
+   */
+
+  async resetPassword(email: string, otpCode: string, newPassword: string) {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error('User not found');
+    const valid = await verifyOtp(user.id, otpCode);
+    if (!valid) throw new Error('Invalid or expired OTP');
+
+    user.password = newPassword;
+    await user.save();
+
+    try {
+      await handleEmailEvent('user.passwordConfirmation', {
+        to: user.email,
+        data: {
+          name: user.firstName,
+        },
+      });
+
+      await createAuditLog(user.id, 'PASSWORD_RESET', 'User', user.id, {});
+    } catch (e) {
+      logger.warn('Failed to send password change email', { error: e });
+    }
+
+    return { message: 'Password reset successfully' };
+  }
+
+  /**
+   *  Refresh OTP
+   */
+  async refreshOtp(email: string) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    await createOtp(user.id);
+
+    await createAuditLog(user.id, 'OTP_REFRESHED', 'User', user.id, {});
+    return { message: 'OTP refreshed successfully' };
   }
 
   /**

@@ -2,6 +2,8 @@ import { sendEmail, type TemplateData } from './sendEmail.ts';
 
 export type EmailEvent =
   | 'user.registered'
+  | 'user.studentRegistration'
+  | 'user.passwordConfirmation'
   | 'user.enrollmentConfirmation'
   | 'user.passwordReset'
   | 'user.profileUpdated'
@@ -13,6 +15,7 @@ export type EmailEvent =
   | 'user.accountActivated'
   | 'tenant.suspended'
   | 'tenant.activated'
+  | 'user.accountLocked'
   | 'admin.alert';
 
 interface EmailPayload {
@@ -22,8 +25,10 @@ interface EmailPayload {
 
 const subjectMap: Record<EmailEvent, string> = {
   'user.registered': 'Welcome to Tutera LMS!',
+  'user.studentRegistration': 'Student Registration',
   'user.enrollmentConfirmation': 'Enrollment Confirmation',
   'user.passwordReset': 'Reset Your Password',
+  'user.passwordConfirmation': 'Confirm Your Password',
   'user.profileUpdated': 'Your Profile Was Updated',
   'user.subscriptionChanged': 'Subscription Update',
   'user.subscriptionActivation': 'Subscription Activated',
@@ -33,13 +38,16 @@ const subjectMap: Record<EmailEvent, string> = {
   'user.accountActivated': 'Account Activated',
   'tenant.suspended': 'Tenant Suspended',
   'tenant.activated': 'Tenant Activated',
+  'user.accountLocked': 'Account Locked',
   'admin.alert': 'Admin Alert: Suspicious Activity',
 };
 
 const templateMap: Record<EmailEvent, string> = {
   'user.registered': 'welcome',
+  'user.studentRegistration': 'student-registration',
   'user.enrollmentConfirmation': 'enrollment-confirmation',
   'user.passwordReset': 'forgot-password',
+  'user.passwordConfirmation': 'password-reset-confirmation',
   'user.profileUpdated': 'profile-update',
   'user.subscriptionChanged': 'subscription-change',
   'user.subscriptionActivation': 'subscription-activated',
@@ -49,6 +57,7 @@ const templateMap: Record<EmailEvent, string> = {
   'user.accountActivated': 'Account Activated',
   'tenant.suspended': 'tenant-suspended',
   'tenant.activated': 'tenant-activated',
+  'user.accountLocked': 'account-locked',
   'admin.alert': 'admin-alert',
 };
 

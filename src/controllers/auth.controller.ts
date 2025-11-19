@@ -3,7 +3,8 @@ import { AuthService } from '../services/auth.service.ts';
 import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
-import { UserRole, type AuthRequest } from '../interfaces/index.ts';
+import { createOtp } from '../utils/otpCode.ts';
+import { UserRole } from '../interfaces/index.ts';
 import { getSocketManager } from '../sockets/index.ts';
 import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
@@ -71,17 +72,8 @@ export class AuthController {
    *     summary: Update user details
    *     tags: [Authentication]
    */
-  updateUserDetails = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
-      if (!userId) {
-        throw new AppError('User not authenticated', 401);
-      }
-      req.body.userId = userId;
       const result = await this.authService.updateUserDetails(req.body);
       ApiResponse.success(res, result, 'User details updated successfully');
     } catch (error) {
@@ -109,7 +101,8 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        path: '/',
       });
 
       res.cookie('accessToken', result.tokens.accessToken, {
@@ -145,17 +138,22 @@ export class AuthController {
   /**
    * @swagger
    * /auth/change-password:
-   *   post:
+   *   patch:
    *     summary: Change user password
    *     tags: [Authentication]
    */
   changePassword = async (req: Request, res: Response): Promise<void> => {
-    const { userId, currentPassword, newPassword } = req.body;
-    if (!userId || !currentPassword || !newPassword) {
+    const { userId, currentPassword, otpCode, newPassword } = req.body;
+    if (!userId || !currentPassword || !otpCode || !newPassword) {
       throw new AppError('Missing required fields', 400);
     }
 
-    const result = await this.authService.changePassword(userId, currentPassword, newPassword);
+    const result = await this.authService.changePassword(
+      userId,
+      currentPassword,
+      otpCode,
+      newPassword
+    );
 
     ApiResponse.success(res, result, 'Password changed successfully');
   };
@@ -164,7 +162,7 @@ export class AuthController {
    * @swagger
    * /auth/request-password-reset:
    *   post:
-   *     summary: Request password reset link
+   *     summary: Request password reset OTP
    *     tags: [Authentication]
    */
   requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
@@ -179,6 +177,33 @@ export class AuthController {
 
   /**
    * @swagger
+   * /auth/reset-password
+   *   patch:
+   *     summary: Verify OTP and update password
+   *     tags: [Authentication]
+   */
+
+  resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const { email, otpCode, newPassword } = req.body;
+    const result = await this.authService.resetPassword(email, otpCode, newPassword);
+    ApiResponse.success(res, result, 'Password reset successful');
+  };
+
+  /**
+   * @swagger
+   * /auth/refresh-otp
+   *   post:
+   *     summary: Request OTP for change password
+   *     tags: [Authentication]
+   */
+  refreshOtp = async (req: Request, res: Response): Promise<void> => {
+    const { userId } = req.body;
+    const code = await createOtp(userId);
+    ApiResponse.success(res, code, 'OTP sent successfully');
+  };
+
+  /**
+   * @swagger
    * /auth/update-profile:
    *   patch:
    *     summary: Update user profile
@@ -187,15 +212,17 @@ export class AuthController {
    *       - bearerAuth: []
    */
 
-  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = req.user!.userId;
-      const result = await this.authService.getCurrentUser(userId!);
-      ApiResponse.success(res, result, 'User profile retrieved');
-    } catch (error) {
-      next(error);
-    }
-  };
+  // getCurrentUser = async (
+  // req: AuthRequest,
+  // res: Response,
+  // next: NextFunction): Promise<void> => {
+  //   try {
+  //     const result = await this.authService.getCurrentUser(req.user!.userId);
+  //     ApiResponse.success(res, result, 'User profile retrieved');
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   /**
    * @swagger
@@ -206,7 +233,12 @@ export class AuthController {
    */
   logout = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      res.clearCookie('refreshToken');
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+      });
       ApiResponse.success(res, null, 'Logout successful');
     } catch (error) {
       next(error);

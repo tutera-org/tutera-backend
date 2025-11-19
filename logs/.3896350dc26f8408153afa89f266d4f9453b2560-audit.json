@@ -6,14 +6,14 @@
     "auditLog": "/Users/sylva/Desktop/tutera-backend/logs/.3896350dc26f8408153afa89f266d4f9453b2560-audit.json",
     "files": [
         {
-            "date": 1762937097239,
-            "name": "/Users/sylva/Desktop/tutera-backend/logs/combined-2025-11-12.log",
-            "hash": "d0abc1dce24c750d921162718deb90de8c0c5217cdc09d7a0b90e488f47eeb4c"
+            "date": 1763235238950,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/combined-2025-11-15.log",
+            "hash": "1fdc327d9d944e3b300856fcdfb0c7c90a8f40beddfe0f6d737045c4a4e536ea"
         },
         {
-            "date": 1762991259964,
-            "name": "/Users/sylva/Desktop/tutera-backend/logs/combined-2025-11-13.log",
-            "hash": "541c12f4401910c0848ea21517c57159516fb7659fda4c0aedea8eda8f22d677"
+            "date": 1763275574714,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/combined-2025-11-16.log",
+            "hash": "978c0511cd64ab04a114eae544c9aea600a8f81213dec91db10be6b3b0d3df5a"
         }
     ],
     "hashType": "sha256"
