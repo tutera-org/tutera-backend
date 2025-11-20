@@ -1,12 +1,11 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface ILesson extends Document {
-  id: Types.ObjectId;
   tenantId: Types.ObjectId;
   moduleId: Types.ObjectId;
   title: string;
   description?: string;
-  type: 'VIDEO' | 'PDF' | 'ASSIGNMENT';
+  type: 'VIDEO' | 'PDF' | 'AUDIO';
   order: number;
   contentId?: Types.ObjectId;
   duration?: number;
@@ -17,19 +16,13 @@ export interface ILesson extends Document {
 
 const lessonSchema = new Schema<ILesson>(
   {
-    id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      unique: true,
-      auto: true,
-    },
     tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
     moduleId: { type: Schema.Types.ObjectId, required: true, ref: 'Module' },
     title: { type: String, required: true },
     description: { type: String },
     type: {
       type: String,
-      enum: ['VIDEO', 'PDF', 'ASSIGNMENT'],
+      enum: ['VIDEO', 'PDF', 'AUDIO'],
       required: true,
     },
     order: { type: Number, required: true },

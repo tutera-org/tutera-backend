@@ -1,7 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IModule extends Document {
-  id: Types.ObjectId;
   tenantId: Types.ObjectId;
   courseId: Types.ObjectId;
   title: string;
@@ -13,12 +12,6 @@ export interface IModule extends Document {
 
 const ModuleSchema = new Schema<IModule>(
   {
-    id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      unique: true,
-      auto: true,
-    },
     tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
     courseId: { type: Schema.Types.ObjectId, required: true, ref: 'Course' },
     title: { type: String, required: true },

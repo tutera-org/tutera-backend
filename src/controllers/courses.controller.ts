@@ -1,7 +1,46 @@
-import { type Request, type Response } from 'express';
+import { type NextFunction, type Request, type Response } from 'express';
 import Module from '../models/Modules.ts';
 import Lessons from '../models/Lessons.ts';
 import Course from '../models/Courses.ts';
+import type { AuthRequest } from '../interfaces/index.ts';
+import { startSession } from 'mongoose';
+import { CourseService } from '../services/course.service.ts';
+import { ApiResponse } from '../utils/ApiResponse.ts';
+
+export class CoursesController {
+  private readonly courseService = new CourseService();
+
+  // TODO: complete the updateCourse controller
+  // async updateCourse(req: AuthRequest, res: Response, next: NextFunction) {
+  //   const session = await startSession();
+  //   try {
+
+  //   }
+  // }
+
+  async deleteCourse(req: AuthRequest, res: Response, next: NextFunction) {
+    const session = await startSession();
+    try {
+      const { courseId } = req.body;
+      const tenantId = req.user?.tenantId;
+
+      if (!tenantId) {
+        return res.status(400).json({ message: 'Tenant ID is required.' });
+      }
+
+      await session.withTransaction(async () => {
+        await this.courseService.deleteCourseWithProperties(courseId, tenantId, session);
+      });
+
+      ApiResponse.successNoData(res, 'Course deleted successfully.');
+    } catch (error) {
+      await session.abortTransaction().catch(() => {});
+      next(error);
+    } finally {
+      session.endSession();
+    }
+  }
+}
 
 // Get all courses for the current tenant
 export const getCourses = async (req: Request, res: Response) => {

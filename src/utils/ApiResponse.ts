@@ -9,6 +9,13 @@ export class ApiResponse {
     });
   }
 
+  static successNoData(res: Response, message = 'Success', statusCode = 200): void {
+    res.status(statusCode).json({
+      success: true,
+      message,
+    });
+  }
+
   static error(res: Response, message: string, statusCode: number = 500, errors?: unknown[]): void {
     res.status(statusCode).json({
       success: false,

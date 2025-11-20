@@ -49,6 +49,18 @@ export class CourseService {
     return course;
   }
 
+  //  TODO: complete the update logic
+  // async updateAllCourseProperties(
+  //   courseId: string,
+  //   tenantId: string,
+  //   updateData: {
+  //     course: Partial<CreateCourseDTO>;
+  //     modules: Array<{ id: string; data: Partial<ModuleDTO> }>;
+  //     lessons: Array<{ id: string; data: Partial<LessonDTO> }>;
+  //   },
+  //   session?: ClientSession
+  // ) {}
+
   async deleteCourseWithProperties(courseId: string, tenantId: string, session?: ClientSession) {
     await this.getCourseById(courseId, tenantId, session);
     const modules = await ModuleModel.find({ courseId, tenantId }).session(session ?? null);
