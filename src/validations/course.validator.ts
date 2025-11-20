@@ -1,16 +1,19 @@
 import z from 'zod';
 
+// Content Schema
 export const ContentSchema = z.object({
   type: z.enum(['TEXT', 'VIDEO', 'PDF', 'AUDIO']),
   body: z.string().optional(),
   mediaId: z.string().optional(),
 });
 
+// Lesson Schema
 export const LessonSchema = z.object({
   title: z.string().min(1),
   content: ContentSchema,
 });
 
+// Question Schema
 export const QuestionSchema = z.object({
   question: z.string().min(1),
   options: z
@@ -20,18 +23,21 @@ export const QuestionSchema = z.object({
   explanation: z.string().optional(),
 });
 
+// Quiz Input Schema
 export const QuizSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   questions: z.array(QuestionSchema).min(1),
 });
 
+// Module Input Schema
 export const ModuleSchema = z.object({
   title: z.string().min(1),
   lessons: z.array(LessonSchema).min(1),
   quiz: QuizSchema,
 });
 
+// Course Input Schema
 export const CourseInputSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
