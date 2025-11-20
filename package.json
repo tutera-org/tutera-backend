@@ -16,12 +16,12 @@
   "main": "server.ts",
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc",
+    "build": "npm ci",
     "lint": "eslint --fix ./src/***/*.ts",
-    "start": "node dist/index.js",
+    "start": "tsx src/server.ts",
     "test": "jest --passWithNoTests",
-    "swagger": "ts-node src/swagger.ts",
-    "prepare": "husky"
+    "swagger": "tsx src/swagger.ts",
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -35,7 +35,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
     "@types/handlebars": "^4.0.40",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -63,6 +63,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
+    "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -78,6 +79,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.10",
     "nodemailer-express-handlebars": "^7.0.0",
+    "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.18.3",

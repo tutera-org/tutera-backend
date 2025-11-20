@@ -18,18 +18,29 @@ export const emailTransporter: Transporter = nodemailer.createTransport({
   },
 });
 
+// Register global helpers
+handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
+handlebars.registerHelper('formatDate', (date: string | Date) =>
+  new Date(date).toLocaleDateString()
+);
+
 // Register layout and partials once at startup
 const templatesDir = path.resolve(process.cwd(), 'src/templates');
+handlebars.registerPartial(
+  'layout',
+  fs.readFileSync(path.join(templatesDir, 'layout.hbs'), 'utf8')
+);
 
 // Register layout.hbs as a partial
 const layoutPath = path.join(templatesDir, 'layout.hbs');
 const layoutSource = fs.readFileSync(layoutPath, 'utf8');
-handlebars.registerPartial('layout', layoutSource);
+handlebars.registerPartial('layout', handlebars.compile(layoutSource));
 
 // Helper: compile child template with layout
 function compileTemplate(templateName: string, data: TemplateData): string {
   const templatePath = path.join(templatesDir, `${templateName}.hbs`);
   const source = fs.readFileSync(templatePath, { encoding: 'utf8' });
+
   const compiled: TemplateDelegate = handlebars.compile(source);
   return compiled({
     ...data,
