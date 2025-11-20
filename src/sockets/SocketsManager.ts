@@ -12,6 +12,7 @@ export class SocketManager {
   private onlineUsers = new Map<string, Set<string>>();
 
   constructor(server: HTTPServer) {
+    console.log('allowed origins: ', ALLOWED_ORIGINS);
     this.socketIOServer = new SocketIOServer(server, {
       cors: {
         origin: (origin, callback) => {

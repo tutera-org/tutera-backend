@@ -100,15 +100,14 @@ export class AuthController {
       res.cookie('refreshToken', result.tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        path: '/',
       });
 
       res.cookie('accessToken', result.tokens.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 60 * 60 * 1000, // 60 minutes
       });
 
@@ -204,28 +203,6 @@ export class AuthController {
 
   /**
    * @swagger
-   * /auth/update-profile:
-   *   patch:
-   *     summary: Update user profile
-   *     tags: [Authentication]
-   *     security:
-   *       - bearerAuth: []
-   */
-
-  // getCurrentUser = async (
-  // req: AuthRequest,
-  // res: Response,
-  // next: NextFunction): Promise<void> => {
-  //   try {
-  //     const result = await this.authService.getCurrentUser(req.user!.userId);
-  //     ApiResponse.success(res, result, 'User profile retrieved');
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
-  /**
-   * @swagger
    * /auth/logout:
    *   post:
    *     summary: Logout user
@@ -236,7 +213,7 @@ export class AuthController {
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'none',
         path: '/',
       });
       ApiResponse.success(res, null, 'Logout successful');

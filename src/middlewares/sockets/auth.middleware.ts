@@ -7,6 +7,7 @@ export async function socketAuth(socket: Socket, next: (err?: Error) => void) {
   const cookies = cookie.parse(raw);
   const token = socket.handshake.auth.token || cookies.accessToken;
 
+  console.log('rawwww: ', socket);
   console.log('Socket authentication token:', token);
   if (!token) {
     return next(new Error('Socket Authentication error: Token not provided'));
@@ -17,7 +18,8 @@ export async function socketAuth(socket: Socket, next: (err?: Error) => void) {
     console.log('Socket authenticated user:', payload);
     socket.data.user = payload;
     next();
-  } catch {
+  } catch (error) {
+    console.error('Socket authentication failed:', error);
     next(new Error('Socket Authentication error: Invalid token'));
   }
 }
