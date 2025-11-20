@@ -17,7 +17,8 @@ export async function socketAuth(socket: Socket, next: (err?: Error) => void) {
     console.log('Socket authenticated user:', payload);
     socket.data.user = payload;
     next();
-  } catch {
+  } catch (error) {
+    console.error('Socket authentication failed:', error);
     next(new Error('Socket Authentication error: Invalid token'));
   }
 }

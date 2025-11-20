@@ -43,42 +43,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ALLOWED_ORIGINS;
-console.log('Allowed Origins for CORS:', allowedOrigins, typeof allowedOrigins);
+
+const allowedOrigins = ALLOWED_ORIGINS as string[];
+console.log('Allowed Origins:', allowedOrigins);
 app.use(
   cors({
-    origin: 'http://localhost:5500',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow non-browser tools
+
+      try {
+        const { hostname } = new URL(origin);
+
+        const isAllowed = allowedOrigins.some(
+          (base) => hostname === base || hostname.endsWith(`.${base}`)
+        );
+
+        if (isAllowed) {
+          return callback(null, true);
+        }
+      } catch {
+        return callback(new Error('Invalid origin'));
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    // allowedHeaders: ['Content-Type', 'Validation', 'X-Requested-With', 'Accept'],
-    // => {
-    //   if (!origin || allowedOrigins.includes(origin)) {
-    //     callback(null, true);
-    //   } else {
-    //     console.error('❌ Blocked by CORS:', origin);
-    //     callback(new Error('Not allowed by CORS'));
-    //   }
-    // },
     credentials: true,
   })
 );
-
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error('Not allowed by CORS'));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-// app.use((req, res, next) => {
-//   req.query = { ...req.query };
-//   next();
-// });
 
 // Data sanitization against NoSQL injection
 //app.use(sanitizeData);
