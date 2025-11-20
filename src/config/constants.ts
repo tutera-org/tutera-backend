@@ -46,5 +46,8 @@ export const SMTP_USER = getEnvironmentVariable('SMTP_USER', 'username');
 export const SMTP_PASSWORD = getEnvironmentVariable('SMTP_PASSWORD', 'password');
 export const FROM_EMAIL = getEnvironmentVariable('FROM_EMAIL', 'noreply@lms.com');
 export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Platform');
-
+// default 1 day
+export const JWT_EXPIRE = getEnvironmentVariableNumber('JWT_EXPIRE', 900);
+// default 7 days
+export const JWT_REFRESH_EXPIRE = getEnvironmentVariableNumber('JWT_REFRESH_EXPIRE', 604800);
 export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://tuteraafrica.xyz');
