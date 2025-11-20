@@ -5,7 +5,7 @@ import { enqueueProcessingJob } from '../workers/queue.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 const BUCKET = process.env.S3_BUCKET!;
-const MAX_UPLOAD_SIZE = Number(process.env.MAX_UPLOAD_SIZE || 524288000);
+const MAX_UPLOAD_SIZE = Number(process.env.MAX_UPLOAD_SIZE || 2147483648);
 
 const MEDIA_TYPES: MediaType[] = ['VIDEO', 'IMAGE', 'DOCUMENT', 'AUDIO'];
 

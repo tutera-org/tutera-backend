@@ -11,3 +11,8 @@ logs/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+
+# Logs
+logs/
+*.log
+npm-debug.log*
