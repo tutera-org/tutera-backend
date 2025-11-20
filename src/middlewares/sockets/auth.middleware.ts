@@ -7,7 +7,6 @@ export async function socketAuth(socket: Socket, next: (err?: Error) => void) {
   const cookies = cookie.parse(raw);
   const token = socket.handshake.auth.token || cookies.accessToken;
 
-  console.log('rawwww: ', socket);
   console.log('Socket authentication token:', token);
   if (!token) {
     return next(new Error('Socket Authentication error: Token not provided'));

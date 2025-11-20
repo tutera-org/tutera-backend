@@ -12,15 +12,26 @@ export class SocketManager {
   private onlineUsers = new Map<string, Set<string>>();
 
   constructor(server: HTTPServer) {
-    console.log('allowed origins: ', ALLOWED_ORIGINS);
+    const allowedOrigins = ALLOWED_ORIGINS as string[];
     this.socketIOServer = new SocketIOServer(server, {
       cors: {
         origin: (origin, callback) => {
-          if (!origin || ALLOWED_ORIGINS === '*' || ALLOWED_ORIGINS.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'));
+          if (!origin) return callback(null, true); // allow non-browser tools
+          try {
+            const { hostname } = new URL(origin);
+
+            const isAllowed = allowedOrigins.some(
+              (base) => hostname === base || hostname.endsWith(`.${base}`)
+            );
+
+            if (isAllowed) {
+              return callback(null, true);
+            }
+          } catch {
+            return callback(new Error('Invalid origin'));
           }
+
+          callback(new Error('Not allowed by CORS'));
         },
         methods: ['GET', 'POST'],
         credentials: true,
