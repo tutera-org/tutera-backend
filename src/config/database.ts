@@ -7,7 +7,7 @@ export async function connectDatabase(): Promise<void> {
     const mongoUri = MONGO_URI;
     mongoose.Promise = global.Promise;
     console.log('Connecting to MongoDB ...');
-    mongoose.connect(mongoUri, {
+    await mongoose.connect(mongoUri, {
       maxPoolSize: 10,
       minPoolSize: 5,
     });
