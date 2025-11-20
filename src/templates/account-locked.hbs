@@ -1,0 +1,36 @@
+{{#> layout
+  title="Account Locked"
+  headerGradientStart="#991B1B"
+  headerGradientEnd="#B91C1C"
+  headerText="Account Locked for Security Reasons"
+  footerNote="You are receiving this email because of multiple unsuccessful login or OTP attempts on your Tutera Learning Management System account."
+}}
+  <h2>Hello {{name}},</h2>
+
+  <p>
+    For your security, your Tutera Learning Management System account has been temporarily locked due to
+    multiple failed authentication attempts.
+  </p>
+
+  <p>
+    If this activity was performed by you, you may regain access by resetting your password
+    or waiting for the lock to expire.
+  </p>
+
+  <p style="margin: 20px 0;">
+    To secure your account, please reset your password using the button below:
+  </p>
+
+  <p style="text-align: center;">
+    <a href="{{resetPasswordUrl}}" class="button">
+      Reset Password
+    </a>
+  </p>
+
+  <p>
+    If you did not attempt to log in, please contact our support team immediately to ensure your
+    account remains secure.
+  </p>
+
+  <p>Sincerely,<br/>Tutera Learning Management System Security Team</p>
+{{/layout}}

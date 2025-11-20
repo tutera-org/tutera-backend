@@ -12,6 +12,8 @@ const options: swaggerJsdoc.Options = {
         '1. Register an account using /auth/register/institution or /auth/register/learner\n' +
         '2. Login using /auth/login to get JWT token\n' +
         '3. Use the token in Authorization header: Bearer YOUR_TOKEN\n\n' +
+        '4. User password RequestPasswordReset, ResetPassword, Update password\n\n' +
+        '5. Use one time OTP to change password auth/refresh-otp\n\n' +
         '## Key Features\n' +
         '- Multi tenant architecture\n' +
         '- 60-day free trial\n' +
@@ -37,6 +39,14 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Authentication',
         description: 'User registration and login',
+      },
+      {
+        name: 'Password',
+        description: 'Password reset/change endpoints',
+      },
+      {
+        name: 'OTP',
+        description: 'One-time password endpoints',
       },
       {
         name: 'Tenants',
@@ -323,13 +333,6 @@ const options: swaggerJsdoc.Options = {
         get: {
           tags: ['Authentication'],
           summary: 'Get Current User',
-          parameters: [
-            {
-              name: 'token',
-              in: 'cookie',
-              required: true,
-            },
-          ],
           security: [{ bearerAuth: [] }],
           responses: {
             '200': {
@@ -338,6 +341,114 @@ const options: swaggerJsdoc.Options = {
             '401': {
               description: 'Unauthorized',
             },
+          },
+        },
+      },
+      '/auth/logout': {
+        post: {
+          tags: ['Authentication'],
+          summary: 'User Logout',
+          responses: {
+            '200': { description: 'Logout successful' },
+          },
+        },
+      },
+      '/auth/request-password-reset': {
+        post: {
+          tags: ['Password'],
+          summary: 'Request Password Reset',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['email'],
+                  properties: {
+                    email: { type: 'string', example: 'user@example.com' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Password reset OTP sent' },
+          },
+        },
+      },
+      '/auth/reset-password': {
+        patch: {
+          tags: ['Password'],
+          summary: 'Reset Password',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['email', 'otpCode', 'newPassword'],
+                  properties: {
+                    email: { type: 'string', example: 'user@example.com' },
+                    otpCode: { type: 'string', example: '123456' },
+                    newPassword: { type: 'string', example: 'NewSecurePass@123' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Password reset successful' },
+            '400': { description: 'Invalid or expired OTP' },
+          },
+        },
+      },
+      '/auth/change-password': {
+        patch: {
+          tags: ['Password'],
+          summary: 'Change Password (Logged-in User)',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['userId', 'currentPassword', 'otpCode', 'newPassword'],
+                  properties: {
+                    userId: { type: 'string', example: '507f1f77bcf86cd799439011' },
+                    currentPassword: { type: 'string', example: 'OldPass@123' },
+                    otpCode: { type: 'string', example: '654321' },
+                    newPassword: { type: 'string', example: 'NewPass@456' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Password changed successfully' },
+            '400': { description: 'Invalid credentials or OTP' },
+          },
+        },
+      },
+      '/auth/refresh-otp': {
+        post: {
+          tags: ['OTP'],
+          summary: 'Refresh OTP',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['userId'],
+                  properties: {
+                    userId: { type: 'string', example: '507f1f77bcf86cd799439011' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'OTP sent successfully' },
           },
         },
       },

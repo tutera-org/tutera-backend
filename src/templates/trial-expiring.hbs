@@ -1,19 +1,17 @@
 {{#> layout
-  title="Trial Expiring Soon"
+  title="Trial Expiration Notice"
   headerGradientStart="#F59E0B"
   headerGradientEnd="#EF4444"
-  headerText="⏰ Your Trial is Expiring Soon"
-  footerNote="You're receiving this reminder because your Tutera LMS trial is ending soon."
+  headerText="Trial Expiration Reminder"
+  footerNote="You are receiving this reminder because your Tutera LMS trial is ending soon."
 }}
-  <h2>Hello {{firstName}}!</h2>
+  <h2>Hello {{firstName}},</h2>
 
-  <div class="warning">
-    <strong>Important Notice:</strong> Your free trial will expire in {{daysRemaining}} days on {{expiryDate}}.
-  </div>
+  <p><strong>Important Notice:</strong> Your free trial will expire in <strong>{{daysRemaining}} days</strong>, on <strong>{{expiryDate}}</strong>.</p>
 
-  <p>We hope you've been enjoying Tutera LMS! Your trial period is coming to an end, but you can continue using all features by subscribing to one of our plans.</p>
+  <p>We hope you have enjoyed exploring Tutera Learning Management System. To continue uninterrupted access to all features, please select one of our subscription plans below:</p>
 
-  <h3>Choose Your Plan:</h3>
+  <h3>Available Plans</h3>
   <ul>
     <li><strong>Monthly:</strong> $29.99/month</li>
     <li><strong>Quarterly:</strong> $79.99 (Save 11%)</li>
@@ -21,9 +19,13 @@
     <li><strong>Annual:</strong> $279.99 (Save 22%)</li>
   </ul>
 
-  <a href="{{subscribeUrl}}" class="button">Subscribe Now</a>
+  <p style="text-align: center; margin: 20px 0;">
+    <a href="{{subscribeUrl}}" class="button">Subscribe Now</a>
+  </p>
 
-  <p>After your trial expires, your account will be suspended until you choose a subscription plan. Don't worry — your data will be safe and ready when you return!</p>
+  <p>After your trial expires, access to your account will be temporarily suspended until a subscription plan is selected. Rest assured, your data will remain secure and ready when you return.</p>
 
-  <p>Questions? We're here to help at support@tutera.com</p>
+  <p>If you have any questions or need assistance, please contact our support team at <a href="mailto:support@tuteraafrica.xyz">support@tuteraafrica.xyz</a>.</p>
+
+  <p>Kind regards,<br/>Tutera LMS Team</p>
 {{/layout}}

@@ -130,6 +130,8 @@ export interface IUser extends Document {
   emailVerificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  failedOtpAttempts: number;
+  otpLockedUntil?: Date;
   lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -363,4 +365,18 @@ export interface CourseFilter {
   maxPrice?: number;
   rating?: number;
   status?: CourseStatus;
+}
+
+export interface NotificationPayload {
+  userId: string;
+  message: string | object;
+  type: 'onboarding' | 'course_completion' | 'new_course_upload';
+}
+
+export interface INotification extends Document {
+  userId: string;
+  message: string;
+  type: string;
+  read: boolean;
+  createdAt: Date;
 }

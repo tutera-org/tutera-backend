@@ -2,11 +2,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 // Determine the environment and load the corresponding file
 // for local test, it uses `.env.local` while in production uses .env
-// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+// const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
 // dotenv.config({ path: envFile });
 
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 dotenv.config();
@@ -26,12 +26,16 @@ export const getEnvironmentVariableNumber = (key: string, defaultVal?: number): 
   return Number(value);
 };
 
+const rawOrigins = getEnvironmentVariable('ALLOWED_ORIGINS', '*');
+
 export const MONGO_URI = getEnvironmentVariable('MONGO_URI', '');
 export const PORT = getEnvironmentVariableNumber('PORT', 5002);
 export const JWT_SECRET = getEnvironmentVariable('JWT_SECRET', 'secret_key');
 export const JWT_REFRESH_SECRET = getEnvironmentVariable('JwT_REFRESH_SECRET', 'secret_refresh');
 export const NODE_ENV = getEnvironmentVariable('NODE_ENV', 'development');
-export const ALLOWED_ORIGINS = getEnvironmentVariable('ALLOWED_ORIGINS', '*').split(',');
+export const ALLOWED_ORIGINS =
+  rawOrigins === '*' ? '*' : rawOrigins.split(',').map((origin) => origin.trim());
+
 export const TRIAL_PERIOD_DAYS = getEnvironmentVariableNumber('TRIAL_PERIOD_DAYS', 60);
 export const BCRYPT_ROUNDS = getEnvironmentVariableNumber('BCRYPT_ROUNDS', 12);
 export const RATE_LIMIT_WINDOW = getEnvironmentVariableNumber('RATE_LIMIT_WINDOW', 15);
@@ -42,5 +46,8 @@ export const SMTP_USER = getEnvironmentVariable('SMTP_USER', 'username');
 export const SMTP_PASSWORD = getEnvironmentVariable('SMTP_PASSWORD', 'password');
 export const FROM_EMAIL = getEnvironmentVariable('FROM_EMAIL', 'noreply@lms.com');
 export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Platform');
-
-export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://localhost:3000');
+// default 1 day
+export const JWT_EXPIRE = getEnvironmentVariableNumber('JWT_EXPIRE', 900);
+// default 7 days
+export const JWT_REFRESH_EXPIRE = getEnvironmentVariableNumber('JWT_REFRESH_EXPIRE', 604800);
+export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://tuteraafrica.xyz');
