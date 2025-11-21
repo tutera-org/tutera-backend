@@ -5,7 +5,7 @@ import { AuditLog } from '../models/AuditLog.ts';
 import { AppError } from '../utils/AppError.ts';
 import { SubscriptionStatus, UserRole } from '../interfaces/index.ts';
 import { createAuditLog } from '../utils/audit.ts';
-import { handleEmailEvent } from '../config/email/emailEvent.ts';
+import { handleEmailEvent } from '../templates/emailEvent.ts';
 import { paginate, type PaginationOptions } from '../utils/pagination.ts';
 import { buildMongoFilter } from '../utils/queryFilterBuilder.ts';
 
@@ -125,7 +125,9 @@ export class AdminService {
     await handleEmailEvent('user.accountSuspended', {
       to: user.email,
       data: {
-        reason,
+        name: user.firstName,
+        reason: 'Violation of terms',
+        suspendedAt: new Date(),
       },
     });
 
@@ -154,7 +156,8 @@ export class AdminService {
     await handleEmailEvent('user.accountActivated', {
       to: user.email,
       data: {
-        firstName: user.firstName,
+        name: user.firstName || user.tenantName,
+        activatedAt: new Date(),
       },
     });
 
@@ -224,8 +227,9 @@ export class AdminService {
       await handleEmailEvent('tenant.suspended', {
         to: owner.email,
         data: {
-          reason,
-          violationCount: tenant.violations.count,
+          name: tenant.name,
+          reason: 'Violation of terms',
+          suspendedAt: new Date(),
         },
       });
     }
@@ -258,7 +262,8 @@ export class AdminService {
       await handleEmailEvent('tenant.activated', {
         to: owner.email,
         data: {
-          firstName: owner.firstName,
+          name: owner.firstName,
+          activatedAt: new Date(),
         },
       });
     }

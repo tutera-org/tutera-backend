@@ -42,5 +42,6 @@ export const SMTP_USER = getEnvironmentVariable('SMTP_USER', 'username');
 export const SMTP_PASSWORD = getEnvironmentVariable('SMTP_PASSWORD', 'password');
 export const FROM_EMAIL = getEnvironmentVariable('FROM_EMAIL', 'noreply@lms.com');
 export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Platform');
-
+export const JWT_ADMIN_SECRET = getEnvironmentVariable('JWT_ADMIN_SECRET', 'secret_key');
+export const JWT_ADMIN_AUDIENCE = getEnvironmentVariable('JWT_ADMIN_AUDIENCE', 'admin');
 export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://tuteraafrica.xyz');

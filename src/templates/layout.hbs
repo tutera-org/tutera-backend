@@ -12,6 +12,8 @@
       margin: 0 auto;
       padding: 20px;
     }
+   .card { max-width:600px; margin:0 auto; border-radius:12px; overflow:hidden; box-shadow: 0 4px 14px rgba(16,24,40,0.08); }
+
     .header {
       background: linear-gradient(135deg, {{headerGradientStart}} 0%, {{headerGradientEnd}} 100%);
       color: white;
@@ -38,19 +40,29 @@
       padding: 20px;
       color: #6b7280;
       font-size: 12px;
+      background:#f9fafb;
+    }
+    /* dark mode overrides (some email clients support prefers-color-scheme) */
+    @media (prefers-color-scheme: dark) {
+      body { background:#0b1220; color:#e6eef8; }
+      .content { background:#071025; color:#e6eef8; }
+      .footer { background:#031022; color:#9aa8bd; }
     }
   </style>
 </head>
 <body>
+  <div class="card">
   <div class="header">
     <h1>{{headerText}}</h1>
   </div>
   <div class="content">
-    {{{> @partial-block}}}   
+   {{!-- This is where inner template HTML appears --}}
+    {{> @partial-block}}   
   </div>
   <div class="footer">
-    <p>&copy; {{year}} Tutera LMS. All rights reserved.</p>
+    <p>&copy; {{year}} Tutera Learning Management System. All rights reserved.</p>
     <p>{{footerNote}}</p>
+  </div>
   </div>
 </body>
 </html>

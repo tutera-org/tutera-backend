@@ -1,5 +1,5 @@
 import { connectDatabase } from './config/database.ts';
-import { scheduleEmails } from './services/email.service.ts';
+import { startEmailCron } from './services/cron-email.service.ts';
 import { logger } from './config/logger.ts';
 import app from './app.ts';
 import { PORT } from './config/constants.ts';
@@ -8,7 +8,9 @@ const startServer = async (): Promise<void> => {
   try {
     // Connect to database
     await connectDatabase();
-    scheduleEmails();
+
+    // Start email cron
+    startEmailCron();
 
     // Start server
     const server = app.listen(PORT, () => {

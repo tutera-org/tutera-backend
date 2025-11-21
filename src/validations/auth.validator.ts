@@ -26,7 +26,14 @@ export const registerSchema = z.object({
     ),
   firstName: z.string().min(2, 'First name must be at least 2 characters').optional(),
   lastName: z.string().min(2, 'Last name must be at least 2 characters').optional(),
-  role: z.enum(UserRole),
+  role: z
+    .string()
+    .trim()
+    .transform((v) => v.toUpperCase()) // normalize case first
+    .refine((v) => Object.values(UserRole).includes(v as UserRole), {
+      message: 'Role must be SUPER_ADMIN, INSTITUTION, or INDEPENDENT_CREATOR',
+    })
+    .transform((v) => v as UserRole),
   phoneNumber: nigerianPhoneSchema.optional(),
   tenantName: z.string().min(3, 'Tenant name must be at least 3 characters'),
 });

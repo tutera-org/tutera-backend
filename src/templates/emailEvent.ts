@@ -1,29 +1,9 @@
-import { sendEmail, type TemplateData } from './sendEmail.ts';
+import { ScheduledEmail } from '../models/ScheduledEmail.ts';
+import type { TemplateVars } from './types.ts';
 
-export type EmailEvent =
-  | 'user.registered'
-  | 'user.studentRegistration'
-  | 'user.passwordConfirmation'
-  | 'user.enrollmentConfirmation'
-  | 'user.passwordReset'
-  | 'user.profileUpdated'
-  | 'user.subscriptionChanged'
-  | 'user.subscriptionActivation'
-  | 'user.trialExpiring'
-  | 'user.violation'
-  | 'user.accountSuspended'
-  | 'user.accountActivated'
-  | 'tenant.suspended'
-  | 'tenant.activated'
-  | 'user.accountLocked'
-  | 'admin.alert';
+export type EmailEvent = keyof TemplateVars;
 
-interface EmailPayload {
-  to: string;
-  data: TemplateData;
-}
-
-const subjectMap: Record<EmailEvent, string> = {
+export const subjectMap: { [K in EmailEvent]: string } = {
   'user.registered': 'Welcome to Tutera LMS!',
   'user.studentRegistration': 'Student Registration',
   'user.enrollmentConfirmation': 'Enrollment Confirmation',
@@ -42,7 +22,7 @@ const subjectMap: Record<EmailEvent, string> = {
   'admin.alert': 'Admin Alert: Suspicious Activity',
 };
 
-const templateMap: Record<EmailEvent, string> = {
+export const templateMap: { [K in EmailEvent]: string } = {
   'user.registered': 'welcome',
   'user.studentRegistration': 'student-registration',
   'user.enrollmentConfirmation': 'enrollment-confirmation',
@@ -61,12 +41,28 @@ const templateMap: Record<EmailEvent, string> = {
   'admin.alert': 'admin-alert',
 };
 
-export async function handleEmailEvent(event: EmailEvent, payload: EmailPayload): Promise<void> {
-  const subject = subjectMap[event];
-  const template = templateMap[event];
+export interface EmailPayload<T extends EmailEvent> {
+  to: string;
+  data: TemplateVars[T];
+  attachments?: { filename: string; path: string }[];
+  scheduledTime?: Date;
+}
 
-  await sendEmail(payload.to, subject, template, {
-    ...payload.data,
-    year: new Date().getFullYear(),
+/**
+ * Enqueue an email for processing (stored in DB). Strictly typed per event.
+ */
+export async function handleEmailEvent<T extends EmailEvent>(
+  event: T,
+  payload: EmailPayload<T>
+): Promise<void> {
+  await ScheduledEmail.create({
+    to: payload.to,
+    subject: subjectMap[event],
+    templateName: templateMap[event],
+    data: payload.data,
+    scheduledTime: payload.scheduledTime ?? new Date(),
+    sent: false,
+    retryCount: 0,
+    attachments: payload.attachments ?? [],
   });
 }
