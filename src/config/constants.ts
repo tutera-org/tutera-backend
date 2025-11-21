@@ -2,11 +2,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 // Determine the environment and load the corresponding file
 // for local test, it uses `.env.local` while in production uses .env
-// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+// const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
 // dotenv.config({ path: envFile });
 
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 dotenv.config();
