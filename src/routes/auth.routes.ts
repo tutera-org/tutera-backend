@@ -82,7 +82,7 @@ router.post('/request-password-reset', authController.requestPasswordReset);
 router.patch('/reset-password', authController.resetPassword);
 router.patch('/change-password', authController.changePassword);
 router.post('/refresh-otp', authenticate, authController.refreshOtp);
-// router.get('/me', authenticate, authController.getCurrentUser);
+router.get('/me', authenticate, authController.getCurrentUser);
 
 router.post('/logout', authenticate, authController.logout);
 

@@ -16,12 +16,7 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     // Check for token in headers
-    const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
-
-    // Check for token in cookies
-    // else if (req.cookies.token) {
-    //   token = req.cookies.token;
-    // }
+    const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
       throw new AppError('Not authorized to access this route', 401);
