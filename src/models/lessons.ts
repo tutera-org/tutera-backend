@@ -26,7 +26,7 @@ const lessonSchema = new Schema<ILesson>(
       required: true,
     },
     order: { type: Number, required: true },
-    contentId: { type: Schema.Types.ObjectId, ref: 'Content' },
+    contentId: { type: Schema.Types.ObjectId, ref: 'Media' },
     duration: { type: Number },
     isPreview: { type: Boolean, default: false },
   },

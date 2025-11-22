@@ -10,7 +10,6 @@ declare module 'express-serve-static-core' {
       tenantId: string;
     };
     user?: {
-      _id: string;
       tenantId: string;
       userId: string;
     };

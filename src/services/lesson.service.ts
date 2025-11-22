@@ -1,43 +1,28 @@
 import type { ClientSession } from 'mongoose';
 import LessonModel from '../models/Lessons.ts';
-import type { LessonDTO } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
+import { LessonRepository } from '../repositories/lesson.repository.ts';
+import type { Lesson } from '../interfaces/index.ts';
 
 export class LessonService {
-  async createLesson(moduleId: string, data: LessonDTO, tenantId: string, session?: ClientSession) {
-    const lesson = await LessonModel.create(
-      {
-        tenantId,
-        moduleId,
-        contentId: data.contentId,
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        order: data.order,
-        duration: data.duration,
-        isPreview: data.isPreview ?? false,
-      },
-      { session: session ?? null }
-    );
-
+  async createLesson(moduleId: string, data: Lesson, tenantId: string, session?: ClientSession) {
+    const lesson = await LessonRepository.create(tenantId, moduleId, data, session ?? null);
     return lesson;
   }
 
   async getLessonById(lessonId: string, tenantId: string, session?: ClientSession) {
-    const lesson = await LessonModel.findOne({ _id: lessonId, tenantId }).session(session ?? null);
-    if (!module) throw new AppError('Module not found', 404);
+    const lesson = await LessonRepository.findById(lessonId, tenantId, session ?? null);
+    if (!lesson) throw new AppError('Module not found', 404);
     return lesson;
   }
 
   async updateLesson(
     lessonId: string,
-    data: Partial<LessonDTO>,
+    data: Partial<Lesson>,
     tenantId: string,
     session?: ClientSession
   ) {
-    const lesson = await LessonModel.findOneAndUpdate({ _id: lessonId, tenantId }, data, {
-      new: true,
-    }).session(session ?? null);
+    const lesson = await LessonRepository.update(lessonId, data, tenantId, session ?? null);
     if (!lesson) throw new AppError('Lesson not found', 404);
     return module;
   }
@@ -51,10 +36,7 @@ export class LessonService {
   }
 
   async getLessonsByModule(moduleId: string, tenantId: string, session?: ClientSession) {
-    const lessons = await LessonModel.find({ moduleId, tenantId })
-      .sort({ order: 1 })
-      .populate('contentId')
-      .session(session ?? null);
+    const lessons = await LessonRepository.findByModule(moduleId, tenantId, session ?? null);
     return lessons;
   }
 }

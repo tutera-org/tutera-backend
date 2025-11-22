@@ -45,9 +45,9 @@ export enum PaymentStatus {
 }
 
 export enum CourseStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  ARCHIVED = 'archived',
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export enum CourseLevel {
@@ -60,6 +60,12 @@ export enum EnrollmentStatus {
   ACTIVE = 'active',
   COMPLETED = 'completed',
   DROPPED = 'dropped',
+}
+
+export enum LessonType {
+  VIDEO = 'VIDEO',
+  PDF = 'PDF',
+  AUDIO = 'AUDIO',
 }
 
 // Interfaces
@@ -295,7 +301,7 @@ export interface QueryOptions {
 // JWT Payload
 export interface JwtPayload {
   userId: string;
-  tenantId?: string;
+  tenantId: string;
   role: UserRole;
   email: string;
 }
@@ -405,24 +411,25 @@ export interface INotification extends Document {
 }
 
 // Course DTO
-export interface CreateCourseDTO {
+export interface Course {
   title: string;
   description: string;
   price: number;
-  level: CourseLevel;
+  coverImage: string;
+  status: CourseStatus;
 }
 
 // Module DTO
-export interface ModuleDTO {
+export interface Module {
   title: string;
   order: number;
   quizId?: string;
 }
 
-export interface LessonDTO {
+export interface Lesson {
   title: string;
   description?: string;
-  type: 'VIDEO' | 'PDF' | 'ASSIGNMENT';
+  type: LessonType;
   order: number;
   duration?: number;
   isPreview?: boolean;
