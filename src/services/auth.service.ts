@@ -157,15 +157,20 @@ export class AuthService {
     lastName: string;
     tenantId: string;
     phoneNumber?: string;
+    subdomain: string;
   }) {
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       throw new AppError('Email already registered', 409);
     }
 
-    const tenant = await Tenant.findById(data.tenantId);
+    const tenant = await Tenant.findOne({
+      website: data.subdomain,
+      'subscription.status': { $ne: SubscriptionStatus.EXPIRED },
+    }).exec();
+
     if (!tenant || !tenant.isActive) {
-      throw new AppError('Invalid or inactive tenant', 404);
+      throw new AppError('Invalid or Inactive tenant', 404);
     }
 
     // Check if tenant subscription is active
@@ -387,40 +392,17 @@ export class AuthService {
   /**
    * Get Current User Profile
    */
-  // async getCurrentUser(userId: string) {
-  //   const user = await User.findById(userId).select('-password').populate('tenantId').lean();
+  async getCurrentUser(userId: string) {
+    const user = await User.findById(userId).select('-password').populate('tenantId').lean();
 
-  //   if (!user) {
-  //     throw new AppError('User not found', 404);
-  //   }
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
 
-  //   // Get additional stats based on role
-  //   let additionalData: any = {};
-
-  //   if (user.role === UserRole.STUDENT) {
-  //     const Enrollment = (await import('../models/Enrollment')).Enrollment;
-  //     const enrollmentCount = await Enrollment.countDocuments({
-  //       learnerId: user._id,
-  //       isActive: true,
-  //     });
-
-  //     additionalData.enrollmentCount = enrollmentCount;
-  //   } else if (
-  // user.role === UserRole.INSTITUTION || user.role === UserRole.INDEPENDENT_CREATOR) {
-  //     const Course = (await import('../models/Course')).Course;
-  //     const courseCount = await Course.countDocuments({
-  //       creatorId: user._id,
-  //       isActive: true,
-  //     });
-
-  //     additionalData.courseCount = courseCount;
-  //   }
-
-  //   return {
-  //     ...user,
-  //     ...additionalData,
-  //   };
-  // }
+    return {
+      ...user,
+    };
+  }
 
   /**
    * Change Password

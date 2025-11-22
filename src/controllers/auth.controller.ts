@@ -4,7 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
 import { createOtp } from '../utils/otpCode.ts';
-import { UserRole } from '../interfaces/index.ts';
+import { UserRole, type AuthRequest } from '../interfaces/index.ts';
 import { getSocketManager } from '../sockets/index.ts';
 import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
@@ -52,7 +52,6 @@ export class AuthController {
         role: { $in: [UserRole.INDEPENDENT_CREATOR, UserRole.INSTITUTION] },
         tenantId: result.tenant.id,
       }).select('id');
-      console.log('ownerId: ', ownerId);
       setTimeout(async () => {
         getSocketManager().sendNotification('info', ownerId?.id, {
           userId: result.user.id as string,
@@ -65,6 +64,16 @@ export class AuthController {
     }
   };
 
+  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.userId;
+      const result = await this.authService.getCurrentUser(userId!);
+      ApiResponse.success(res, result, 'User details retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * @swagger
    * /auth/users/update:
@@ -72,7 +81,11 @@ export class AuthController {
    *     summary: Update user details
    *     tags: [Authentication]
    */
-  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateUserDetails = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const result = await this.authService.updateUserDetails(req.body);
       ApiResponse.success(res, result, 'User details updated successfully');
