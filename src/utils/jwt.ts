@@ -10,14 +10,24 @@ import {
 
 export const generateToken = (payload: JwtPayload): string => {
   const secret: Secret = JWT_SECRET;
-  const options: SignOptions = { expiresIn: JWT_EXPIRE };
+  // Handle NaN values by providing fallbacks
+  const tokenExpire = isNaN(JWT_EXPIRE) ? 900 : JWT_EXPIRE; // 15 minutes fallback
+  const refreshExpire = isNaN(JWT_REFRESH_EXPIRE) ? 604800 : JWT_REFRESH_EXPIRE; // 7 days fallback
+
+  console.log('JWT_EXPIRE value:', JWT_EXPIRE, 'type:', typeof JWT_EXPIRE);
+  console.log('JWT_REFRESH_EXPIRE value:', JWT_REFRESH_EXPIRE, 'type:', typeof JWT_REFRESH_EXPIRE);
+  console.log('Using tokenExpire:', tokenExpire, 'refreshExpire:', refreshExpire);
+
+  const options: SignOptions = { expiresIn: tokenExpire };
 
   return jwt.sign(payload, secret, options);
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
   const refreshSecret: Secret = JWT_REFRESH_SECRET;
-  const options: SignOptions = { expiresIn: JWT_REFRESH_EXPIRE };
+  const refreshExpire = isNaN(JWT_REFRESH_EXPIRE) ? 604800 : JWT_REFRESH_EXPIRE; // 7 days fallback
+
+  const options: SignOptions = { expiresIn: refreshExpire };
   return jwt.sign(payload, refreshSecret, options);
 };
 
