@@ -60,7 +60,9 @@ export class CourseService {
   ) {
     const course = await CourseRepository.findById(courseId, tenantId, session ?? null);
     if (!course) throw new AppError('Course not found', 404);
-    const updatedData: Partial<CourseDTO> = JSON.parse(JSON.stringify(data));
+
+    // Deep clone data to avoid mutation issues
+    const updatedData = JSON.parse(JSON.stringify(data));
 
     const courseData: Partial<Course> = {
       title: updatedData?.title,
@@ -72,9 +74,9 @@ export class CourseService {
 
     const moduleData: Array<ModuleDTO> = [...(updatedData?.modules ?? [])];
 
-    const lessonsData: Array<LessonDTO> = moduleData?.flatMap((module) => [
-      ...(module.lessons ?? []),
-    ]);
+    const lessonsData: Array<LessonDTO & { moduleId: string }> = moduleData?.flatMap((module) =>
+      (module.lessons ?? []).map((lesson) => ({ ...lesson, moduleId: module._id! }))
+    );
 
     // --- Update Course Document ---
 
@@ -91,14 +93,30 @@ export class CourseService {
     for (const module of moduleData) {
       if (module._id) {
         await ModuleRepository.update(module._id, module, tenantId, session ?? null);
+      } else {
+        // Create new module
+        await ModuleRepository.create(courseId, { ...module }, tenantId, session ?? null);
       }
     }
 
     for (const lesson of lessonsData) {
       if (lesson._id) {
         await LessonRepository.update(lesson._id, lesson, tenantId, session ?? null);
+      } else {
+        // Create new lesson does not have _id
+        await LessonRepository.create(tenantId, lesson.moduleId, { ...lesson }, session ?? null);
       }
     }
+
+    // const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
+    // for (const module of modules) {
+    //   const lessons = await LessonRepository.findByModule(module.id, tenantId, session ?? null);
+    //   const mod = module;
+    //   // Ensure _doc exists on the returned module document and attach lessons there,
+    //   // otherwise attach lessons directly to the module object.
+    //   mod._doc = mod._doc ?? {};
+    //   mod._doc.lessons = lessons;
+    // }
 
     return updatedCourse;
   }

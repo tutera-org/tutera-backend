@@ -18,7 +18,6 @@ export const CourseRepository = {
   findAll(tenantId: string, session: ClientSession | null = null) {
     return CourseModel.find({ tenantId }).session(session);
   },
-
   findById(courseId: string, tenantId: string, session: ClientSession | null = null) {
     return CourseModel.findOne({ _id: courseId, tenantId }).session(session);
   },

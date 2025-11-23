@@ -28,6 +28,9 @@ export const LessonRepository = {
   findById(lessonId: string, tenantId: string, session: ClientSession | null = null) {
     return LessonModel.findOne({ _id: lessonId, tenantId }).populate('contentId').session(session);
   },
+  findByCourse(courseId: string, tenantId: string, session: ClientSession | null = null) {
+    return LessonModel.find({ courseId, tenantId }).session(session ?? null);
+  },
   findByModule(moduleId: string, tenantId: string, session: ClientSession | null = null) {
     return LessonModel.find({ moduleId, tenantId })
       .sort({ order: 1 })
