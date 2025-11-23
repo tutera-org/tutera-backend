@@ -1,54 +1,61 @@
 import type { ClientSession } from 'mongoose';
-import type { Course } from '../interfaces/index.ts';
-import CourseModel from '../models/Courses.ts';
+import type { Course, Module } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
-import { slugify } from '../utils/slugify.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
-import { ModuleRepository } from '../repositories/module.repositoty.ts';
+import { ModuleRepository } from '../repositories/module.repository.ts';
 import { LessonRepository } from '../repositories/lesson.repository.ts';
 import type { DeepPartial } from '../utils/types.ts';
 import type { CourseDTO, LessonDTO, ModuleDTO } from '../interfaces/dtos/course.dto.ts';
+import type { IModule } from '../models/Modules.ts';
 
 export class CourseService {
-  async createCourse(data: Course, tenantId: string, session?: ClientSession) {
-    const courseSlug = slugify(data.title);
-
-    const exists = await CourseModel.findOne({ tenantId, slug: courseSlug }).session(
-      session ?? null
-    );
-    if (exists) throw new AppError('Course title already exists for this tenant', 409);
-
-    const course = new CourseModel({
-      ...data,
-      tenantId,
-      totalEnrollment: 0,
-      averageRating: 0,
-      isActive: true,
-    });
-
-    await course.save({ session: session ?? null });
-    return course;
-  }
+  // Get All Courses
   async getAllCourses(tenantId: string, session?: ClientSession) {
-    return CourseModel.find({ tenantId }).session(session ?? null);
+    return await CourseRepository.findAll(tenantId, session ?? null);
   }
 
-  async getCourseById(courseId: string, tenantId: string, session?: ClientSession) {
-    const course = await CourseModel.findOne({ _id: courseId, tenantId }).session(session ?? null);
+  async getCourseDetails(courseId: string, tenantId: string, session?: ClientSession) {
+    const course = await CourseRepository.findAll(tenantId, session ?? null);
     if (!course) throw new AppError('Course not found', 404);
-    return course;
+
+    const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
+    const lessons = await LessonRepository.findByCourse(courseId, tenantId, session ?? null);
+    const cascadedModules = modules.map((module) => ({
+      ...module.toObject(),
+      lessons: lessons
+        // Filter lessons belonging to the module
+        .filter((lesson) => lesson.moduleId.toString() === module._id)
+        // Sort lessons by order
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        // Map to plain objects
+        .map((lesson) => lesson.toObject()),
+    }));
+    return { ...course, modules: cascadedModules };
   }
 
-  async updateCourse(
-    courseId: string,
-    data: Partial<Course>,
-    tenantId: string,
-    session?: ClientSession
-  ) {
-    const course = await CourseModel.findOneAndUpdate({ _id: courseId, tenantId }, data, {
-      new: true,
-    }).session(session ?? null);
-    if (!course) throw new AppError('Course not found', 404);
+  // Create Full Course with Modules and Lessons
+  async createFullCourse(tenantId: string, data: DeepPartial<CourseDTO>, session?: ClientSession) {
+    const course = await CourseRepository.create(data as Course, tenantId, session ?? null);
+
+    const moduleData: Array<ModuleDTO> = [...((data?.modules ?? []) as Array<ModuleDTO>)];
+
+    const lessonsData: Array<LessonDTO & { moduleId: string }> = moduleData?.flatMap((module) =>
+      (module.lessons ?? []).map((lesson) => ({ ...lesson, moduleId: module._id! }))
+    );
+
+    for (const module of moduleData) {
+      const createdModule: IModule = (await ModuleRepository.create(
+        course._id as string,
+        { ...(module as Module) },
+        tenantId,
+        session ?? null
+      )) as IModule;
+
+      const moduleId = createdModule._id as string;
+      for (const lesson of lessonsData) {
+        await LessonRepository.create(tenantId, moduleId, { ...lesson }, session ?? null);
+      }
+    }
     return course;
   }
 
@@ -108,17 +115,10 @@ export class CourseService {
       }
     }
 
-    // const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
-    // for (const module of modules) {
-    //   const lessons = await LessonRepository.findByModule(module.id, tenantId, session ?? null);
-    //   const mod = module;
-    //   // Ensure _doc exists on the returned module document and attach lessons there,
-    //   // otherwise attach lessons directly to the module object.
-    //   mod._doc = mod._doc ?? {};
-    //   mod._doc.lessons = lessons;
-    // }
+    const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
+    const lessons = await LessonRepository.findByCourse(courseId, tenantId, session ?? null);
 
-    return updatedCourse;
+    return { updatedCourse, modules, lessons };
   }
 
   async deleteCourseWithProperties(courseId: string, tenantId: string, session?: ClientSession) {

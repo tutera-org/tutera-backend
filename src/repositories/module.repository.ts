@@ -1,14 +1,15 @@
 import type { ClientSession } from 'mongoose';
 import type { ModuleDTO } from '../interfaces/dtos/course.dto.ts';
-import ModuleModel from '../models/Modules.ts';
+import ModuleModel, { type IModule } from '../models/Modules.ts';
+import type { Module } from '../interfaces/index.ts';
 
 export const ModuleRepository = {
   create(
     courseId: string,
-    data: Partial<ModuleDTO>,
+    data: Module,
     tenantId: string,
     session: ClientSession | null = null
-  ) {
+  ): Promise<IModule | unknown> {
     return ModuleModel.create(
       {
         ...data,

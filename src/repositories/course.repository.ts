@@ -1,9 +1,10 @@
 import type { ClientSession } from 'mongoose';
 import type { CourseDTO } from '../interfaces/dtos/course.dto.ts';
 import CourseModel from '../models/Courses.ts';
+import type { Course } from '../interfaces/index.ts';
 
 export const CourseRepository = {
-  create(data: CourseDTO, tenantId: string, session: ClientSession | null = null) {
+  create(data: Course, tenantId: string, session: ClientSession | null = null) {
     const course = new CourseModel({
       ...data,
       tenantId,
@@ -12,11 +13,11 @@ export const CourseRepository = {
       isActive: true,
     });
 
-    course.save({ session: session ?? null });
+    return course.save({ session: session ?? null });
   },
 
   findAll(tenantId: string, session: ClientSession | null = null) {
-    return CourseModel.find({ tenantId }).session(session);
+    return CourseModel.find({ tenantId }).sort({ createdAt: -1 }).session(session);
   },
   findById(courseId: string, tenantId: string, session: ClientSession | null = null) {
     return CourseModel.findOne({ _id: courseId, tenantId }).session(session);
