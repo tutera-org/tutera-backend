@@ -155,7 +155,6 @@ export class AuthService {
     password: string;
     firstName: string;
     lastName: string;
-    tenantId: string;
     phoneNumber?: string;
     subdomain: string;
   }) {
@@ -191,7 +190,7 @@ export class AuthService {
 
     await createAuditLog(user.id, 'LEARNER_REGISTRATION', 'User', user.id, {
       email: data.email,
-      tenantId: data.tenantId,
+      tenantId: user.tenantId,
     });
 
     try {
