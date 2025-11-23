@@ -53,7 +53,7 @@ export const learnerRegisterSchema = z.object({
     ),
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  tenantId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid tenant ID'),
+  subdomain: z.string().min(3, 'Subdomain must be at least 3 characters').toLowerCase(),
   phoneNumber: z.string().optional(),
 });
 
