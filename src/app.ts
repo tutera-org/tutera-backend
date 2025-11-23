@@ -16,6 +16,7 @@ import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
 import adminRoutes from './routes/admin.routes.ts';
 import mediaRoutes from './routes/media.routes.ts';
+import coursesRoutes from './routes/courses.routes.ts';
 
 const app: Application = express();
 app.use(express.json());
@@ -106,6 +107,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/media', mediaRoutes);
+app.use('/api/v1/courses', coursesRoutes);
 
 // Catch-all route (for undefined endpoints)
 app.all('/{*any}', (req, res) => {

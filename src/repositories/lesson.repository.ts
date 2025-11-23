@@ -9,18 +9,28 @@ export const LessonRepository = {
     data: LessonDTO,
     session: ClientSession | null = null
   ) {
+    console.log(
+      'Creating lesson with data:',
+      { ...data },
+      'for moduleId:',
+      moduleId,
+      'and tenantId:',
+      tenantId
+    );
     return LessonModel.create(
-      {
-        tenantId,
-        moduleId,
-        contentId: data.contentId,
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        order: data.order,
-        duration: data.duration,
-        isPreview: data.isPreview ?? false,
-      },
+      [
+        {
+          tenantId,
+          moduleId,
+          contentId: data.contentId,
+          title: data.title,
+          description: data.description,
+          type: data.type,
+          order: data.order,
+          duration: data.duration,
+          isPreview: data.isPreview ?? false,
+        },
+      ],
       { session }
     );
   },

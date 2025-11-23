@@ -1,31 +1,31 @@
-import express from 'express';
-import {
-  getCourses,
-  createCourse,
-  getCourseModules,
-  createModule,
-  getModuleLessons,
-  createLesson,
-} from '../controllers/courses.controller.ts';
+import { Router, type RequestHandler } from 'express';
+import { authenticate } from '../middlewares/auth.middleware.ts';
+import courseController from '../controllers/courses.controller.ts';
 
-const router = express.Router();
+const router = Router();
 
 // Get all courses for the current tenant
-router.get('/', getCourses);
+router.get('/', authenticate as unknown as RequestHandler, courseController.getAllCourses);
 
+// get Course by ID with details
+router.get(
+  '/details',
+  authenticate as unknown as RequestHandler,
+  courseController.getCourseDetails
+);
 // POST /: Create a new course for current tenant
-router.post('/', createCourse);
+router.post('/', authenticate as unknown as RequestHandler, courseController.createCourse);
 
-// GET /:id/modules: Get all modules for a specific course
-router.get('/:id/modules', getCourseModules);
+// // GET /:id/modules: Get all modules for a specific course
+// router.get('/:id/modules', getCourseModules);
 
-// POST /modules: Create a new module for a specific course
-router.post('/modules', createModule);
+// // POST /modules: Create a new module for a specific course
+// router.post('/modules', createModule);
 
-// GET /modules/:moduleId/lessons: Get lessons for a specific module
-router.get('/modules/:id/lessons', getModuleLessons);
+// // GET /modules/:moduleId/lessons: Get lessons for a specific module
+// router.get('/modules/:id/lessons', getModuleLessons);
 
-// POST /lessons: Create a new lesson for a module
-router.post('/lessons', createLesson);
+// // POST /lessons: Create a new lesson for a module
+// router.post('/lessons', createLesson);
 
 export default router;

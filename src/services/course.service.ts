@@ -6,7 +6,6 @@ import { ModuleRepository } from '../repositories/module.repository.ts';
 import { LessonRepository } from '../repositories/lesson.repository.ts';
 import type { DeepPartial } from '../utils/types.ts';
 import type { CourseDTO, LessonDTO, ModuleDTO } from '../interfaces/dtos/course.dto.ts';
-import type { IModule } from '../models/Modules.ts';
 
 export class CourseService {
   // Get All Courses
@@ -19,17 +18,19 @@ export class CourseService {
     if (!course) throw new AppError('Course not found', 404);
 
     const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
-    const lessons = await LessonRepository.findByCourse(courseId, tenantId, session ?? null);
-    const cascadedModules = modules.map((module) => ({
-      ...module.toObject(),
-      lessons: lessons
-        // Filter lessons belonging to the module
-        .filter((lesson) => lesson.moduleId.toString() === module._id)
-        // Sort lessons by order
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        // Map to plain objects
-        .map((lesson) => lesson.toObject()),
-    }));
+    const cascadedModules = [];
+    for (const module of modules) {
+      const lessons = await LessonRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? null
+      );
+
+      cascadedModules.push({
+        ...module.toObject(),
+        lessons: lessons.map((lesson) => lesson.toObject()),
+      });
+    }
     return { ...course, modules: cascadedModules };
   }
 
@@ -44,12 +45,14 @@ export class CourseService {
     );
 
     for (const module of moduleData) {
-      const createdModule: IModule = (await ModuleRepository.create(
+      const createdModule = (await ModuleRepository.create(
         course._id as string,
         { ...(module as Module) },
         tenantId,
         session ?? null
-      )) as IModule;
+      )) as object & { _id: string };
+
+      console.log('Created module:', createdModule);
 
       const moduleId = createdModule._id as string;
       for (const lesson of lessonsData) {

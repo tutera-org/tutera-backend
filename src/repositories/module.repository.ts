@@ -10,12 +10,22 @@ export const ModuleRepository = {
     tenantId: string,
     session: ClientSession | null = null
   ): Promise<IModule | unknown> {
+    console.log(
+      'Creating module with data:',
+      { ...data },
+      'for courseId:',
+      courseId,
+      'and tenantId:',
+      tenantId
+    );
     return ModuleModel.create(
-      {
-        ...data,
-        courseId,
-        tenantId,
-      },
+      [
+        {
+          ...data,
+          courseId,
+          tenantId,
+        },
+      ],
       { session }
     );
   },

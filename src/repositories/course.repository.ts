@@ -5,6 +5,7 @@ import type { Course } from '../interfaces/index.ts';
 
 export const CourseRepository = {
   create(data: Course, tenantId: string, session: ClientSession | null = null) {
+    console.log('Creating course with data:', { ...data }, 'for tenantId:', tenantId);
     const course = new CourseModel({
       ...data,
       tenantId,

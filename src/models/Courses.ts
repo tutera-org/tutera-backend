@@ -20,7 +20,7 @@ export interface ICourse extends Document {
 const courseSchema = new Schema<ICourse>(
   {
     tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, unique: true },
     title: { type: String, required: true },
     description: { type: String },
     coverImage: { type: String },
