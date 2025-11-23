@@ -27,8 +27,7 @@ export const getEnvironmentVariableNumber = (key: string, defaultVal?: number): 
 };
 
 const rawOrigins = getEnvironmentVariable('ALLOWED_ORIGINS', '*');
-
-export const MONGO_URI = getEnvironmentVariable('MONGO_URI', '');
+export const MONGO_URI = getEnvironmentVariable('MONGO_URI');
 export const PORT = getEnvironmentVariableNumber('PORT', 5002);
 export const JWT_SECRET = getEnvironmentVariable('JWT_SECRET', 'secret_key');
 export const JWT_REFRESH_SECRET = getEnvironmentVariable('JwT_REFRESH_SECRET', 'secret_refresh');

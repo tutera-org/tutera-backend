@@ -44,7 +44,7 @@ export class TenantController {
   //     }
   //   };
 
-  updateTenant = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  updateTenant = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const tenant = await this.tenantService.updateTenant(
         req.params.id as string,
