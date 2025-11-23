@@ -80,12 +80,10 @@ const PaymentSchema: Schema = new Schema(
     userId: {
       type: String,
       required: false,
-      index: true,
     },
     creatorId: {
       type: String,
       required: false,
-      index: true,
     },
     paymentType: {
       type: String,
@@ -96,7 +94,6 @@ const PaymentSchema: Schema = new Schema(
     relatedItemId: {
       type: String,
       required: false,
-      index: true,
     },
   },
   {
@@ -105,7 +102,6 @@ const PaymentSchema: Schema = new Schema(
 );
 
 // Created indexes for better query performance
-PaymentSchema.index({ invoiceId: 1 });
 PaymentSchema.index({ status: 1 });
 PaymentSchema.index({ payerEmail: 1 });
 PaymentSchema.index({ userId: 1 });
