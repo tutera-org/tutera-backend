@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "E:\\Users\\Token_Harvester\\tutera-backend\\logs\\.e6fd1ce1c7ce749ed39c0f8684a2219827c2828c-audit.json",
+    "files": [
+        {
+            "date": 1763112011416,
+            "name": "E:\\Users\\Token_Harvester\\tutera-backend\\logs\\combined-2025-11-14.log",
+            "hash": "5578eca31d299a855cbe876666d28386230e814eb011ec056f9907ccd728d58d"
+        }
+    ],
+    "hashType": "sha256"
+}

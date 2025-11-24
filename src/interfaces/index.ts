@@ -45,15 +45,27 @@ export enum PaymentStatus {
 }
 
 export enum CourseStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  ARCHIVED = 'archived',
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum CourseLevel {
+  BEGINNER = 'beginner',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced',
 }
 
 export enum EnrollmentStatus {
   ACTIVE = 'active',
   COMPLETED = 'completed',
   DROPPED = 'dropped',
+}
+
+export enum LessonType {
+  VIDEO = 'VIDEO',
+  PDF = 'PDF',
+  AUDIO = 'AUDIO',
 }
 
 // Interfaces
@@ -291,7 +303,7 @@ export interface QueryOptions {
 // JWT Payload
 export interface UserJwtPayload {
   userId: string;
-  tenantId?: string;
+  tenantId: string;
   role: UserRole;
   email: string;
 }
@@ -312,6 +324,23 @@ export interface IAuditLog extends Document {
   ipAddress?: string;
   userAgent?: string;
   createdAt: Date;
+}
+
+export interface IQuiz extends Document {
+  title: string;
+  description?: string;
+  moduleId: Types.ObjectId;
+  tenantId: string;
+  createdBy: string;
+  questions: {
+    question: string;
+    options: string[];
+    correctAnswerIndex: number;
+    explanation?: string;
+  }[];
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Custom Request with file support
@@ -372,4 +401,44 @@ export interface CourseFilter {
   maxPrice?: number;
   rating?: number;
   status?: CourseStatus;
+}
+
+export interface NotificationPayload {
+  userId: string;
+  message: string | object;
+  type: 'onboarding' | 'course_completion' | 'new_course_upload';
+}
+
+export interface INotification extends Document {
+  userId: string;
+  message: string;
+  type: string;
+  read: boolean;
+  createdAt: Date;
+}
+
+// Course DTO
+export interface Course {
+  title: string;
+  description: string;
+  price: number;
+  coverImage: string;
+  status: CourseStatus;
+}
+
+// Module DTO
+export interface Module {
+  title: string;
+  order: number;
+  quizId?: string;
+}
+
+export interface Lesson {
+  title: string;
+  description?: string;
+  type: LessonType;
+  order: number;
+  duration?: number;
+  isPreview?: boolean;
+  contentId: string;
 }

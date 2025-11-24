@@ -10,12 +10,14 @@ import { swaggerSpec } from './config/swagger.ts';
 import { apiLimiter } from './middlewares/rateLimit.middleware.ts';
 //import { sanitizeData } from './middlewares/sanitize.middleware.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
-import { ALLOWED_ORIGINS, PORT } from './config/constants.ts';
+import { ALLOWED_ORIGINS } from './config/constants.ts';
 import emailRoutes from './routes/email.routes.ts';
 
 import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
 import adminRoutes from './routes/admin.routes.ts';
+import mediaRoutes from './routes/media.routes.ts';
+import coursesRoutes from './routes/courses.routes.ts';
 
 const app: Application = express();
 app.use(express.json());
@@ -44,41 +46,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ALLOWED_ORIGINS;
+
+const allowedOrigins = ALLOWED_ORIGINS as string[];
+console.log('Allowed Origins:', allowedOrigins);
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow non-browser tools
+
+      try {
+        const { hostname } = new URL(origin);
+
+        const isAllowed = allowedOrigins.some(
+          (base) => hostname === base || hostname.endsWith(`.${base}`)
+        );
+
+        if (isAllowed) {
+          return callback(null, true);
+        }
+      } catch {
+        return callback(new Error('Invalid origin'));
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Validation', 'X-Requested-With', 'Accept'],
-    // => {
-    //   if (!origin || allowedOrigins.includes(origin)) {
-    //     callback(null, true);
-    //   } else {
-    //     console.error('❌ Blocked by CORS:', origin);
-    //     callback(new Error('Not allowed by CORS'));
-    //   }
-    // },
     credentials: true,
   })
 );
-
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error('Not allowed by CORS'));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-// app.use((req, res, next) => {
-//   req.query = { ...req.query };
-//   next();
-// });
 
 // Data sanitization against NoSQL injection
 //app.use(sanitizeData);
@@ -112,19 +107,15 @@ app.use('/api/v1/email', emailRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/media', mediaRoutes);
+app.use('/api/v1/courses', coursesRoutes);
 app.use('/api/v1/admin/email', adminRoutes);
-
-function startServer() {
-  app.listen(PORT, () => {
-    console.log(`server running on http://localhost:${PORT} `);
-  });
-}
 
 // Catch-all route (for undefined endpoints)
 app.all('/{*any}', (req, res) => {
   res.status(404).json({
     success: false,
-    message: `Cannot find ${req.originalUrl} n this server`,
+    message: `Cannot find ${req.originalUrl} in this server`,
   });
 });
 
@@ -134,5 +125,4 @@ app.use(notFoundHandler);
 // Error handler
 app.use(errorHandler);
 
-startServer();
 export default app;

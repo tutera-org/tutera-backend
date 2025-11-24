@@ -4,6 +4,9 @@ import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
 import { createOtp } from '../utils/otpCode.ts';
+import { UserRole, type AuthRequest } from '../interfaces/index.ts';
+import { getSocketManager } from '../sockets/index.ts';
+import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
 // import { AuthRequest } from '../interfaces';
 
@@ -45,6 +48,27 @@ export class AuthController {
     try {
       const result = await this.authService.registerLearner(req.body);
       ApiResponse.success(res, result, 'Learner registration successful', 201);
+      const ownerId = await User.findOne({
+        role: { $in: [UserRole.INDEPENDENT_CREATOR, UserRole.INSTITUTION] },
+        tenantId: result.tenant.id,
+      }).select('id');
+      setTimeout(async () => {
+        getSocketManager().sendNotification('info', ownerId?.id, {
+          userId: result.user.id as string,
+          message: `new student ${result.user.firstName} ${result.user.lastName} just onboarded`,
+          type: 'onboarding',
+        });
+      }, 3000);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getCurrentUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.userId;
+      const result = await this.authService.getCurrentUser(userId!);
+      ApiResponse.success(res, result, 'User details retrieved successfully');
     } catch (error) {
       next(error);
     }
@@ -57,7 +81,11 @@ export class AuthController {
    *     summary: Update user details
    *     tags: [Authentication]
    */
-  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  updateUserDetails = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const result = await this.authService.updateUserDetails(req.body);
       ApiResponse.success(res, result, 'User details updated successfully');
@@ -85,9 +113,15 @@ export class AuthController {
       res.cookie('refreshToken', result.tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        path: '/',
+      });
+
+      res.cookie('accessToken', result.tokens.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 60 * 60 * 1000, // 60 minutes
       });
 
       ApiResponse.success(res, result, 'Login successful');
@@ -182,28 +216,6 @@ export class AuthController {
 
   /**
    * @swagger
-   * /auth/update-profile:
-   *   patch:
-   *     summary: Update user profile
-   *     tags: [Authentication]
-   *     security:
-   *       - bearerAuth: []
-   */
-
-  // getCurrentUser = async (
-  // req: AuthRequest,
-  // res: Response,
-  // next: NextFunction): Promise<void> => {
-  //   try {
-  //     const result = await this.authService.getCurrentUser(req.user!.userId);
-  //     ApiResponse.success(res, result, 'User profile retrieved');
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
-  /**
-   * @swagger
    * /auth/logout:
    *   post:
    *     summary: Logout user
@@ -214,7 +226,7 @@ export class AuthController {
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'none',
         path: '/',
       });
       ApiResponse.success(res, null, 'Logout successful');
