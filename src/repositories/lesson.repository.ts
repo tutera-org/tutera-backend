@@ -9,14 +9,6 @@ export const LessonRepository = {
     data: LessonDTO,
     session: ClientSession | null = null
   ) {
-    console.log(
-      'Creating lesson with data:',
-      { ...data },
-      'for moduleId:',
-      moduleId,
-      'and tenantId:',
-      tenantId
-    );
     return LessonModel.create(
       [
         {

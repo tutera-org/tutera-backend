@@ -1,15 +1,15 @@
 import type { ClientSession } from 'mongoose';
-import ModuleModel, { type IModule } from '../models/Modules.ts';
+import ModuleModel from '../models/Modules.ts';
 import type { Module } from '../interfaces/index.ts';
 
 export const ModuleRepository = {
-  create(
+  async create(
     courseId: string,
     data: Module,
     tenantId: string,
     session: ClientSession | null = null
-  ): Promise<IModule | unknown> {
-    return ModuleModel.create(
+  ) {
+    return await ModuleModel.create(
       [
         {
           ...data,
@@ -18,7 +18,7 @@ export const ModuleRepository = {
         },
       ],
       { session }
-    );
+    ).then((docs) => docs[0]);
   },
 
   findById(moduleId: string, tenantId: string, session: ClientSession | null = null) {

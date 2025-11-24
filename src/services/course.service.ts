@@ -60,12 +60,13 @@ export class CourseService {
       )) as object & { _id: string };
 
       const moduleId = createdModule._id as string;
+      console.log('Created module with ID ==> :', moduleId, '\ncreatedModule:', createdModule);
       for (const lesson of lessonsData) {
         await LessonRepository.create(tenantId, moduleId, { ...lesson }, session ?? null);
       }
 
       if (module.quiz) {
-        await QuizRepository.create({ ...module.quiz }, tenantId, session ?? null);
+        await QuizRepository.create({ ...module.quiz }, tenantId, moduleId, session ?? null);
       }
     }
     return course;
@@ -125,6 +126,7 @@ export class CourseService {
           await QuizRepository.create(
             { ...module.quiz, moduleId: module._id! },
             tenantId,
+            module._id!,
             session ?? null
           );
         }

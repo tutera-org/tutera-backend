@@ -5,11 +5,10 @@ const QuizSchema = new Schema<IQuiz>(
   {
     moduleId: { type: Schema.Types.ObjectId, ref: 'Module', required: true },
     tenantId: { type: String, required: true },
-    createdBy: { type: String, required: true },
 
     questions: [
       {
-        question: { type: String, required: true },
+        questionText: { type: String, required: true },
         options: { type: [String], required: true, validate: (v: string[]) => v.length === 4 },
         correctAnswerIndex: { type: Number, required: true, min: 0, max: 3 },
       },

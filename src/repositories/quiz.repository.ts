@@ -4,8 +4,13 @@ import type { Quiz } from '../interfaces/index.ts';
 
 export const QuizRepository = {
   // Create a new quiz
-  async create(data: Partial<Quiz>, tenantId: string, session: ClientSession | null = null) {
-    return await QuizModel.create([{ ...data, tenantId }], {
+  async create(
+    data: Partial<Quiz>,
+    tenantId: string,
+    moduleId: string,
+    session: ClientSession | null = null
+  ) {
+    return await QuizModel.create([{ ...data, tenantId, moduleId }], {
       session,
     }).then((docs) => docs[0]);
   },
