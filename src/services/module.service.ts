@@ -1,11 +1,12 @@
 import type { ClientSession } from 'mongoose';
-import type { ModuleDTO } from '../interfaces/index.ts';
 import CourseModel from '../models/Courses.ts';
 import ModuleModel from '../models/Modules.ts';
 import { AppError } from '../utils/AppError.ts';
+import type { Module } from '../interfaces/index.ts';
+import { ModuleRepository } from '../repositories/module.repository.ts';
 
 export class ModuleService {
-  async createModule(courseId: string, data: ModuleDTO, tenantId: string, session?: ClientSession) {
+  async createModule(courseId: string, data: Module, tenantId: string, session?: ClientSession) {
     const course = await CourseModel.findOne({ _id: courseId, tenantId }).session(session ?? null);
     if (!course) throw new AppError('Course not found', 404);
 
@@ -29,13 +30,11 @@ export class ModuleService {
 
   async updateModule(
     moduleId: string,
-    data: Partial<ModuleDTO>,
+    data: Partial<Module>,
     tenantId: string,
     session?: ClientSession
   ) {
-    const module = await ModuleModel.findOneAndUpdate({ _id: moduleId, tenantId }, data, {
-      new: true,
-    }).session(session ?? null);
+    const module = await ModuleRepository.update(moduleId, data, tenantId, session ?? null);
     if (!module) throw new AppError('Module not found', 404);
     return module;
   }

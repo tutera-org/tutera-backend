@@ -6,6 +6,7 @@ import { ModuleRepository } from '../repositories/module.repository.ts';
 import { LessonRepository } from '../repositories/lesson.repository.ts';
 import type { DeepPartial } from '../utils/types.ts';
 import type { CourseDTO, LessonDTO, ModuleDTO } from '../interfaces/dtos/course.dto.ts';
+import { QuizRepository } from '../repositories/quiz.repository.ts';
 
 export class CourseService {
   // Get All Courses
@@ -25,10 +26,16 @@ export class CourseService {
         tenantId,
         session ?? null
       );
+      const quiz = await QuizRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? null
+      );
 
       cascadedModules.push({
         ...module.toObject(),
         lessons: lessons.map((lesson) => lesson.toObject()),
+        quiz: quiz ? quiz.toObject() : null,
       });
     }
     return { ...course, modules: cascadedModules };
@@ -52,11 +59,14 @@ export class CourseService {
         session ?? null
       )) as object & { _id: string };
 
-      console.log('Created module:', createdModule);
-
       const moduleId = createdModule._id as string;
+      console.log('Created module with ID ==> :', moduleId, '\ncreatedModule:', createdModule);
       for (const lesson of lessonsData) {
         await LessonRepository.create(tenantId, moduleId, { ...lesson }, session ?? null);
+      }
+
+      if (module.quiz) {
+        await QuizRepository.create({ ...module.quiz }, tenantId, moduleId, session ?? null);
       }
     }
     return course;
@@ -107,9 +117,23 @@ export class CourseService {
         // Create new module
         await ModuleRepository.create(courseId, { ...module }, tenantId, session ?? null);
       }
+
+      if (module.quiz) {
+        if (module.quiz._id) {
+          await QuizRepository.update(module.quiz._id, module.quiz, tenantId, session ?? null);
+        } else {
+          // Create new quiz
+          await QuizRepository.create(
+            { ...module.quiz, moduleId: module._id! },
+            tenantId,
+            module._id!,
+            session ?? null
+          );
+        }
+      }
     }
 
-    for (const lesson of lessonsData) {
+    for (const lesson of lessonsData ?? []) {
       if (lesson._id) {
         await LessonRepository.update(lesson._id, lesson, tenantId, session ?? null);
       } else {
@@ -134,6 +158,16 @@ export class CourseService {
       for (const lesson of lessons) {
         const lessonId = lesson._id as string;
         await LessonRepository.deleteOne(lessonId, tenantId, session ?? null);
+      }
+
+      const quiz = await QuizRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? null
+      );
+      if (quiz) {
+        const quizId = quiz._id as string;
+        await QuizRepository.deleteOne(quizId, tenantId, session ?? null);
       }
 
       const moduleId = module._id as string;

@@ -442,3 +442,16 @@ export interface Lesson {
   isPreview?: boolean;
   contentId: string;
 }
+
+// Quiz Data
+export interface Quiz {
+  moduleId: string;
+  isPublished?: boolean;
+  questions?: Question[];
+}
+
+export interface Question {
+  questionText: string;
+  options: string[];
+  correctAnswerIndex: number;
+}

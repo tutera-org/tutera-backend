@@ -19,7 +19,6 @@ class CourseController {
     try {
       await session.withTransaction(async () => {
         const tenantId = req.user?.tenantId;
-        console.log('Tenant ID in getAllCourses:', tenantId);
         if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
         const courses = await this.courseService.getAllCourses(tenantId);
         ApiResponse.success(res, courses, 'Courses retrieved successfully.');
@@ -61,8 +60,6 @@ class CourseController {
       }
 
       const courseData = req.body;
-
-      console.log('Received course data:', { courseData });
 
       let createdCourse;
       await session.withTransaction(async () => {
