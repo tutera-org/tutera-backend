@@ -6,7 +6,7 @@ import { AppError } from '../utils/AppError.ts';
 import { generateToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.ts';
 import { addDays } from '../utils/date.ts';
 import { TRIAL_PERIOD_DAYS, FRONTEND_URL } from '../config/constants.ts';
-import { handleEmailEvent } from '../config/email/emailEvent.ts';
+import { handleEmailEvent } from '../templates/emailEvent.ts';
 import { createAuditLog } from '../utils/audit.ts';
 import type { ClientSession } from 'mongoose';
 import { logger } from '../config/logger.ts';
@@ -23,7 +23,7 @@ export class AuthService {
       lastName: string;
       role: UserRole;
       phoneNumber?: string;
-      tenantName?: string;
+      tenantName: string;
       tenantType?: 'INSTITUTION' | 'INDEPENDENT_CREATOR';
     },
     session?: ClientSession
@@ -55,6 +55,7 @@ export class AuthService {
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
+      tenantName: data.tenantName,
       role: data.role,
       phoneNumber: data.phoneNumber,
       isActive: true,
@@ -65,7 +66,7 @@ export class AuthService {
 
     // Create tenant with trial subscription
     const tenant = new Tenant({
-      name: data.tenantName || `${data.firstName} ${data.lastName}'s Space`,
+      name: data.tenantName || `${data.tenantName}'s Space`,
       ownerId: user._id,
       email: data.email,
       website: data.tenantName?.replace(/\s+/g, '').toLocaleLowerCase(),
@@ -96,13 +97,8 @@ export class AuthService {
       await handleEmailEvent('user.registered', {
         to: user.email,
         data: {
-          name: user.firstName,
-          email: user.email,
-          role: user.role,
-          trialDays: TRIAL_PERIOD_DAYS,
-          dashboardUrl: `${FRONTEND_URL}/dashboard`,
-          trialEnd: trialEndDate.toDateString(),
-          year: new Date().getFullYear(),
+          name: user.tenantName,
+          loginUrl: `${FRONTEND_URL}/login`,
         },
       });
     } catch (e) {
@@ -198,10 +194,8 @@ export class AuthService {
         to: user.email,
         data: {
           name: user.firstName,
-          mail: user.email,
-          role: user.role,
+          institution: user.tenantName,
           loginUrl: `${FRONTEND_URL}/login`,
-          year: new Date().getFullYear(),
         },
       });
     } catch (e) {
@@ -436,7 +430,9 @@ export class AuthService {
       await handleEmailEvent('user.passwordConfirmation', {
         to: user.email,
         data: {
-          name: user.firstName,
+          name: user.firstName || user.tenantName,
+          code: otpCode,
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000),
         },
       });
     } catch (e) {
@@ -461,8 +457,9 @@ export class AuthService {
       await handleEmailEvent('user.passwordReset', {
         to: user.email,
         data: {
-          name: user.firstName,
-          otp: code,
+          name: user.firstName || user.tenantName,
+          code: code,
+          expires: 5,
         },
       });
 
@@ -490,7 +487,9 @@ export class AuthService {
       await handleEmailEvent('user.passwordConfirmation', {
         to: user.email,
         data: {
-          name: user.firstName,
+          name: user.firstName || user.tenantName,
+          code: otpCode,
+          expiresAt: new Date(Date.now() + 5 * 60 * 1000),
         },
       });
 
@@ -547,8 +546,8 @@ export class AuthService {
     await handleEmailEvent('user.profileUpdated', {
       to: user.email,
       data: {
-        name: user.firstName,
-        updateDate: new Date().toDateString(),
+        name: user.firstName || user.tenantName,
+        updated: new Date(),
       },
     });
 

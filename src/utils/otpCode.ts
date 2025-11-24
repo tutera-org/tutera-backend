@@ -1,7 +1,7 @@
-import { handleEmailEvent } from '../config/email/emailEvent.ts';
+import { handleEmailEvent } from '../templates/emailEvent.ts';
 import { logger } from '../config/logger.ts';
-import { Otp } from '../models/otp.ts';
-import { User } from '../models/User.ts';
+import { Otp, type OtpDoc } from '../models/otp.ts';
+import { User, type UserDoc } from '../models/User.ts';
 
 function generateOtp(length = 6): string {
   const digits = '0123456789';
@@ -28,16 +28,25 @@ export async function createOtp(userId: string): Promise<string> {
   await Otp.deleteMany({ userId });
 
   const code = generateOtp();
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 10 min expiry
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
 
   const otp = new Otp({ userId, code, expiresAt, used: false });
   await otp.save();
+
+  // Send OTP via email
+  const user: UserDoc | null = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  await handleEmailEvent('user.passwordReset', {
+    to: user.email,
+    data: { code: code, name: user.firstName || user.fullName, expires: 5 },
+  });
 
   return code;
 }
 
 export async function verifyOtp(userId: string, otpCode: string): Promise<boolean> {
-  const user = await User.findById(userId);
+  const user: UserDoc | null = await User.findById(userId);
   if (!user) return false;
 
   // Check lock status
@@ -45,10 +54,10 @@ export async function verifyOtp(userId: string, otpCode: string): Promise<boolea
     throw new Error('Too many failed attempts. Try again later.');
   }
 
-  const otp = await Otp.findOne({ userId, code: otpCode, used: false });
+  const otp: OtpDoc | null = await Otp.findOne({ userId, code: otpCode, used: false });
   if (!otp || otp.expiresAt < new Date()) {
     // Failed attempt
-    user.failedOtpAttempts += 1;
+    user.failedOtpAttempts = (user.failedOtpAttempts || 0) + 1;
 
     if (user.failedOtpAttempts >= 5) {
       user.otpLockedUntil = new Date(Date.now() + 15 * 60 * 1000); // lock for 15 min
@@ -59,8 +68,7 @@ export async function verifyOtp(userId: string, otpCode: string): Promise<boolea
       await handleEmailEvent('user.violation', {
         to: user.email,
         data: {
-          name: user.firstName,
-          message: 'Your account has been temporarily locked due to too many failed OTP attempts.',
+          name: user.firstName || user.tenantName,
         },
       });
     } catch (e) {

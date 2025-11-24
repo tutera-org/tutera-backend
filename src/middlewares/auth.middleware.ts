@@ -1,10 +1,10 @@
 import type { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import type { AuthRequest, JwtPayload } from '../interfaces/index.ts';
+import type { AuthRequest, AdminJwtPayload, UserJwtPayload } from '../interfaces/index.ts';
 import { UserRole } from '../interfaces/index.ts';
 import { User } from '../models/User.ts';
 import { AppError } from '../utils/AppError.ts';
-import { JWT_SECRET } from '../config/constants.ts';
+import { JWT_SECRET, JWT_ADMIN_SECRET, JWT_ADMIN_AUDIENCE } from '../config/constants.ts';
 
 /**
  * Protect routes - Verify JWT token
@@ -22,7 +22,7 @@ export const authenticate = async (
       throw new AppError('Not authorized to access this route', 401);
     }
     // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as UserJwtPayload;
 
     // Get user from token
     const user = await User.findById(decoded.userId).select('-password');
@@ -35,6 +35,42 @@ export const authenticate = async (
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       next(new AppError('Invalid token', 403));
+    } else {
+      next(error);
+    }
+  }
+};
+
+/**
+ * ADMIN AUTH MIDDLEWARE
+ * ------------------------------------------------------
+ * Protect routes using ADMIN JWT tokens
+ * (separate secret, audience, and payload structure)
+ */
+export const authenticateAdmin = (req: AuthRequest, _res: Response, next: NextFunction): void => {
+  try {
+    const token =
+      req.cookies?.admin_token ||
+      req.header('x-admin-token') ||
+      req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      throw new AppError('Admin authorization token missing', 401);
+    }
+
+    const decoded = jwt.verify(token, JWT_ADMIN_SECRET, {
+      audience: JWT_ADMIN_AUDIENCE,
+    }) as AdminJwtPayload;
+
+    if (decoded.role !== 'super_admin') {
+      throw new AppError('Admin privileges required', 403);
+    }
+
+    req.admin = decoded;
+    next();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      next(new AppError('Invalid admin token', 403));
     } else {
       next(error);
     }

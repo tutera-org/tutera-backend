@@ -2,68 +2,95 @@ import fs from 'fs';
 import path from 'path';
 import handlebars, { type TemplateDelegate } from 'handlebars';
 import nodemailer, { type Transporter } from 'nodemailer';
+import type { EmailEvent } from '../../templates/emailEvent.ts';
+import type { TemplateVars as TV } from '../../templates/types.ts';
 import { logger } from '../logger.ts';
 import { FROM_EMAIL, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } from '../constants.ts';
 
-export type TemplateData = Record<string, string | number | boolean | null>;
+export type EmailAttachment = { filename: string; path: string };
 
-// Configure Nodemailer transporter
+// Transporter
 export const emailTransporter: Transporter = nodemailer.createTransport({
   host: SMTP_HOST,
   port: SMTP_PORT,
-  secure: true,
+  secure: SMTP_PORT === 465,
   auth: {
     user: SMTP_USER,
     pass: SMTP_PASSWORD,
   },
 });
 
-// Register global helpers
-handlebars.registerHelper('uppercase', (str: string) => str.toUpperCase());
-handlebars.registerHelper('formatDate', (date: string | Date) =>
-  new Date(date).toLocaleDateString()
-);
-
-// Register layout and partials once at startup
+// Template directory
 const templatesDir = path.resolve(process.cwd(), 'src/templates');
-handlebars.registerPartial(
-  'layout',
-  fs.readFileSync(path.join(templatesDir, 'layout.hbs'), 'utf8')
+
+// Helpers
+handlebars.registerHelper('uppercase', (v: unknown) =>
+  typeof v === 'string' ? v.toUpperCase() : v
 );
 
-// Register layout.hbs as a partial
+handlebars.registerHelper('formatDate', (v: unknown) => {
+  const d = v instanceof Date || typeof v === 'string' ? new Date(v) : null;
+  return d ? d.toLocaleDateString() : '';
+});
+
+// Register layout
 const layoutPath = path.join(templatesDir, 'layout.hbs');
-const layoutSource = fs.readFileSync(layoutPath, 'utf8');
-handlebars.registerPartial('layout', handlebars.compile(layoutSource));
+if (fs.existsSync(layoutPath)) {
+  const layoutSource = fs.readFileSync(layoutPath, 'utf8');
+  handlebars.registerPartial('layout', handlebars.compile(layoutSource));
+}
 
-// Helper: compile child template with layout
-function compileTemplate(templateName: string, data: TemplateData): string {
+/**
+ * Compile template
+ */
+function compileTemplate<T extends EmailEvent>(templateName: T, data: TV[T]): string {
   const templatePath = path.join(templatesDir, `${templateName}.hbs`);
-  const source = fs.readFileSync(templatePath, { encoding: 'utf8' });
 
+  if (!fs.existsSync(templatePath)) {
+    throw new Error(`Email template not found: ${templateName}`);
+  }
+
+  const source = fs.readFileSync(templatePath, 'utf8');
   const compiled: TemplateDelegate = handlebars.compile(source);
-  return compiled({
+
+  const layout = handlebars.partials['layout'];
+  if (!layout) {
+    throw new Error('Layout partial is not registered.');
+  }
+
+  const rawHtml = compiled({
     ...data,
     year: new Date().getFullYear(),
   });
+
+  return rawHtml;
 }
 
-export const sendEmail = async (
+/**
+ * High-level email sending (HTML templates)
+ */
+export async function sendEmail<T extends EmailEvent>(
   to: string,
   subject: string,
-  templateName: string,
-  data: TemplateData
-): Promise<void> => {
-  const html: string = compileTemplate(templateName, data);
+  templateName: T,
+  data: TV[T],
+  attachments: EmailAttachment[] = []
+): Promise<void> {
+  const html = compileTemplate(templateName, data);
+
   try {
-    await emailTransporter.sendMail({
-      from: FROM_EMAIL || 'noreply@tutera.com',
+    const info = await emailTransporter.sendMail({
+      from: FROM_EMAIL || SMTP_USER,
       to,
       subject,
       html,
+      attachments,
     });
-  } catch (error) {
-    logger.error('Email sending failed:', error);
-    throw error;
+
+    logger.info(`📨 Email sent → ${to} (${subject})`);
+    logger.debug(info);
+  } catch (err) {
+    logger.error(`❌ Email send failed → ${to}`, err);
+    throw err instanceof Error ? err : new Error('Unknown email error');
   }
-};
+}

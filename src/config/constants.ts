@@ -49,4 +49,6 @@ export const FROM_NAME = getEnvironmentVariable('FROM_NAME', 'Tutera Learning Pl
 export const JWT_EXPIRE = getEnvironmentVariableNumber('JWT_EXPIRE', 900);
 // default 7 days
 export const JWT_REFRESH_EXPIRE = getEnvironmentVariableNumber('JWT_REFRESH_EXPIRE', 604800);
+export const JWT_ADMIN_SECRET = getEnvironmentVariable('JWT_ADMIN_SECRET', 'secret_key');
+export const JWT_ADMIN_AUDIENCE = getEnvironmentVariable('JWT_ADMIN_AUDIENCE', 'admin');
 export const FRONTEND_URL = getEnvironmentVariable('FRONTEND_URL', 'http://tuteraafrica.xyz');
