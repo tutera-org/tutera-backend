@@ -14,7 +14,7 @@ export interface ModuleDTO {
   _id?: string;
   title: string;
   order: number;
-  quizId?: string;
+  quiz?: QuizDTO;
   lessons: LessonDTO[];
 }
 
@@ -27,4 +27,18 @@ export interface LessonDTO {
   duration?: number;
   isPreview?: boolean;
   contentId: string;
+}
+
+export interface QuizDTO {
+  _id: string;
+  tenantId: string;
+  moduleId: string;
+  isPublished?: boolean;
+  questions?: QuestionDTO[];
+}
+
+export interface QuestionDTO {
+  questionText: string;
+  options: string[];
+  correctAnswerIndex: number;
 }
