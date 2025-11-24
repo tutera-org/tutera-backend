@@ -16,7 +16,7 @@ const options: swaggerJsdoc.Options = {
         '5. Use one time OTP to change password auth/refresh-otp\n\n' +
         '## Key Features\n' +
         '- Multi tenant architecture\n' +
-        '- 60-day free trial\n' +
+        '- 30-day free trial\n' +
         '- Secure content delivery (no downloads)\n' +
         '- Transzakt payment integration\n' +
         '- Role-based access control',
@@ -90,41 +90,29 @@ const options: swaggerJsdoc.Options = {
         post: {
           tags: ['Authentication'],
           summary: 'Register Institution/Independent User',
-          description: 'Creates new account with 60-day free trial',
+          description: 'Creates new account with 30-day free trial',
           requestBody: {
             required: true,
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['email', 'password', 'firstName', 'lastName', 'role'],
+                  required: ['email', 'password', 'role', 'tenantName'],
                   properties: {
                     email: {
                       type: 'string',
                       format: 'email',
-                      example: 'admin@university.com',
+                      example: 'admin@gmail.com',
                     },
                     password: {
                       type: 'string',
                       minLength: 8,
                       example: 'SecurePass@123',
                     },
-                    firstName: {
-                      type: 'string',
-                      example: 'John',
-                    },
-                    lastName: {
-                      type: 'string',
-                      example: 'Doe',
-                    },
                     role: {
                       type: 'string',
                       enum: ['institution', 'independent_user'],
                       example: 'institution',
-                    },
-                    phoneNumber: {
-                      type: 'string',
-                      example: '+1234567890',
                     },
                     tenantName: {
                       type: 'string',
@@ -146,9 +134,8 @@ const options: swaggerJsdoc.Options = {
                     data: {
                       user: {
                         id: '507f1f77bcf86cd799439011',
-                        email: 'admin@university.com',
-                        firstName: 'John',
-                        lastName: 'Doe',
+                        email: 'admin@gmail.com',
+                        tenantName: 'My University',
                         role: 'institution',
                       },
                       tokens: {
@@ -246,7 +233,7 @@ const options: swaggerJsdoc.Options = {
                   properties: {
                     email: {
                       type: 'string',
-                      example: 'student@example.com',
+                      example: 'student@gmail.com',
                     },
                     password: {
                       type: 'string',
@@ -290,7 +277,7 @@ const options: swaggerJsdoc.Options = {
                   properties: {
                     email: {
                       type: 'string',
-                      example: 'user@example.com',
+                      example: 'user@gmail.com',
                     },
                     password: {
                       type: 'string',
@@ -311,7 +298,7 @@ const options: swaggerJsdoc.Options = {
                     data: {
                       user: {
                         id: '507f1f77bcf86cd799439011',
-                        email: 'user@example.com',
+                        email: 'user@gmail.com',
                         role: 'learner',
                       },
                       tokens: {
@@ -365,7 +352,7 @@ const options: swaggerJsdoc.Options = {
                   type: 'object',
                   required: ['email'],
                   properties: {
-                    email: { type: 'string', example: 'user@example.com' },
+                    email: { type: 'string', example: 'user@gmail.com' },
                   },
                 },
               },
@@ -388,7 +375,7 @@ const options: swaggerJsdoc.Options = {
                   type: 'object',
                   required: ['email', 'otpCode', 'newPassword'],
                   properties: {
-                    email: { type: 'string', example: 'user@example.com' },
+                    email: { type: 'string', example: 'user@gmail.com' },
                     otpCode: { type: 'string', example: '123456' },
                     newPassword: { type: 'string', example: 'NewSecurePass@123' },
                   },

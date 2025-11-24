@@ -12,6 +12,7 @@ import { apiLimiter } from './middlewares/rateLimit.middleware.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
 import { ALLOWED_ORIGINS } from './config/constants.ts';
 import emailRoutes from './routes/email.routes.ts';
+
 import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
 import adminRoutes from './routes/admin.routes.ts';
@@ -108,6 +109,7 @@ app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/media', mediaRoutes);
 app.use('/api/v1/courses', coursesRoutes);
+app.use('/api/v1/admin/email', adminRoutes);
 
 // Catch-all route (for undefined endpoints)
 app.all('/{*any}', (req, res) => {

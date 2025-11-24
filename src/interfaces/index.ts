@@ -139,6 +139,7 @@ export interface IUser extends Document {
   isActive: boolean;
   isEmailVerified: boolean;
   tenantId?: Types.ObjectId;
+  tenantName: string;
   emailVerificationToken?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
@@ -269,7 +270,8 @@ export interface IProgress extends Document {
 
 // Request Extensions
 export interface AuthRequest extends Request {
-  user?: JwtPayload;
+  user?: UserJwtPayload;
+  admin?: AdminJwtPayload;
 }
 
 // API Response
@@ -299,11 +301,16 @@ export interface QueryOptions {
 }
 
 // JWT Payload
-export interface JwtPayload {
+export interface UserJwtPayload {
   userId: string;
   tenantId: string;
   role: UserRole;
   email: string;
+}
+
+export interface AdminJwtPayload {
+  sub: string;
+  role: 'super_admin';
 }
 
 // Audit Log
@@ -338,7 +345,7 @@ export interface IQuiz extends Document {
 
 // Custom Request with file support
 export interface CustomRequest extends Request {
-  user?: JwtPayload;
+  user?: UserJwtPayload;
   // files?: Express.Multer.File[];
   // file?: Express.Multer.File;
 }
