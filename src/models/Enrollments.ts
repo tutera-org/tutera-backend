@@ -1,6 +1,6 @@
 import { Schema, model, Types, Document } from 'mongoose';
 
-export interface IStudentCourse extends Document {
+export interface IEnrollment extends Document {
   tenantId: Types.ObjectId;
   studentId: Types.ObjectId;
   courseId: Types.ObjectId;
@@ -19,12 +19,12 @@ export interface IStudentCourse extends Document {
   }[];
 }
 
-const StudentCourseSchema = new Schema<IStudentCourse>({
+const EnrollmentSchema = new Schema<IEnrollment>({
   tenantId: { type: Schema.Types.ObjectId, required: true },
   studentId: { type: Schema.Types.ObjectId, required: true }, // link to User/Student
   courseId: { type: Schema.Types.ObjectId, required: true }, // link to Course
   enrolledAt: { type: Date, default: Date.now },
-  rating: { type: Number, min: 1, max: 5 }, // optional rating
+  rating: { type: Number, min: 1, max: 5, default: 0 }, // optional rating
   completedLessons: [{ type: Types.ObjectId }], // track lesson IDs
   quizAttempts: [
     {
@@ -42,4 +42,4 @@ const StudentCourseSchema = new Schema<IStudentCourse>({
   ],
 });
 
-export default model<IStudentCourse>('StudentCourse', StudentCourseSchema);
+export default model<IEnrollment>('StudentCourse', EnrollmentSchema);
