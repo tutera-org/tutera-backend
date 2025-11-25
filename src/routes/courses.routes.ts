@@ -9,7 +9,7 @@ router.get('/', authenticate as unknown as RequestHandler, courseController.getA
 
 // get Course by ID with details
 router.get(
-  '/details',
+  '/:courseId/details',
   authenticate as unknown as RequestHandler,
   courseController.getCourseDetails
 );
