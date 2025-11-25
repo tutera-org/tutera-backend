@@ -110,6 +110,20 @@ export class CreatorDashboardController {
       role: UserRole.STUDENT,
       isActive: true,
     });
+
+    // Debug: Show student creation times
+    const students = await User.find({
+      tenantId,
+      role: UserRole.STUDENT,
+      isActive: true,
+    }).select('firstName lastName createdAt');
+    console.log(
+      'Students in tenant:',
+      students.map((s) => ({
+        name: `${s.firstName} ${s.lastName}`,
+        createdAt: s.createdAt.toISOString(),
+      }))
+    );
     return totalStudents;
   }
 
@@ -241,11 +255,23 @@ export class CreatorDashboardController {
     startDate: Date,
     endDate: Date
   ): Promise<number> {
-    const uniqueStudents = await Enrollment.distinct('studentId', {
+    // Debug logging
+    console.log('Querying students onboarded between:', {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
       tenantId,
-      enrolledAt: { $gte: startDate, $lte: endDate },
     });
-    return uniqueStudents.length;
+
+    // Count students who were onboarded (created) during this period
+    const studentsOnboarded = await User.countDocuments({
+      tenantId,
+      role: UserRole.STUDENT,
+      isActive: true,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+
+    console.log('Students onboarded in period:', studentsOnboarded);
+    return studentsOnboarded;
   }
 
   private async getCompletionRateInPeriod(
