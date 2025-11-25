@@ -112,7 +112,7 @@ export async function getForConsumption(tenantId: string, mediaId: string) {
   const media = await MediaModel.findOne({ _id: mediaId, tenantId });
   if (!media) throw new Error('Not found');
   if (media.isProtected) {
-    const signedUrl = await getSignedGetUrl(BUCKET, media.s3Key, 300);
+    const signedUrl = await getSignedGetUrl(BUCKET, media.s3Key, 3600);
     return { ...media.toObject(), signedUrl };
   }
   // else, non-protected: return a direct public link pattern (depends on Wasabi config)
