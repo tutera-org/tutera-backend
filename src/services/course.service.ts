@@ -15,7 +15,7 @@ export class CourseService {
   }
 
   async getCourseDetails(courseId: string, tenantId: string, session?: ClientSession) {
-    const course = await CourseRepository.findAll(tenantId, session ?? null);
+    const course = await CourseRepository.findById(courseId, tenantId, session ?? null);
     if (!course) throw new AppError('Course not found', 404);
 
     const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
