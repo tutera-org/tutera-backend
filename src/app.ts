@@ -12,9 +12,14 @@ import { apiLimiter } from './middlewares/rateLimit.middleware.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.ts';
 import { ALLOWED_ORIGINS } from './config/constants.ts';
 import emailRoutes from './routes/email.routes.ts';
+
 import authRoutes from './routes/auth.routes.ts';
 import tenantRoutes from './routes/tenant.routes.ts';
 import adminRoutes from './routes/admin.routes.ts';
+import mediaRoutes from './routes/media.routes.ts';
+import coursesRoutes from './routes/courses.routes.ts';
+import enrollmentRoutes from './routes/enrollment.route.ts';
+import creatorDashboardRoutes from './routes/creator-dashboard.routes.ts';
 import paymentRoutes from './routes/payment.routes.ts';
 
 const app: Application = express();
@@ -105,6 +110,11 @@ app.use('/api/v1/email', emailRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/media', mediaRoutes);
+app.use('/api/v1/courses', coursesRoutes);
+app.use('/api/v1/enrollments', enrollmentRoutes);
+app.use('/api/v1/creator', creatorDashboardRoutes);
+app.use('/api/v1/admin/email', adminRoutes);
 app.use('/api/v1/payment', paymentRoutes);
 
 // Catch-all route (for undefined endpoints)

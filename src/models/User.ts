@@ -1,7 +1,31 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { type IUser, UserRole, type IUserModel } from '../interfaces/index.ts';
 import { BCRYPT_ROUNDS } from '../config/constants.ts';
+
+export interface UserDoc extends Document {
+  _id: Types.ObjectId;
+  tenantId?: Types.ObjectId;
+  tenantName: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  fullName: string; // virtual
+  role: UserRole;
+  avatar: string;
+  phone: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpire?: Date;
+  lastLogin?: Date;
+  failedOtpAttempts: number;
+  otpLockedUntil?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(password: string): Promise<boolean>;
+}
 
 const UserSchema = new Schema<IUser, IUserModel>(
   {
@@ -9,6 +33,12 @@ const UserSchema = new Schema<IUser, IUserModel>(
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
       index: true,
+    },
+    tenantName: {
+      type: String,
+      trim: true,
+      maxlength: [50, 'Tenant name cannot exceed 50 characters'],
+      default: '',
     },
     email: {
       type: String,

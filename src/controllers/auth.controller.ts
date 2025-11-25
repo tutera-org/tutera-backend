@@ -64,7 +64,7 @@ export class AuthController {
     }
   };
 
-  getCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  getCurrentUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.user?.userId;
       const result = await this.authService.getCurrentUser(userId!);

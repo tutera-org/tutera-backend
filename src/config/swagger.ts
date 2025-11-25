@@ -16,7 +16,7 @@ const options: swaggerJsdoc.Options = {
         '5. Use one time OTP to change password auth/refresh-otp\n\n' +
         '## Key Features\n' +
         '- Multi tenant architecture\n' +
-        '- 60-day free trial\n' +
+        '- 30-day free trial\n' +
         '- Secure content delivery (no downloads)\n' +
         '- Transzakt payment integration\n' +
         '- Role-based access control',
@@ -90,41 +90,29 @@ const options: swaggerJsdoc.Options = {
         post: {
           tags: ['Authentication'],
           summary: 'Register Institution/Independent User',
-          description: 'Creates new account with 60-day free trial',
+          description: 'Creates new account with 30-day free trial',
           requestBody: {
             required: true,
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['email', 'password', 'firstName', 'lastName', 'role'],
+                  required: ['email', 'password', 'role', 'tenantName'],
                   properties: {
                     email: {
                       type: 'string',
                       format: 'email',
-                      example: 'admin@university.com',
+                      example: 'admin@gmail.com',
                     },
                     password: {
                       type: 'string',
                       minLength: 8,
                       example: 'SecurePass@123',
                     },
-                    firstName: {
-                      type: 'string',
-                      example: 'John',
-                    },
-                    lastName: {
-                      type: 'string',
-                      example: 'Doe',
-                    },
                     role: {
                       type: 'string',
                       enum: ['institution', 'independent_user'],
                       example: 'institution',
-                    },
-                    phoneNumber: {
-                      type: 'string',
-                      example: '+1234567890',
                     },
                     tenantName: {
                       type: 'string',
@@ -146,9 +134,8 @@ const options: swaggerJsdoc.Options = {
                     data: {
                       user: {
                         id: '507f1f77bcf86cd799439011',
-                        email: 'admin@university.com',
-                        firstName: 'John',
-                        lastName: 'Doe',
+                        email: 'admin@gmail.com',
+                        tenantName: 'My University',
                         role: 'institution',
                       },
                       tokens: {
@@ -246,7 +233,7 @@ const options: swaggerJsdoc.Options = {
                   properties: {
                     email: {
                       type: 'string',
-                      example: 'student@example.com',
+                      example: 'student@gmail.com',
                     },
                     password: {
                       type: 'string',
@@ -290,7 +277,7 @@ const options: swaggerJsdoc.Options = {
                   properties: {
                     email: {
                       type: 'string',
-                      example: 'user@example.com',
+                      example: 'user@gmail.com',
                     },
                     password: {
                       type: 'string',
@@ -311,7 +298,7 @@ const options: swaggerJsdoc.Options = {
                     data: {
                       user: {
                         id: '507f1f77bcf86cd799439011',
-                        email: 'user@example.com',
+                        email: 'user@gmail.com',
                         role: 'learner',
                       },
                       tokens: {
@@ -365,7 +352,7 @@ const options: swaggerJsdoc.Options = {
                   type: 'object',
                   required: ['email'],
                   properties: {
-                    email: { type: 'string', example: 'user@example.com' },
+                    email: { type: 'string', example: 'user@gmail.com' },
                   },
                 },
               },
@@ -388,7 +375,7 @@ const options: swaggerJsdoc.Options = {
                   type: 'object',
                   required: ['email', 'otpCode', 'newPassword'],
                   properties: {
-                    email: { type: 'string', example: 'user@example.com' },
+                    email: { type: 'string', example: 'user@gmail.com' },
                     otpCode: { type: 'string', example: '123456' },
                     newPassword: { type: 'string', example: 'NewSecurePass@123' },
                   },
@@ -816,11 +803,13 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
-      '/contents/upload-video': {
+      '/media/upload': {
         post: {
           tags: ['Content'],
-          summary: 'Upload Video',
-          description: 'Upload video content (max 500MB)',
+          summary: 'Upload Media',
+          description:
+            'Direct multipart upload handled entirely by the backend.' +
+            ' Default limit is 2GB unless MAX_UPLOAD_SIZE overrides it.',
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
@@ -828,17 +817,23 @@ const options: swaggerJsdoc.Options = {
               'multipart/form-data': {
                 schema: {
                   type: 'object',
-                  required: ['video', 'moduleId', 'courseId', 'title'],
+                  required: ['file'],
                   properties: {
-                    video: {
+                    file: {
                       type: 'string',
                       format: 'binary',
+                      description: 'Media file to upload',
                     },
-                    moduleId: { type: 'string' },
-                    courseId: { type: 'string' },
-                    title: { type: 'string' },
-                    description: { type: 'string' },
-                    duration: { type: 'number' },
+                    type: {
+                      type: 'string',
+                      enum: ['VIDEO', 'IMAGE', 'DOCUMENT', 'AUDIO'],
+                      description: 'Optional override. Backend auto-detects using MIME/extension.',
+                    },
+                    isProtected: {
+                      type: 'boolean',
+                      description: 'If true, responses include temporary signed URLs only',
+                      default: true,
+                    },
                   },
                 },
               },
@@ -846,8 +841,177 @@ const options: swaggerJsdoc.Options = {
           },
           responses: {
             '201': {
-              description: 'Video uploaded',
+              description: 'Media uploaded',
+              content: {
+                'application/json': {
+                  example: {
+                    success: true,
+                    data: {
+                      mediaId: '507f1f77bcf86cd799439011',
+                      signedUrl: 'https://s3.wasabisys.com/.../media.mp4?X-Amz-Algorithm=...',
+                      s3Key: 'tenants/<tenantId>/media/<timestamp>-<uuid>-file.mp4',
+                      status: 'UPLOADED',
+                      fileName: 'file.mp4',
+                      type: 'VIDEO',
+                    },
+                  },
+                },
+              },
             },
+            '400': {
+              description: 'Validation error (missing file/type or file too large)',
+            },
+          },
+        },
+      },
+      '/media': {
+        get: {
+          tags: ['Content'],
+          summary: 'List Media',
+          description: 'Returns paginated media for the authenticated tenant.',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: 'page',
+              in: 'query',
+              schema: { type: 'integer', minimum: 1, default: 1 },
+            },
+            {
+              name: 'limit',
+              in: 'query',
+              schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'Media list retrieved',
+              content: {
+                'application/json': {
+                  example: {
+                    success: true,
+                    data: [
+                      {
+                        _id: '507f1f77bcf86cd799439011',
+                        fileName: 'intro.mp4',
+                        type: 'VIDEO',
+                        status: 'READY',
+                        createdAt: '2025-11-17T10:00:00.000Z',
+                      },
+                    ],
+                    pagination: {
+                      page: 1,
+                      limit: 10,
+                      total: 1,
+                      totalPages: 1,
+                      hasNextPage: false,
+                      hasPrevPage: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      '/media/{id}': {
+        get: {
+          tags: ['Content'],
+          summary: 'Get Media',
+          description: 'Returns a single media record plus signed URL (for protected assets).',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: { type: 'string' },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'Media retrieved',
+              content: {
+                'application/json': {
+                  example: {
+                    success: true,
+                    data: {
+                      _id: '507f1f77bcf86cd799439011',
+                      fileName: 'intro.mp4',
+                      type: 'VIDEO',
+                      status: 'READY',
+                      signedUrl: 'https://s3.wasabisys.com/.../media.mp4?X-Amz-Algorithm=...',
+                    },
+                  },
+                },
+              },
+            },
+            '404': { description: 'Media not found' },
+          },
+        },
+        put: {
+          tags: ['Content'],
+          summary: 'Update Media',
+          description:
+            'Replace the underlying file (multipart optional) and/or update metadata.' +
+            ' Use this to adjust type or protection status.',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: { type: 'string' },
+            },
+          ],
+          requestBody: {
+            required: false,
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    file: {
+                      type: 'string',
+                      format: 'binary',
+                      description: 'Optional new file to upload and replace the existing object',
+                    },
+                    type: {
+                      type: 'string',
+                      enum: ['VIDEO', 'IMAGE', 'DOCUMENT', 'AUDIO'],
+                    },
+                    isProtected: {
+                      type: 'boolean',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'Media updated',
+            },
+            '404': { description: 'Media not found' },
+          },
+        },
+        delete: {
+          tags: ['Content'],
+          summary: 'Delete Media',
+          description: 'Removes the media record and associated S3 objects.',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: { type: 'string' },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'Media deleted',
+            },
+            '404': { description: 'Media not found' },
           },
         },
       },

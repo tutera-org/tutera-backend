@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import adminController from '../controllers/admin.controller.ts';
-import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
+import { authenticate, authorize, authenticateAdmin } from '../middlewares/auth.middleware.ts';
 import { RequestValidator } from '../middlewares/validators.middleware.ts';
+import { getFailedEmails, getStats } from '../controllers/admin-email.controller.ts';
 import { UserRole } from '../interfaces/index.ts';
 import { paginationSchema } from '../validations/common.validator.ts';
 
@@ -9,6 +10,10 @@ const router = Router();
 
 // All admin routes require super admin role
 router.use(authenticate, authorize(UserRole.SUPER_ADMIN));
+
+//admin-email.routes.
+router.get('failed', authenticateAdmin, getFailedEmails);
+router.get('/stats', authenticateAdmin, getStats);
 
 // User Management
 router.get('/users', RequestValidator(paginationSchema), adminController.getAllUsers);

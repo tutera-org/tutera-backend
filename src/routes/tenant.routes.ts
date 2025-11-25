@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 import tenantController from '../controllers/tenant.controller.ts';
 import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 import { RequestValidator } from '../middlewares/validators.middleware.ts';
@@ -18,8 +18,8 @@ router.get('/:id', tenantController.getTenantById);
 
 router.put(
   '/:id',
-  authenticate,
-  authorize(UserRole.INSTITUTION, UserRole.INDEPENDENT_CREATOR),
+  authenticate as unknown as RequestHandler,
+  authorize(UserRole.INSTITUTION, UserRole.INDEPENDENT_CREATOR) as unknown as RequestHandler,
   RequestValidator(updateTenantSchema),
   tenantController.updateTenant
 );
