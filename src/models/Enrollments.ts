@@ -24,7 +24,7 @@ const EnrollmentSchema = new Schema<IEnrollment>({
   studentId: { type: Schema.Types.ObjectId, required: true }, // link to User/Student
   courseId: { type: Schema.Types.ObjectId, required: true }, // link to Course
   enrolledAt: { type: Date, default: Date.now },
-  rating: { type: Number, min: 1, max: 5, default: 0 }, // optional rating
+  rating: { type: Number, min: 1, max: 5 }, // optional rating
   completedLessons: [{ type: Types.ObjectId }], // track lesson IDs
   quizAttempts: [
     {

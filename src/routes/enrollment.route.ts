@@ -29,7 +29,7 @@ router.post(
 );
 
 router.get(
-  '/details',
+  '/:courseId/details',
   authenticate as unknown as RequestHandler,
   EnrollmentController.getEnrollmentDetails
 );
