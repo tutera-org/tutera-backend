@@ -36,7 +36,7 @@ class CourseController {
     try {
       await session.withTransaction(async () => {
         const tenantId = req.user?.tenantId;
-        const { courseId } = req.body;
+        const { courseId } = req.params;
         console.log('Tenant ID in getCourseDetails:', tenantId);
         if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
         if (!courseId) return res.status(400).json({ message: 'Course ID is required.' });
