@@ -19,6 +19,7 @@ import adminRoutes from './routes/admin.routes.ts';
 import mediaRoutes from './routes/media.routes.ts';
 import coursesRoutes from './routes/courses.routes.ts';
 import enrollmentRoutes from './routes/enrollment.route.ts';
+import creatorDashboardRoutes from './routes/creator-dashboard.routes.ts';
 
 const app: Application = express();
 app.use(express.json());
@@ -111,6 +112,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/media', mediaRoutes);
 app.use('/api/v1/courses', coursesRoutes);
 app.use('/api/v1/enrollments', enrollmentRoutes);
+app.use('/api/v1/creator', creatorDashboardRoutes);
 app.use('/api/v1/admin/email', adminRoutes);
 
 // Catch-all route (for undefined endpoints)
