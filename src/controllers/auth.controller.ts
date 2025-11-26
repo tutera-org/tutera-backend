@@ -4,7 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse.ts';
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError.ts';
 import { createOtp } from '../utils/otpCode.ts';
-import { UserRole, type AuthRequest } from '../interfaces/index.ts';
+import { UserRole } from '../interfaces/index.ts';
 import { getSocketManager } from '../sockets/index.ts';
 import { User } from '../models/User.ts';
 // import type { AuthRequest } from '../interfaces/index.ts';
@@ -81,11 +81,7 @@ export class AuthController {
    *     summary: Update user details
    *     tags: [Authentication]
    */
-  updateUserDetails = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  updateUserDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this.authService.updateUserDetails(req.body);
       ApiResponse.success(res, result, 'User details updated successfully');

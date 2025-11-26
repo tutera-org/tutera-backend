@@ -69,12 +69,11 @@ router.post(
 
 router.patch(
   '/users/update',
-  authLimiter,
   RequestValidator(learnerRegisterSchema),
   authController.updateUserDetails
 );
 
-router.post('/login', authLimiter, RequestValidator(loginSchema), authController.login);
+router.post('/login', RequestValidator(loginSchema), authController.login);
 
 router.post('/refresh-token', authController.refreshToken);
 
