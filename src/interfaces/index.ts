@@ -455,3 +455,80 @@ export interface Question {
   options: string[];
   correctAnswerIndex: number;
 }
+
+// Landing Page
+export interface ILandingPage extends Document {
+  _id: Types.ObjectId;
+  tenantId: Types.ObjectId;
+  logo: string;
+  sections: {
+    section1: {
+      image: string;
+    };
+    section2: {
+      description: string;
+      image: string;
+    };
+    section3: {
+      description: string;
+      image: string;
+    };
+    section4: {
+      title: string;
+      description: string;
+      image: string;
+    };
+    section5: {
+      testimonials: Array<{
+        image: string;
+        name: string;
+        jobTitle: string;
+        remark: string;
+      }>;
+    };
+  };
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Landing Page DTOs
+export interface CreateLandingPageDto {
+  logo?: string;
+  sections?: {
+    section1?: {
+      image?: string;
+    };
+    section2?: {
+      description?: string;
+      image?: string;
+    };
+    section3?: {
+      description?: string;
+      image?: string;
+    };
+    section4?: {
+      title?: string;
+      description?: string;
+      image?: string;
+    };
+    section5?: {
+      testimonials?: Array<{
+        image?: string;
+        name?: string;
+        jobTitle?: string;
+        remark?: string;
+      }>;
+    };
+  };
+}
+
+export interface UpdateLandingPageDto extends Partial<CreateLandingPageDto> {
+  isActive?: boolean;
+}
+
+export interface LandingPageResponse {
+  success: boolean;
+  message: string;
+  data?: ILandingPage;
+}
