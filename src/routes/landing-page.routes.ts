@@ -6,6 +6,7 @@ import { RequestValidator } from '../middlewares/validators.middleware.ts';
 import {
   createLandingPageSchema,
   updateLandingPageSchema,
+  patchLandingPageSchema,
 } from '../validations/landing-page.validator.ts';
 import type { AuthRequest } from '../interfaces/index.ts';
 
@@ -55,6 +56,10 @@ const toggleLandingPageStatusHandler: RequestHandler = (req, res, next) => {
   landingPageController.toggleLandingPageStatus(req as AuthRequest, res, next);
 };
 
+const patchLandingPageHandler: RequestHandler = (req, res, next) => {
+  landingPageController.patchLandingPage(req as AuthRequest, res, next);
+};
+
 // Get current tenant's landing page
 router.get('/', getLandingPageHandler);
 
@@ -66,6 +71,9 @@ router.post('/', RequestValidator(createLandingPageSchema), createLandingPageHan
 
 // Update landing page
 router.put('/', RequestValidator(updateLandingPageSchema), updateLandingPageHandler);
+
+// Partial update landing page
+router.patch('/', RequestValidator(patchLandingPageSchema), patchLandingPageHandler);
 
 // Delete landing page
 router.delete('/', deleteLandingPageHandler);

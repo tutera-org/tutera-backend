@@ -2,7 +2,7 @@ import type { Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import { UserRole } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
-import type { AuthRequest } from '../interfaces/index.ts';
+import type { AuthRequest, PatchLandingPageInput } from '../interfaces/index.ts';
 import landingPageService from '../services/landing-page.service.ts';
 import * as mediaService from '../services/media.service.ts';
 
@@ -226,6 +226,38 @@ export class LandingPageController {
           updatedSection: section,
           fullLandingPage: landingPage,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Partial update landing page (PATCH)
+  async patchLandingPage(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = req.user?.tenantId;
+      const userId = req.user?.userId;
+
+      if (!tenantId || !userId) {
+        throw new AppError('Authentication required', 401);
+      }
+
+      // Verify user is a creator or institution
+      const { User } = await import('../models/User.ts');
+      const user = await User.findById(userId);
+      if (!user || ![UserRole.INDEPENDENT_CREATOR, UserRole.INSTITUTION].includes(user.role)) {
+        throw new AppError('Access denied. Creator role required.', 403);
+      }
+
+      const updateData: PatchLandingPageInput = req.body;
+
+      // Partial update landing page
+      const landingPage = await landingPageService.patchLandingPage(tenantId, updateData);
+
+      res.status(200).json({
+        success: true,
+        message: 'Landing page updated successfully',
+        data: landingPage,
       });
     } catch (error) {
       next(error);

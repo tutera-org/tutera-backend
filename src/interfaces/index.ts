@@ -461,6 +461,7 @@ export interface ILandingPage extends Document {
   _id: Types.ObjectId;
   tenantId: Types.ObjectId;
   logo: string;
+  brandName?: string;
   sections: {
     section1: {
       image: string;
@@ -487,6 +488,12 @@ export interface ILandingPage extends Document {
       }>;
     };
   };
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -495,6 +502,7 @@ export interface ILandingPage extends Document {
 // Landing Page DTOs
 export interface CreateLandingPageDto {
   logo?: string;
+  brandName?: string;
   sections?: {
     section1?: {
       image?: string;
@@ -520,6 +528,12 @@ export interface CreateLandingPageDto {
         remark?: string;
       }>;
     };
+  };
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
   };
 }
 

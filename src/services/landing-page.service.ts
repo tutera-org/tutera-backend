@@ -1,11 +1,12 @@
 import type { ClientSession } from 'mongoose';
-import type { ILandingPage } from '../interfaces/index.ts';
-import { LandingPage } from '../models/LandingPage.ts';
-import { AppError } from '../utils/AppError.ts';
 import type {
+  ILandingPage,
   CreateLandingPageInput,
   UpdateLandingPageInput,
-} from '../validations/landing-page.validator.ts';
+  PatchLandingPageInput,
+} from '../interfaces/index.ts';
+import { LandingPage } from '../models/LandingPage.ts';
+import { AppError } from '../utils/AppError.ts';
 import { getSignedGetUrl } from '../utils/s3Client.ts';
 
 export class LandingPageService {
@@ -164,6 +165,113 @@ export class LandingPageService {
     return await landingPage.save({ session: session ?? null });
   }
 
+  async patchLandingPage(
+    tenantId: string,
+    data: PatchLandingPageInput,
+    session?: ClientSession
+  ): Promise<ILandingPage> {
+    const landingPage = await LandingPage.findOne({ tenantId }).session(session ?? null);
+    if (!landingPage) {
+      throw new AppError('Landing page not found', 404);
+    }
+
+    // Apply partial updates
+    if (data.logo !== undefined) {
+      landingPage.logo = data.logo;
+    }
+
+    if (data.brandName !== undefined) {
+      landingPage.brandName = data.brandName;
+    }
+
+    if (data.sections) {
+      // Initialize sections if they don't exist
+      if (!landingPage.sections) {
+        landingPage.sections = {
+          section1: { image: '' },
+          section2: { description: '', image: '' },
+          section3: { description: '', image: '' },
+          section4: { title: '', description: '', image: '' },
+          section5: { testimonials: [] },
+        };
+      }
+
+      // Update only provided sections
+      if (data.sections.section1) {
+        landingPage.sections.section1 = {
+          ...landingPage.sections.section1,
+          ...data.sections.section1,
+        };
+      }
+
+      if (data.sections.section2) {
+        landingPage.sections.section2 = {
+          ...landingPage.sections.section2,
+          ...data.sections.section2,
+        };
+      }
+
+      if (data.sections.section3) {
+        landingPage.sections.section3 = {
+          ...landingPage.sections.section3,
+          ...data.sections.section3,
+        };
+      }
+
+      if (data.sections.section4) {
+        landingPage.sections.section4 = {
+          ...landingPage.sections.section4,
+          ...data.sections.section4,
+        };
+      }
+
+      if (data.sections.section5) {
+        landingPage.sections.section5 = {
+          ...landingPage.sections.section5,
+          ...data.sections.section5,
+        };
+      }
+    }
+
+    if (data.socialLinks) {
+      // Initialize socialLinks if they don't exist
+      if (!landingPage.socialLinks) {
+        landingPage.socialLinks = {
+          twitter: '',
+          linkedin: '',
+          youtube: '',
+          instagram: '',
+        };
+      }
+
+      // Update only provided social links
+      if (data.socialLinks.twitter !== undefined) {
+        landingPage.socialLinks.twitter = data.socialLinks.twitter;
+      }
+
+      if (data.socialLinks.linkedin !== undefined) {
+        landingPage.socialLinks.linkedin = data.socialLinks.linkedin;
+      }
+
+      if (data.socialLinks.youtube !== undefined) {
+        landingPage.socialLinks.youtube = data.socialLinks.youtube;
+      }
+
+      if (data.socialLinks.instagram !== undefined) {
+        landingPage.socialLinks.instagram = data.socialLinks.instagram;
+      }
+    }
+
+    if (data.isActive !== undefined) {
+      landingPage.isActive = data.isActive;
+    }
+
+    await landingPage.save({ session: session ?? null });
+
+    // Return landing page with fresh signed URLs
+    return await this.generateFreshSignedUrls(landingPage);
+  }
+
   async updateLandingPageWithImage(
     tenantId: string,
     section: string,
@@ -264,12 +372,19 @@ export class LandingPageService {
     const defaultLandingPage = new LandingPage({
       tenantId,
       logo: '',
+      brandName: '',
       sections: {
         section1: { image: '' },
         section2: { description: '', image: '' },
         section3: { description: '', image: '' },
         section4: { title: '', description: '', image: '' },
         section5: { testimonials: [] },
+      },
+      socialLinks: {
+        twitter: '',
+        linkedin: '',
+        youtube: '',
+        instagram: '',
       },
       isActive: true,
     });
@@ -284,6 +399,10 @@ export class LandingPageService {
 
     if (data.logo !== undefined) {
       formattedData.logo = data.logo;
+    }
+
+    if (data.brandName !== undefined) {
+      formattedData.brandName = data.brandName;
     }
 
     if (data.sections) {
@@ -328,6 +447,31 @@ export class LandingPageService {
           ...formattedData.sections.section5,
           ...data.sections.section5,
         };
+      }
+    }
+
+    if (data.socialLinks) {
+      formattedData.socialLinks = {
+        twitter: '',
+        linkedin: '',
+        youtube: '',
+        instagram: '',
+      };
+
+      if (data.socialLinks.twitter !== undefined) {
+        formattedData.socialLinks.twitter = data.socialLinks.twitter;
+      }
+
+      if (data.socialLinks.linkedin !== undefined) {
+        formattedData.socialLinks.linkedin = data.socialLinks.linkedin;
+      }
+
+      if (data.socialLinks.youtube !== undefined) {
+        formattedData.socialLinks.youtube = data.socialLinks.youtube;
+      }
+
+      if (data.socialLinks.instagram !== undefined) {
+        formattedData.socialLinks.instagram = data.socialLinks.instagram;
       }
     }
 
