@@ -42,4 +42,4 @@ const EnrollmentSchema = new Schema<IEnrollment>({
   ],
 });
 
-export default model<IEnrollment>('StudentCourse', EnrollmentSchema);
+export default model<IEnrollment>('Enrollments', EnrollmentSchema);

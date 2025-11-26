@@ -18,6 +18,11 @@ export const s3 = new S3Client({
     secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
   },
   forcePathStyle: true,
+  requestHandler: {
+    requestTimeout: 30000, // 30 seconds timeout
+    httpsAgent: undefined, // Use default agent
+  },
+  maxAttempts: 3,
 });
 
 export async function getUploadSignedUrl(bucket: string, key: string, expiresSec = 900) {

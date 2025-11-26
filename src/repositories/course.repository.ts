@@ -20,7 +20,7 @@ export const CourseRepository = {
     return CourseModel.find({ tenantId }).sort({ createdAt: -1 }).session(session);
   },
   findById(courseId: string, tenantId: string, session: ClientSession | null = null) {
-    return CourseModel.findOne({ _id: courseId, tenantId }).session(session);
+    return CourseModel.findOne({ _id: courseId, tenantId }).session(session).lean();
   },
 
   findBySlug(slug: string, tenantId: string, session: ClientSession | null = null) {

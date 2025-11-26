@@ -4,6 +4,12 @@ import EnrollmentController from '../controllers/enrollment.controller.ts';
 
 const router = Router();
 
+router.get(
+  '/',
+  authenticate as unknown as RequestHandler,
+  EnrollmentController.getEnrollmentCourses
+);
+
 router.post(
   '/enroll',
   authenticate as unknown as RequestHandler,

@@ -36,6 +36,7 @@ export const RequestValidator =
           success: false,
           errors,
         });
+        return; // Return void after sending response
       }
       next(err);
     }

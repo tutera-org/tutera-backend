@@ -455,3 +455,94 @@ export interface Question {
   options: string[];
   correctAnswerIndex: number;
 }
+
+// Landing Page
+export interface ILandingPage extends Document {
+  _id: Types.ObjectId;
+  tenantId: Types.ObjectId;
+  logo: string;
+  brandName?: string;
+  sections: {
+    section1: {
+      image: string;
+    };
+    section2: {
+      description: string;
+      image: string;
+    };
+    section3: {
+      description: string;
+      image: string;
+    };
+    section4: {
+      title: string;
+      description: string;
+      image: string;
+    };
+    section5: {
+      testimonials: Array<{
+        image: string;
+        name: string;
+        jobTitle: string;
+        remark: string;
+      }>;
+    };
+  };
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Landing Page DTOs
+export interface CreateLandingPageDto {
+  logo?: string;
+  brandName?: string;
+  sections?: {
+    section1?: {
+      image?: string;
+    };
+    section2?: {
+      description?: string;
+      image?: string;
+    };
+    section3?: {
+      description?: string;
+      image?: string;
+    };
+    section4?: {
+      title?: string;
+      description?: string;
+      image?: string;
+    };
+    section5?: {
+      testimonials?: Array<{
+        image?: string;
+        name?: string;
+        jobTitle?: string;
+        remark?: string;
+      }>;
+    };
+  };
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
+}
+
+export interface UpdateLandingPageDto extends Partial<CreateLandingPageDto> {
+  isActive?: boolean;
+}
+
+export interface LandingPageResponse {
+  success: boolean;
+  message: string;
+  data?: ILandingPage;
+}

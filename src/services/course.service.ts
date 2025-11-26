@@ -15,7 +15,7 @@ export class CourseService {
   }
 
   async getCourseDetails(courseId: string, tenantId: string, session?: ClientSession) {
-    const course = await CourseRepository.findAll(tenantId, session ?? null);
+    const course = await CourseRepository.findById(courseId, tenantId, session ?? null);
     if (!course) throw new AppError('Course not found', 404);
 
     const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
@@ -143,9 +143,28 @@ export class CourseService {
     }
 
     const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? null);
-    const lessons = await LessonRepository.findByCourse(courseId, tenantId, session ?? null);
+    const cascadedModules = [];
 
-    return { updatedCourse, modules, lessons };
+    for (const module of modules) {
+      const lessons = await LessonRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? null
+      );
+      const quiz = await QuizRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? null
+      );
+
+      cascadedModules.push({
+        ...module.toObject(),
+        lessons: lessons.map((lesson) => lesson.toObject()),
+        quiz: quiz ? quiz.toObject() : null,
+      });
+    }
+
+    return { ...updatedCourse.toObject(), modules: cascadedModules };
   }
 
   async deleteCourseWithProperties(courseId: string, tenantId: string, session?: ClientSession) {

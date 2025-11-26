@@ -16,16 +16,15 @@ router.get(
 // POST /: Create a new course for current tenant
 router.post('/', authenticate as unknown as RequestHandler, courseController.createCourse);
 
-// // GET /:id/modules: Get all modules for a specific course
-// router.get('/:id/modules', getCourseModules);
-
-// // POST /modules: Create a new module for a specific course
-// router.post('/modules', createModule);
-
-// // GET /modules/:moduleId/lessons: Get lessons for a specific module
-// router.get('/modules/:id/lessons', getModuleLessons);
-
-// // POST /lessons: Create a new lesson for a module
-// router.post('/lessons', createLesson);
+router.put(
+  '/:courseId',
+  authenticate as unknown as RequestHandler,
+  courseController.updateAllCourseProperties
+);
+router.delete(
+  '/:courseId',
+  authenticate as unknown as RequestHandler,
+  courseController.deleteCourse
+);
 
 export default router;
