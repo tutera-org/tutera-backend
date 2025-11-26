@@ -65,14 +65,22 @@ export async function uploadMedia(
   const key = `tenants/${tenantId}/media/${Date.now()}-${uuidv4()}-${opts.fileName}`;
 
   // Upload to S3 directly
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: opts.fileBuffer,
-      ContentType: opts.mimeType,
-    })
-  );
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+        Body: opts.fileBuffer,
+        ContentType: opts.mimeType,
+        ContentLength: opts.fileBuffer.length,
+      })
+    );
+  } catch (error) {
+    console.error('S3 upload failed:', error);
+    throw new Error(
+      `Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
 
   // Create media record
   const media = await MediaModel.create({
