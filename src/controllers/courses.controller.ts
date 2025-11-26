@@ -11,6 +11,7 @@ class CourseController {
     this.deleteCourse = this.deleteCourse.bind(this);
     this.getCourseDetails = this.getCourseDetails.bind(this);
     this.updateAllCourseProperties = this.updateAllCourseProperties.bind(this);
+    this.updateCourseStatus = this.updateCourseStatus.bind(this);
   }
 
   async getAllCourses(req: Request, res: Response, next: NextFunction) {
@@ -66,6 +67,30 @@ class CourseController {
       });
 
       ApiResponse.success(res, createdCourse, 'Course created successfully.');
+    } catch (error) {
+      await session.abortTransaction().catch(() => {});
+      next(error);
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async updateCourseStatus(req: Request, res: Response, next: NextFunction) {
+    const session = await startSession();
+    try {
+      const { courseId } = req.params;
+      const tenantId = req.user?.tenantId;
+      const { status } = req.body;
+
+      if (!tenantId) {
+        return res.status(400).json({ message: 'Tenant ID is required.' });
+      }
+
+      const updatedCourse = await session.withTransaction(async () => {
+        return await this.courseService.updateCourseStatus(courseId!, tenantId, status, session);
+      });
+
+      ApiResponse.success(res, updatedCourse, 'Course status updated successfully.');
     } catch (error) {
       await session.abortTransaction().catch(() => {});
       next(error);

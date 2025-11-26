@@ -1,5 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import { slugify } from '../utils/slugify.ts';
+import { CourseStatus } from '../interfaces/index.ts';
 
 export interface ICourse extends Document {
   tenantId: Types.ObjectId;
@@ -8,7 +9,7 @@ export interface ICourse extends Document {
   description?: string;
   coverImage?: string;
   price: number;
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  status: CourseStatus;
   totalEnrollments: number;
   totalDuration: number;
   averageRating: number;
@@ -19,7 +20,7 @@ export interface ICourse extends Document {
 
 const courseSchema = new Schema<ICourse>(
   {
-    tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, required: true },
     slug: { type: String, unique: true },
     title: { type: String, required: true },
     description: { type: String },
@@ -27,9 +28,9 @@ const courseSchema = new Schema<ICourse>(
     price: { type: Number, required: true, default: 0 },
     status: {
       type: String,
-      enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+      enum: Object.values(CourseStatus),
       required: true,
-      default: 'DRAFT',
+      default: CourseStatus.DRAFT,
     },
     totalEnrollments: { type: Number, default: 0 },
     totalDuration: { type: Number },
