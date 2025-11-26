@@ -7,6 +7,59 @@ import { ModuleRepository } from '../repositories/module.repository.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
 
 export class EnrollmentService {
+  /**
+   * Get all enrolled courses for a student with progress summary
+   */
+  async getAllEnrolledCoursesSummary(studentId: string, tenantId: string, session?: ClientSession) {
+    const enrollments = await EnrollmentRepository.getStudentCourses(studentId, tenantId);
+    if (!enrollments || enrollments.length === 0) {
+      throw new AppError('No enrolled courses found', 404);
+    }
+
+    const results = [];
+    for (const enrollment of enrollments) {
+      const course = await CourseRepository.findById(
+        enrollment.courseId.toString(),
+        tenantId,
+        session ?? null
+      );
+      if (!course) continue;
+
+      // total lessons in course
+      const lessons = await LessonRepository.findByCourse(
+        enrollment.courseId.toString(),
+        tenantId,
+        session ?? null
+      );
+
+      const totalLessons = lessons.length;
+      const completedLessons = enrollment.completedLessons.length;
+      const progressPercent =
+        totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+      results.push({
+        courseId: course._id,
+        title: course.title,
+        description: course.description,
+        coverImage: course.coverImage,
+        enrolledAt: enrollment.enrolledAt,
+        rating: enrollment.rating ?? null,
+        progress: {
+          completedLessons,
+          totalLessons,
+          percent: progressPercent,
+          quizAttempts: enrollment.quizAttempts.map((qa) => ({
+            quizId: qa.quizId,
+            score: qa.score,
+            attemptedAt: qa.attemptedAt,
+          })),
+        },
+      });
+    }
+
+    return results;
+  }
+
   async enrollStudent(
     studentId: string,
     courseId: string,

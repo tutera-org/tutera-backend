@@ -9,6 +9,22 @@ class EnrollmentController {
     this.rateCourse = this.rateCourse.bind(this);
     this.submitQuizAttempt = this.submitQuizAttempt.bind(this);
     this.getEnrollmentDetails = this.getEnrollmentDetails.bind(this);
+    this.getEnrollmentCourses = this.getEnrollmentCourses.bind(this);
+  }
+
+  async getEnrollmentCourses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tenantId = req.user?.tenantId;
+      const studentId = req.user?.userId as string;
+      if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
+      const details = await this.enrollmentService.getAllEnrolledCoursesSummary(
+        studentId,
+        tenantId
+      );
+      res.status(200).json({ message: 'Enrollment details fetched successfully.', data: details });
+    } catch (error) {
+      next(error);
+    }
   }
 
   async enrollStudent(req: Request, res: Response, next: NextFunction) {

@@ -1,7 +1,7 @@
 import type { CourseStatus, LessonType } from '../index.ts';
 
 export interface CourseDTO {
-  tenantId: string;
+  _Id?: string;
   title: string;
   description?: string;
   price?: number;
