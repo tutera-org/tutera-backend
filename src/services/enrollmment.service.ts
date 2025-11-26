@@ -149,7 +149,7 @@ export class EnrollmentService {
     }
 
     return {
-      ...course.toObject(),
+      ...course,
       rating: enrollment.rating ?? null,
       enrolledAt: enrollment.enrolledAt,
       modules: cascadedModules,
