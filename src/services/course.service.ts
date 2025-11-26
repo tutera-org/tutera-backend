@@ -1,5 +1,5 @@
 import type { ClientSession } from 'mongoose';
-import type { Course, Module } from '../interfaces/index.ts';
+import type { Course, CourseStatus, Module } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
 import { ModuleRepository } from '../repositories/module.repository.ts';
@@ -193,5 +193,29 @@ export class CourseService {
       await ModuleRepository.deleteOne(moduleId, tenantId, session ?? null);
     }
     await CourseRepository.deleteOne(courseId, tenantId, session ?? null);
+  }
+
+  /**
+   * Update the status of a course (e.g., DRAFT → PUBLISHED)
+   */
+  async updateCourseStatus(
+    courseId: string,
+    tenantId: string,
+    status: CourseStatus,
+    session?: ClientSession
+  ) {
+    const course = await CourseRepository.findById(courseId, tenantId, session ?? null);
+    if (!course) throw new AppError('Course not found', 404);
+
+    const updatedCourse = await CourseRepository.update(
+      courseId,
+      { status },
+      tenantId,
+      session ?? null
+    );
+
+    if (!updatedCourse) throw new AppError('Failed to update course status', 500);
+
+    return updatedCourse.toObject();
   }
 }
