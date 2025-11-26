@@ -13,6 +13,10 @@ const LandingPageSchema = new Schema<ILandingPage>(
       type: String,
       default: '',
     },
+    brandName: {
+      type: String,
+      default: '',
+    },
     sections: {
       section1: {
         image: { type: String, default: '' },
@@ -40,6 +44,12 @@ const LandingPageSchema = new Schema<ILandingPage>(
           },
         ],
       },
+    },
+    socialLinks: {
+      twitter: { type: String, default: '' },
+      linkedin: { type: String, default: '' },
+      youtube: { type: String, default: '' },
+      instagram: { type: String, default: '' },
     },
     isActive: {
       type: Boolean,

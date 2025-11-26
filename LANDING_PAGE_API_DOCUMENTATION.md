@@ -17,11 +17,14 @@ The Landing Page Customization feature allows creators and institutions to creat
 ## Features
 
 - **5 Customizable Sections**: Logo, Hero banner, About us, Why choose us, and Testimonials
+- **Brand Name**: Custom brand name field for logo section
+- **Social Media Links**: Twitter, LinkedIn, YouTube, Instagram integration
 - **Image Upload**: Automatic S3 upload with fresh signed URL generation
 - **Role-based Access**: Only creators and institutions can manage landing pages
 - **Public Endpoint**: Fetch landing pages without authentication
 - **Automatic URL Refresh**: Signed URLs are regenerated on each fetch (5-minute expiry)
 - **Atomic Operations**: Image upload + landing page update in single request
+- **Partial Updates**: PATCH endpoint for updating specific fields only
 
 ## Authentication
 
@@ -62,6 +65,13 @@ Authorization: Bearer <token>
     "_id": "69262c56c00396cbf47c6056",
     "tenantId": "692579de00a606524105887c",
     "logo": "https://s3.us-west-1.wasabisys.com/tutera/tenants/tenant123/media/logo.jpg?X-Amz-Signature=abc123",
+    "brandName": "Kingsol Academy",
+    "socialLinks": {
+      "twitter": "https://twitter.com/kingsol",
+      "linkedin": "https://linkedin.com/company/kingsol",
+      "youtube": "",
+      "instagram": "https://instagram.com/kingsol"
+    },
     "sections": {
       "section1": {
         "image": "https://s3.us-west-1.wasabisys.com/tutera/tenants/tenant123/media/hero.jpg?X-Amz-Signature=def456"
@@ -163,6 +173,13 @@ Content-Type: application/json
 ```json
 {
   "logo": "https://example.com/logo.png",
+  "brandName": "Kingsol Academy",
+  "socialLinks": {
+    "twitter": "https://twitter.com/kingsol",
+    "linkedin": "https://linkedin.com/company/kingsol",
+    "youtube": "https://youtube.com/@kingsol",
+    "instagram": "https://instagram.com/kingsol"
+  },
   "sections": {
     "section1": {
       "image": "https://example.com/hero-banner.jpg"
@@ -248,7 +265,80 @@ Content-Type: application/json
 
 ---
 
-### 5. Delete Landing Page
+### 5. Partial Update Landing Page (PATCH)
+
+**Endpoint**: `PATCH /creator/landing-page`
+
+**Description**: Update specific fields only (brand name, social links, individual sections, etc.)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Examples**:
+
+**Update Only Brand Name:**
+```json
+{
+  "brandName": "Kingsol Learning Platform"
+}
+```
+
+**Update Only Social Links:**
+```json
+{
+  "socialLinks": {
+    "twitter": "https://twitter.com/kingsol",
+    "linkedin": "https://linkedin.com/company/kingsol"
+  }
+}
+```
+
+**Update Only Section 2:**
+```json
+{
+  "sections": {
+    "section2": {
+      "description": "Updated description for our amazing platform!"
+    }
+  }
+}
+```
+
+**Update Logo and Brand Name:**
+```json
+{
+  "logo": "https://example.com/new-logo.png",
+  "brandName": "Kingsol Academy"
+}
+```
+
+**Response Example**:
+```json
+{
+  "success": true,
+  "message": "Landing page updated successfully",
+  "data": {
+    "_id": "69262c56c00396cbf47c6056",
+    "logo": "https://example.com/new-logo.png",
+    "brandName": "Kingsol Learning Platform",
+    "socialLinks": {
+      "twitter": "https://twitter.com/kingsol",
+      "linkedin": "https://linkedin.com/company/kingsol",
+      "youtube": "",
+      "instagram": ""
+    },
+    "sections": { /* only updated sections change */ },
+    "updatedAt": "2025-11-25T23:51:16.856Z"
+  }
+}
+```
+
+---
+
+### 6. Delete Landing Page
 
 **Endpoint**: `DELETE /creator/landing-page`
 
@@ -269,7 +359,7 @@ Authorization: Bearer <token>
 
 ---
 
-### 6. Toggle Landing Page Status
+### 7. Toggle Landing Page Status
 
 **Endpoint**: `PATCH /creator/landing-page/status`
 
@@ -392,12 +482,46 @@ curl -X PUT http://localhost:5000/api/v1/creator/landing-page \
   }'
 ```
 
-#### 5. Test Public Endpoint
+#### 5. Test Partial Updates (PATCH)
+```bash
+# Update Only Brand Name
+curl -X PATCH http://localhost:5000/api/v1/creator/landing-page \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "brandName": "Kingsol Learning Platform"
+  }'
+
+# Update Only Social Links
+curl -X PATCH http://localhost:5000/api/v1/creator/landing-page \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "socialLinks": {
+      "twitter": "https://twitter.com/kingsol",
+      "linkedin": "https://linkedin.com/company/kingsol"
+    }
+  }'
+
+# Update Only Section 2 Description
+curl -X PATCH http://localhost:5000/api/v1/creator/landing-page \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sections": {
+      "section2": {
+        "description": "Updated description for our amazing platform!"
+      }
+    }
+  }'
+```
+
+#### 6. Test Public Endpoint
 ```bash
 curl -X GET http://localhost:5000/api/v1/public/landing-page/tech-academy
 ```
 
-#### 6. Test URL Refresh (Wait 6 minutes)
+#### 7. Test URL Refresh (Wait 6 minutes)
 ```bash
 # Wait for URLs to expire (5+ minutes)
 curl -X GET http://localhost:5000/api/v1/creator/landing-page \
@@ -422,6 +546,13 @@ import React, { useState, useEffect } from 'react';
 
 interface LandingPageData {
   logo?: string;
+  brandName?: string;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
   sections: {
     section1?: { image?: string };
     section2?: { description?: string; image?: string };
@@ -515,6 +646,76 @@ const LandingPageManager: React.FC = () => {
     }
   };
 
+  // Partial update functions (PATCH)
+  const updateBrandName = async (brandName: string) => {
+    try {
+      const response = await fetch('/api/v1/creator/landing-page', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ brandName })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setLandingPage(result.data);
+      }
+    } catch (error) {
+      console.error('Brand name update failed:', error);
+    }
+  };
+
+  const updateSocialLinks = async (socialLinks: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  }) => {
+    try {
+      const response = await fetch('/api/v1/creator/landing-page', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ socialLinks })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setLandingPage(result.data);
+      }
+    } catch (error) {
+      console.error('Social links update failed:', error);
+    }
+  };
+
+  const updateSection = async (sectionName: string, sectionData: any) => {
+    try {
+      const response = await fetch('/api/v1/creator/landing-page', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sections: {
+            [sectionName]: sectionData
+          }
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setLandingPage(result.data);
+      }
+    } catch (error) {
+      console.error('Section update failed:', error);
+    }
+  };
+
   useEffect(() => {
     fetchLandingPage();
   }, []);
@@ -537,6 +738,65 @@ const LandingPageManager: React.FC = () => {
         {landingPage?.logo && (
           <img src={landingPage.logo} alt="Logo" style={{maxWidth: '200px'}} />
         )}
+      </div>
+
+      {/* Brand Name */}
+      <div className="section">
+        <h3>Brand Name</h3>
+        <input
+          type="text"
+          placeholder="Enter your brand name"
+          value={landingPage?.brandName || ''}
+          onChange={(e) => updateBrandName(e.target.value)}
+          style={{width: '300px', padding: '8px'}}
+        />
+      </div>
+
+      {/* Social Links */}
+      <div className="section">
+        <h3>Social Media Links</h3>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+          <input
+            type="url"
+            placeholder="Twitter URL"
+            value={landingPage?.socialLinks?.twitter || ''}
+            onChange={(e) => updateSocialLinks({
+              ...landingPage?.socialLinks,
+              twitter: e.target.value
+            })}
+            style={{width: '300px', padding: '8px'}}
+          />
+          <input
+            type="url"
+            placeholder="LinkedIn URL"
+            value={landingPage?.socialLinks?.linkedin || ''}
+            onChange={(e) => updateSocialLinks({
+              ...landingPage?.socialLinks,
+              linkedin: e.target.value
+            })}
+            style={{width: '300px', padding: '8px'}}
+          />
+          <input
+            type="url"
+            placeholder="YouTube URL"
+            value={landingPage?.socialLinks?.youtube || ''}
+            onChange={(e) => updateSocialLinks({
+              ...landingPage?.socialLinks,
+              youtube: e.target.value
+            })}
+            style={{width: '300px', padding: '8px'}}
+          />
+          <input
+            type="url"
+            placeholder="Instagram URL"
+            value={landingPage?.socialLinks?.instagram || ''}
+            onChange={(e) => updateSocialLinks({
+              ...landingPage?.socialLinks,
+              instagram: e.target.value
+            })}
+            style={{width: '300px', padding: '8px'}}
+          />
+        </div>
       </div>
 
       {/* Section 1 - Hero Image */}
@@ -745,6 +1005,13 @@ interface ILandingPage {
   _id: string;
   tenantId: string;
   logo?: string; // S3 key or URL
+  brandName?: string; // Custom brand name for logo section
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
   sections: {
     section1?: { image?: string };
     section2?: { description?: string; image?: string };
@@ -768,6 +1035,13 @@ interface ILandingPage {
 ```typescript
 interface CreateLandingPageDto {
   logo?: string;
+  brandName?: string;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
   sections?: {
     section1?: { image?: string };
     section2?: { description?: string; image?: string };
@@ -775,11 +1049,39 @@ interface CreateLandingPageDto {
     section4?: { title?: string; description?: string; image?: string };
     section5?: { testimonials?: Array<{
       image?: string;
-      name: string;
-      jobTitle: string;
-      remark: string;
+      name?: string;
+      jobTitle?: string;
+      remark?: string;
     }>};
   };
+}
+```
+
+### PATCH Payload (Partial Updates)
+
+```typescript
+interface PatchLandingPageDto {
+  logo?: string;
+  brandName?: string;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+    instagram?: string;
+  };
+  sections?: {
+    section1?: { image?: string };
+    section2?: { description?: string; image?: string };
+    section3?: { description?: string; image?: string };
+    section4?: { title?: string; description?: string; image?: string };
+    section5?: { testimonials?: Array<{
+      image?: string;
+      name?: string;
+      jobTitle?: string;
+      remark?: string;
+    }>};
+  };
+  isActive?: boolean;
 }
 ```
 
