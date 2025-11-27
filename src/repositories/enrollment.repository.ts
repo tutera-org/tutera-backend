@@ -13,18 +13,32 @@ export const EnrollmentRepository = {
     );
   },
 
-  markLessonCompleted(
+  async markLessonCompleted(
     studentId: string,
     courseId: string,
     lessonId: string,
     tenantId: string,
     session: ClientSession | null = null
   ) {
-    return EnrollmentModel.findOneAndUpdate(
-      { studentId, courseId, tenantId },
-      { $addToSet: { completedLessons: lessonId } }, // prevents duplicates
-      { new: true }
-    ).session(session);
+    console.log('markLessonCompleted called with:', { studentId, courseId, lessonId, tenantId });
+
+    try {
+      const result = await EnrollmentModel.findOneAndUpdate(
+        { studentId, courseId, tenantId },
+        {
+          $addToSet: {
+            completedLessons: lessonId,
+          },
+        },
+        { new: true, session }
+      );
+
+      console.log('Database update result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in markLessonCompleted:', error);
+      throw error;
+    }
   },
 
   rateCourse(
@@ -32,13 +46,13 @@ export const EnrollmentRepository = {
     courseId: string,
     tenantId: string,
     rating: number,
-    session: ClientSession | null
+    session: ClientSession | null = null
   ) {
     return EnrollmentModel.findOneAndUpdate(
       { studentId, courseId, tenantId },
       { $set: { rating } },
-      { new: true }
-    ).session(session);
+      { new: true, session }
+    );
   },
 
   findOne(
@@ -73,7 +87,7 @@ export const EnrollmentRepository = {
     return EnrollmentModel.findOneAndUpdate(
       { studentId, courseId, tenantId },
       { $push: { quizAttempts: attempt } },
-      { new: true }
-    ).session(session);
+      { new: true, session }
+    );
   },
 };

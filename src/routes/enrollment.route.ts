@@ -2,42 +2,44 @@ import { Router, type RequestHandler } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.ts';
 import EnrollmentController from '../controllers/enrollment.controller.ts';
 
+const enrollmentController = new EnrollmentController();
+
 const router = Router();
 
 router.get(
   '/',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.getEnrollmentCourses
+  enrollmentController.getEnrollmentCourses
 );
 
 router.post(
   '/enroll',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.enrollStudent
+  enrollmentController.enrollStudent
 );
 
 router.patch(
   '/complete-lesson',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.completeLesson
+  enrollmentController.completeStudentLesson
 );
 
 router.patch(
   '/rate-course',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.rateCourse
+  enrollmentController.rateCourse
 );
 
 router.post(
   '/submit-quiz',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.submitQuizAttempt
+  enrollmentController.submitQuizAttempt
 );
 
 router.get(
   '/:courseId/details',
   authenticate as unknown as RequestHandler,
-  EnrollmentController.getEnrollmentDetails
+  enrollmentController.getEnrollmentDetails
 );
 
 export default router;

@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express';
 import { EnrollmentService } from '../services/enrollmment.service.ts';
 
-class EnrollmentController {
+export default class EnrollmentController {
   private readonly enrollmentService = new EnrollmentService();
   constructor() {
     this.enrollStudent = this.enrollStudent.bind(this);
-    this.completeLesson = this.completeLesson.bind(this);
+    this.completeStudentLesson = this.completeStudentLesson.bind(this);
     this.rateCourse = this.rateCourse.bind(this);
     this.submitQuizAttempt = this.submitQuizAttempt.bind(this);
     this.getEnrollmentDetails = this.getEnrollmentDetails.bind(this);
@@ -41,11 +41,22 @@ class EnrollmentController {
     }
   }
 
-  async completeLesson(req: Request, res: Response, next: NextFunction) {
+  async completeStudentLesson(req: Request, res: Response, next: NextFunction) {
     try {
       const tenantId = req.user?.tenantId;
       const studentId = req.user?.userId as string;
       const { courseId, lessonId } = req.body;
+
+      console.log('QUERY VALUES:', {
+        studentId,
+        courseId,
+        tenantId,
+        types: {
+          studentId: typeof studentId,
+          courseId: typeof courseId,
+          tenantId: typeof tenantId,
+        },
+      });
       if (!courseId) return res.status(400).json({ message: 'Course ID is required.' });
       if (!lessonId) return res.status(400).json({ message: 'Lesson ID is required.' });
       if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
@@ -107,4 +118,3 @@ class EnrollmentController {
     }
   }
 }
-export default new EnrollmentController();
