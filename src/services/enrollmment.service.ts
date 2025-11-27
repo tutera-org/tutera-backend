@@ -74,7 +74,28 @@ export class EnrollmentService {
     return await EnrollmentRepository.enroll(studentId, courseId, tenantId, session ?? null);
   }
   async completeLesson(studentId: string, courseId: string, lessonId: string, tenantId: string) {
-    return EnrollmentRepository.markLessonCompleted(studentId, courseId, tenantId, lessonId);
+    const foundEnrollment = await EnrollmentRepository.findOne(
+      studentId,
+      courseId,
+      tenantId
+    ).lean();
+    console.log('foundEnrollment: ', foundEnrollment);
+    if (!foundEnrollment) {
+      throw new AppError('Not enrolled in this course', 403);
+    }
+
+    const result = await EnrollmentRepository.markLessonCompleted(
+      studentId,
+      courseId,
+      tenantId,
+      lessonId
+    );
+    console.log('restgfgh: ', result);
+    if (!result) {
+      throw new AppError('Failed to mark lesson as completed', 500);
+    }
+
+    return result;
   }
 
   async rateCourse(studentId: string, courseId: string, tenantId: string, rating: number) {

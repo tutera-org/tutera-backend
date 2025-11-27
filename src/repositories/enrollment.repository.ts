@@ -13,18 +13,23 @@ export const EnrollmentRepository = {
     );
   },
 
-  markLessonCompleted(
+  async markLessonCompleted(
     studentId: string,
     courseId: string,
     lessonId: string,
     tenantId: string,
     session: ClientSession | null = null
   ) {
+    console.log('started enrollment');
     return EnrollmentModel.findOneAndUpdate(
       { studentId, courseId, tenantId },
-      { $addToSet: { completedLessons: lessonId } }, // prevents duplicates
-      { new: true }
-    ).session(session);
+      {
+        $push: {
+          completedLessons: { lessonId },
+        },
+      },
+      { new: true, session }
+    );
   },
 
   rateCourse(
