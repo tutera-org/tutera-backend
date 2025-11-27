@@ -84,11 +84,19 @@ export class EnrollmentService {
       throw new AppError('Not enrolled in this course', 403);
     }
 
+    // Check if lesson is already completed
+    const isAlreadyCompleted = foundEnrollment.completedLessons.some(
+      (lesson) => lesson.lessonId === lessonId
+    );
+    if (isAlreadyCompleted) {
+      throw new AppError('Lesson already completed', 400);
+    }
+
     const result = await EnrollmentRepository.markLessonCompleted(
       studentId,
       courseId,
-      tenantId,
-      lessonId
+      lessonId,
+      tenantId
     );
     console.log('restgfgh: ', result);
     if (!result) {
