@@ -27,7 +27,7 @@ export const EnrollmentRepository = {
         { studentId, courseId, tenantId },
         {
           $addToSet: {
-            completedLessons: { lessonId },
+            completedLessons: lessonId,
           },
         },
         { new: true, session }

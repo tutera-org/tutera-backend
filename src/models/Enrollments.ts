@@ -27,8 +27,7 @@ const EnrollmentSchema = new Schema<IEnrollment>({
   rating: { type: Number, min: 1, max: 5 }, // optional rating
   completedLessons: [
     {
-      _id: false,
-      lessonId: { type: String, required: true },
+      type: String,
     },
   ], // track lesson IDs
   quizAttempts: [
