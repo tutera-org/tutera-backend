@@ -3,12 +3,23 @@ import Course from '../models/Courses.ts';
 import Enrollment from '../models/Enrollments.ts';
 import { User } from '../models/User.ts';
 import { UserRole } from '../interfaces/index.ts';
-import { Notification } from '../models/Notifications.ts';
 import { AppError } from '../utils/AppError.ts';
 import { getSocketManager } from '../sockets/index.ts';
 import type { AuthRequest } from '../interfaces/index.ts';
 
+interface PopulatedEnrollment {
+  studentId: { firstName: string; lastName: string };
+  courseId: { title: string };
+  enrolledAt: Date;
+}
+
+interface EnrollmentWithCoursePrice {
+  courseId: { price: number };
+}
+
 interface DashboardAnalytics {
+  date: string; // Add date field
+  label: string; // Add human-readable label
   coursesSold: number;
   revenue: number;
   studentsEnrolled: number;
@@ -20,6 +31,7 @@ interface CourseOverview {
   title: string;
   price: number;
   studentCount: number;
+  enrolledStudents: string[]; // Add enrolled student names
   status: string;
 }
 
@@ -110,6 +122,20 @@ export class CreatorDashboardController {
       role: UserRole.STUDENT,
       isActive: true,
     });
+
+    // Debug: Show student creation times
+    const students = await User.find({
+      tenantId,
+      role: UserRole.STUDENT,
+      isActive: true,
+    }).select('firstName lastName createdAt');
+    console.log(
+      'Students in tenant:',
+      students.map((s) => ({
+        name: `${s.firstName} ${s.lastName}`,
+        createdAt: s.createdAt.toISOString(),
+      }))
+    );
     return totalStudents;
   }
 
@@ -118,23 +144,65 @@ export class CreatorDashboardController {
       .select('_id title price status totalEnrollments')
       .lean();
 
-    return courses.map((course) => ({
-      _id: course._id.toString(),
-      title: course.title,
-      price: course.price,
-      studentCount: course.totalEnrollments || 0,
-      status: course.status,
-    }));
+    const courseOverviews: CourseOverview[] = [];
+
+    for (const course of courses) {
+      // Get actual enrollments for this course using the same logic as recent activity
+      const enrollments = await Enrollment.find({ tenantId, courseId: course._id })
+        .populate({
+          path: 'studentId',
+          select: 'firstName lastName',
+          model: 'User',
+        })
+        .sort({ enrolledAt: -1 })
+        .lean();
+
+      const studentCount = enrollments.length;
+      const enrolledStudents = enrollments.map((enrollment) => {
+        const populated = enrollment as PopulatedEnrollment;
+        // Use the same logic as recent activity that works
+        const studentName = populated.studentId
+          ? `${populated.studentId.firstName} ${populated.studentId.lastName}`
+          : 'Unknown Student';
+        return studentName;
+      });
+
+      courseOverviews.push({
+        _id: course._id.toString(),
+        title: course.title,
+        price: course.price,
+        studentCount,
+        enrolledStudents,
+        status: course.status,
+      });
+    }
+
+    return courseOverviews;
   }
 
   private async getTotalEarnings(tenantId: string): Promise<number> {
-    const courses = await Course.find({ tenantId, isActive: true })
-      .select('price totalEnrollments')
+    // Get all enrollments with course prices to calculate actual earnings
+    const enrollments = await Enrollment.find({ tenantId })
+      .populate({
+        path: 'courseId',
+        select: 'price',
+        model: 'Course',
+      })
       .lean();
 
-    return courses.reduce((total, course) => {
-      return total + course.price * (course.totalEnrollments || 0);
+    console.log('All enrollments for earnings:', enrollments.length);
+    console.log('Sample enrollment with course:', enrollments[0]);
+
+    const total = enrollments.reduce((sum, enrollment) => {
+      const populatedEnrollment = enrollment as EnrollmentWithCoursePrice;
+      const coursePrice = populatedEnrollment.courseId?.price || 0;
+      console.log('Course price:', coursePrice);
+      console.log('Populated courseId:', populatedEnrollment.courseId);
+      return sum + coursePrice;
     }, 0);
+
+    console.log('Total earnings calculated:', total);
+    return total;
   }
 
   private async getAnalyticsData(
@@ -144,64 +212,104 @@ export class CreatorDashboardController {
     const now = new Date();
     const periods: DashboardAnalytics[] = [];
 
-    let periodsCount: number;
-    let dateIncrement: (date: Date) => void;
+    if (period === 'daily') {
+      // Last 24 hours (hourly breakdown)
+      for (let i = 23; i >= 0; i--) {
+        const hourDate = new Date(now);
+        hourDate.setHours(hourDate.getHours() - i);
 
-    switch (period) {
-      case 'daily':
-        periodsCount = 30;
-        dateIncrement = (date) => date.setDate(date.getDate() - 1);
-        break;
-      case 'weekly':
-        periodsCount = 12;
-        dateIncrement = (date) => date.setDate(date.getDate() - 7);
-        break;
-      case 'monthly':
-        periodsCount = 12;
-        dateIncrement = (date) => date.setMonth(date.getMonth() - 1);
-        break;
-    }
+        const startDate = new Date(hourDate);
+        startDate.setMinutes(0, 0, 0);
 
-    for (let i = 0; i < periodsCount; i++) {
-      const currentDate = new Date(now);
-      dateIncrement(currentDate);
+        const endDate = new Date(hourDate);
+        endDate.setMinutes(59, 59, 999);
 
-      const startDate = new Date(currentDate);
-      const endDate = new Date(currentDate);
+        const [coursesSold, revenue, studentsEnrolled, completionRate] = await Promise.all([
+          this.getCoursesSoldInPeriod(tenantId, startDate, endDate),
+          this.getRevenueInPeriod(tenantId, startDate, endDate),
+          this.getStudentsEnrolledInPeriod(tenantId, startDate, endDate),
+          this.getCompletionRateInPeriod(tenantId, startDate, endDate),
+        ]);
 
-      if (period === 'daily') {
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-      } else if (period === 'weekly') {
-        const dayOfWeek = currentDate.getDay();
-        startDate.setDate(currentDate.getDate() - dayOfWeek);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setDate(startDate.getDate() + 6);
-        endDate.setHours(23, 59, 59, 999);
-      } else {
-        startDate.setDate(1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setMonth(currentDate.getMonth() + 1);
-        endDate.setDate(0);
-        endDate.setHours(23, 59, 59, 999);
+        periods.push({
+          date: hourDate.toISOString().split('T')[0] || '',
+          label: startDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          }),
+          coursesSold,
+          revenue,
+          studentsEnrolled,
+          completionRate,
+        });
       }
+    } else if (period === 'weekly') {
+      // Last 7 days (daily breakdown)
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
 
-      const [coursesSold, revenue, studentsEnrolled, completionRate] = await Promise.all([
-        this.getCoursesSoldInPeriod(tenantId, startDate, endDate),
-        this.getRevenueInPeriod(tenantId, startDate, endDate),
-        this.getStudentsEnrolledInPeriod(tenantId, startDate, endDate),
-        this.getCompletionRateInPeriod(tenantId, startDate, endDate),
-      ]);
+        const startDate = new Date(date);
+        startDate.setHours(0, 0, 0, 0);
 
-      periods.push({
-        coursesSold,
-        revenue,
-        studentsEnrolled,
-        completionRate,
-      });
+        const endDate = new Date(date);
+        endDate.setHours(23, 59, 59, 999);
+
+        const [coursesSold, revenue, studentsEnrolled, completionRate] = await Promise.all([
+          this.getCoursesSoldInPeriod(tenantId, startDate, endDate),
+          this.getRevenueInPeriod(tenantId, startDate, endDate),
+          this.getStudentsEnrolledInPeriod(tenantId, startDate, endDate),
+          this.getCompletionRateInPeriod(tenantId, startDate, endDate),
+        ]);
+
+        periods.push({
+          date: date.toISOString().split('T')[0] || '',
+          label: date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+          }),
+          coursesSold,
+          revenue,
+          studentsEnrolled,
+          completionRate,
+        });
+      }
+    } else {
+      // Last 4 weeks (weekly breakdown)
+      for (let i = 3; i >= 0; i--) {
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() - i * 7);
+
+        const startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 6);
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate.setHours(23, 59, 59, 999);
+
+        const [coursesSold, revenue, studentsEnrolled, completionRate] = await Promise.all([
+          this.getCoursesSoldInPeriod(tenantId, startDate, endDate),
+          this.getRevenueInPeriod(tenantId, startDate, endDate),
+          this.getStudentsEnrolledInPeriod(tenantId, startDate, endDate),
+          this.getCompletionRateInPeriod(tenantId, startDate, endDate),
+        ]);
+
+        periods.push({
+          date: startDate.toISOString().split('T')[0] || '',
+          label: `Week ${4 - i} (${startDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`,
+          coursesSold,
+          revenue,
+          studentsEnrolled,
+          completionRate,
+        });
+      }
     }
 
-    return periods.reverse();
+    return periods;
   }
 
   private async getCoursesSoldInPeriod(
@@ -241,11 +349,15 @@ export class CreatorDashboardController {
     startDate: Date,
     endDate: Date
   ): Promise<number> {
-    const uniqueStudents = await Enrollment.distinct('studentId', {
+    // Count students who were onboarded (created) during this period
+    const studentsOnboarded = await User.countDocuments({
       tenantId,
-      enrolledAt: { $gte: startDate, $lte: endDate },
+      role: UserRole.STUDENT,
+      isActive: true,
+      createdAt: { $gte: startDate, $lte: endDate },
     });
-    return uniqueStudents.length;
+
+    return studentsOnboarded;
   }
 
   private async getCompletionRateInPeriod(
@@ -296,31 +408,74 @@ export class CreatorDashboardController {
   }
 
   private async getRecentActivity(tenantId: string): Promise<RecentActivity[]> {
-    // Get recent notifications for this tenant
-    const notifications = await Notification.find({
-      // Note: You might need to add tenantId to notifications schema for proper filtering
-      // For now, getting recent notifications in general
-    })
-      .sort({ createdAt: -1 })
-      .limit(10)
+    const activities: RecentActivity[] = [];
+
+    // 1. Get recent course creations
+    const recentCourses = await Course.find({ tenantId }).sort({ createdAt: -1 }).limit(3).lean();
+
+    recentCourses.forEach((course) => {
+      activities.push({
+        type: 'course_created',
+        message: `New course "${course.title}" has been published`,
+        timestamp: course.createdAt,
+        isRead: false,
+      });
+    });
+
+    // 2. Get recent enrollments
+    const recentEnrollments = await Enrollment.find({ tenantId })
+      .populate({
+        path: 'studentId',
+        select: 'firstName lastName',
+        model: 'User',
+      })
+      .populate({
+        path: 'courseId',
+        select: 'title',
+        model: 'Course',
+      })
+      .sort({ enrolledAt: -1 })
+      .limit(3)
       .lean();
 
-    // Get online users for this tenant
+    recentEnrollments.forEach((enrollment) => {
+      const populated = enrollment as PopulatedEnrollment;
+      // Check if populated fields exist before using them
+      const studentName = populated.studentId
+        ? `${populated.studentId.firstName} ${populated.studentId.lastName}`
+        : 'Unknown Student';
+      const courseTitle = populated.courseId?.title || 'Unknown Course';
+
+      activities.push({
+        type: 'enrollment',
+        message: `${studentName} enrolled in "${courseTitle}"`,
+        timestamp: populated.enrolledAt,
+        isRead: false,
+      });
+    });
+
+    // 3. Get recent student onboarding (last 2 students)
+    const recentStudents = await User.find({ tenantId, role: UserRole.STUDENT })
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .lean();
+
+    recentStudents.forEach((student) => {
+      activities.push({
+        type: 'onboarding',
+        message: `New student ${student.firstName} ${student.lastName} joined your platform`,
+        timestamp: student.createdAt,
+        isRead: false,
+      });
+    });
+
+    // 4. Get online users (socket activity)
     const socketManager = getSocketManager();
     const onlineUsers = socketManager.getOnlineUsers();
+    const tenantStudents = await User.find({ tenantId, role: UserRole.STUDENT }).limit(5);
 
-    // Combine notifications with socket activity
-    const activities: RecentActivity[] = notifications.map((notification) => ({
-      type: notification.type,
-      message: notification.message,
-      timestamp: notification.createdAt,
-      isRead: notification.read,
-    }));
-
-    // Add socket connection activities if available
-    const tenantUsers = await User.find({ tenantId, role: UserRole.STUDENT }).limit(5);
-    for (const user of tenantUsers) {
-      if (onlineUsers.has(user._id.toString())) {
+    for (const user of tenantStudents) {
+      if (onlineUsers.has((user._id as string).toString())) {
         activities.unshift({
           type: 'online',
           message: `${user.firstName} ${user.lastName} is online`,
@@ -330,7 +485,12 @@ export class CreatorDashboardController {
       }
     }
 
-    return activities.slice(0, 10);
+    // Sort all activities by timestamp (most recent first) and limit to 10
+    const sortedActivities = activities
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10);
+
+    return sortedActivities;
   }
 }
 
