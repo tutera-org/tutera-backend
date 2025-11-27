@@ -16,6 +16,12 @@ router.get(
 // POST /: Create a new course for current tenant
 router.post('/', authenticate as unknown as RequestHandler, courseController.createCourse);
 
+router.patch(
+  '/:courseId/publish',
+  authenticate as unknown as RequestHandler,
+  courseController.updateAllCourseProperties
+);
+
 router.put(
   '/:courseId',
   authenticate as unknown as RequestHandler,

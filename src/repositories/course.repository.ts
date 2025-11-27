@@ -37,7 +37,6 @@ export const CourseRepository = {
       new: true,
     }).session(session);
   },
-
   deleteOne(courseId: string, tenantId: string, session: ClientSession | null = null) {
     return CourseModel.deleteOne({ _id: courseId, tenantId }).session(session);
   },

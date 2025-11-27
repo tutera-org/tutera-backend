@@ -2,7 +2,6 @@ import { Router, type RequestHandler } from 'express';
 import authController from '../controllers/auth.controller.ts';
 import { authenticate } from '../middlewares/auth.middleware.ts';
 import { RequestValidator } from '../middlewares/validators.middleware.ts';
-import { authLimiter } from '../middlewares/rateLimit.middleware.ts';
 import {
   registerSchema,
   loginSchema,
@@ -55,14 +54,12 @@ const router = Router();
  */
 router.post(
   '/register/institution',
-  authLimiter,
   RequestValidator(registerSchema),
   authController.registerInstitution
 );
 
 router.post(
   '/register/learner',
-  authLimiter,
   RequestValidator(learnerRegisterSchema),
   authController.registerLearner
 );

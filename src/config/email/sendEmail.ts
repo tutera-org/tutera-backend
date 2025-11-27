@@ -5,15 +5,15 @@ import nodemailer, { type Transporter } from 'nodemailer';
 import type { EmailEvent } from '../../templates/emailEvent.ts';
 import type { TemplateVars as TV } from '../../templates/types.ts';
 import { logger } from '../logger.ts';
-import { FROM_EMAIL, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } from '../constants.ts';
+import { FROM_EMAIL, SMTP_USER, SMTP_PASSWORD } from '../constants.ts';
 
 export type EmailAttachment = { filename: string; path: string };
 
 // Transporter
 export const emailTransporter: Transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: SMTP_USER,
     pass: SMTP_PASSWORD,

@@ -1,12 +1,13 @@
 import type { ClientSession } from 'mongoose';
-import type { Course, Module } from '../interfaces/index.ts';
+import type { Course, CourseStatus, Module } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
 import { ModuleRepository } from '../repositories/module.repository.ts';
 import { LessonRepository } from '../repositories/lesson.repository.ts';
 import type { DeepPartial } from '../utils/types.ts';
-import type { CourseDTO, LessonDTO, ModuleDTO } from '../interfaces/dtos/course.dto.ts';
+import type { CourseDTO, ModuleDTO } from '../interfaces/dtos/course.dto.ts';
 import { QuizRepository } from '../repositories/quiz.repository.ts';
+import { slugify } from '../utils/slugify.ts';
 
 export class CourseService {
   // Get All Courses
@@ -43,13 +44,16 @@ export class CourseService {
 
   // Create Full Course with Modules and Lessons
   async createFullCourse(tenantId: string, data: DeepPartial<CourseDTO>, session?: ClientSession) {
+    const slug = slugify(data.title!);
+    // ✅ Validate: check if course title already exists
+    const existingCourse = await CourseRepository.findBySlug(slug, tenantId, session ?? null);
+    if (existingCourse) {
+      throw new AppError(`Course with title "${data.title}" already exists`, 400);
+    }
+
     const course = await CourseRepository.create(data as Course, tenantId, session ?? null);
 
     const moduleData: Array<ModuleDTO> = [...((data?.modules ?? []) as Array<ModuleDTO>)];
-
-    const lessonsData: Array<LessonDTO & { moduleId: string }> = moduleData?.flatMap((module) =>
-      (module.lessons ?? []).map((lesson) => ({ ...lesson, moduleId: module._id! }))
-    );
 
     for (const module of moduleData) {
       const createdModule = (await ModuleRepository.create(
@@ -60,8 +64,7 @@ export class CourseService {
       )) as object & { _id: string };
 
       const moduleId = createdModule._id as string;
-      console.log('Created module with ID ==> :', moduleId, '\ncreatedModule:', createdModule);
-      for (const lesson of lessonsData) {
+      for (const lesson of module.lessons ?? []) {
         await LessonRepository.create(tenantId, moduleId, { ...lesson }, session ?? null);
       }
 
@@ -94,10 +97,6 @@ export class CourseService {
 
     const moduleData: Array<ModuleDTO> = [...(updatedData?.modules ?? [])];
 
-    const lessonsData: Array<LessonDTO & { moduleId: string }> = moduleData?.flatMap((module) =>
-      (module.lessons ?? []).map((lesson) => ({ ...lesson, moduleId: module._id! }))
-    );
-
     // --- Update Course Document ---
 
     const updatedCourse = await CourseRepository.update(
@@ -111,13 +110,29 @@ export class CourseService {
     // --- Update Modules and Lessons ---
 
     for (const module of moduleData) {
+      let moduleId: string;
       if (module._id) {
         await ModuleRepository.update(module._id, module, tenantId, session ?? null);
+        moduleId = module._id;
       } else {
         // Create new module
-        await ModuleRepository.create(courseId, { ...module }, tenantId, session ?? null);
+        const createdModule = await ModuleRepository.create(
+          courseId,
+          { ...module },
+          tenantId,
+          session ?? null
+        );
+        moduleId = createdModule?._id as string;
       }
 
+      for (const lesson of module.lessons ?? []) {
+        if (lesson._id) {
+          await LessonRepository.update(lesson._id, lesson, tenantId, session ?? null);
+        } else {
+          // Create new lesson does not have _id
+          await LessonRepository.create(tenantId, moduleId, { ...lesson }, session ?? null);
+        }
+      }
       if (module.quiz) {
         if (module.quiz._id) {
           await QuizRepository.update(module.quiz._id, module.quiz, tenantId, session ?? null);
@@ -130,15 +145,6 @@ export class CourseService {
             session ?? null
           );
         }
-      }
-    }
-
-    for (const lesson of lessonsData ?? []) {
-      if (lesson._id) {
-        await LessonRepository.update(lesson._id, lesson, tenantId, session ?? null);
-      } else {
-        // Create new lesson does not have _id
-        await LessonRepository.create(tenantId, lesson.moduleId, { ...lesson }, session ?? null);
       }
     }
 
@@ -193,5 +199,29 @@ export class CourseService {
       await ModuleRepository.deleteOne(moduleId, tenantId, session ?? null);
     }
     await CourseRepository.deleteOne(courseId, tenantId, session ?? null);
+  }
+
+  /**
+   * Update the status of a course (e.g., DRAFT → PUBLISHED)
+   */
+  async updateCourseStatus(
+    courseId: string,
+    tenantId: string,
+    status: CourseStatus,
+    session?: ClientSession
+  ) {
+    const course = await CourseRepository.findById(courseId, tenantId, session ?? null);
+    if (!course) throw new AppError('Course not found', 404);
+
+    const updatedCourse = await CourseRepository.update(
+      courseId,
+      { status },
+      tenantId,
+      session ?? null
+    );
+
+    if (!updatedCourse) throw new AppError('Failed to update course status', 500);
+
+    return updatedCourse.toObject();
   }
 }

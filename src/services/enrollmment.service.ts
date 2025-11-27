@@ -25,6 +25,9 @@ export class EnrollmentService {
       );
       if (!course) continue;
 
+      // ✅ Only include published courses
+      if (course.status !== 'PUBLISHED') continue;
+
       // total lessons in course
       const lessons = await LessonRepository.findByCourse(
         enrollment.courseId.toString(),

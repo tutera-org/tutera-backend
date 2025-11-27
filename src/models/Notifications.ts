@@ -7,7 +7,7 @@ const NotificationSchema = new Schema<INotification>(
     message: String,
     type: { type: String, default: 'info' },
     read: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now, expires: 86400 }, // TTL: 1 day
+    createdAt: { type: Date, default: Date.now, expires: 259200 }, // TTL: 3 day
   },
   {
     toJSON: { virtuals: true },
