@@ -1,0 +1,22 @@
+{{#> layout
+  title="Subscription Update Notification"
+  headerGradientStart="#6366F1"
+  headerGradientEnd="#4F46E5"
+  headerText="Subscription Update"
+  footerNote="Thank you for being part of Tutera Learning Management System."
+}}
+  <h2>Hello {{name}},</h2>
+
+  <p>We would like to inform you that your subscription has been <strong>{{status}}</strong> for the <strong>{{plan}}</strong> plan.</p>
+
+  <div class="subscription-details">
+    <ul>
+      <li><strong>Start Date:</strong> {{startDate}}</li>
+      <li><strong>End Date:</strong> {{endDate}}</li>
+    </ul>
+  </div>
+
+  <p>If you have any questions or need assistance regarding your subscription, please contact our support team at <a href="mailto:support@tuteraafrica.xyz">support@tuteraafrica.xyz</a>.</p>
+
+  <p>Kind regards,<br/>Tutera LMS Team</p>
+{{/layout}}

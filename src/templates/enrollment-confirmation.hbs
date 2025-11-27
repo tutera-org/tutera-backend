@@ -1,0 +1,36 @@
+{{#> layout
+  title="Enrollment Confirmation"
+  headerGradientStart="#5B21B6"
+  headerGradientEnd="#3B82F6"
+  headerText="Enrollment Confirmed"
+  footerNote="This is a confirmation of your course enrollment."
+}}
+<h2>Hello {{firstName}},</h2>
+
+<p>Your enrollment for the course below has been successfully processed. You now have full access:</p>
+
+<div class="course-details">
+  <h3>{{courseTitle}}</h3>
+  <ul>
+    <li><strong>Instructor:</strong> {{instructorName}}</li>
+    <li><strong>Duration:</strong> {{courseDuration}}</li>
+    <li><strong>Level:</strong> {{courseLevel}}</li>
+    <li><strong>Amount Paid:</strong> ${{amount}}</li>
+  </ul>
+</div>
+
+<p style="text-align: center; margin: 20px 0;">
+  <a href="{{courseUrl}}" class="button">Access Course</a>
+</p>
+
+<h3>Next Steps</h3>
+<ol>
+  <li>Visit your course dashboard</li>
+  <li>Start watching video lectures</li>
+  <li>Download course materials</li>
+  <li>Track your progress</li>
+  <li>Provide feedback after course completion</li>
+</ol>
+
+<p>Need help? Contact support at <a href="mailto:support@tuteraafrica.xyz">support@tuteraafrica.xyz</a>.</p>
+{{/layout}}

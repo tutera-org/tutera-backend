@@ -1,0 +1,527 @@
+{
+  "info": {
+    "name": "Tutera Media Upload & Lesson Flow",
+    "description": "Complete flow: Tenant Registration → Login → Create Course/Module → Create Lesson with Media Upload → Verify Processing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Tenant Registration",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"tenantId\", jsonData.data._id || jsonData.data.id);",
+              "  pm.environment.set(\"tenantName\", jsonData.data.name);",
+              "  console.log('✓ Tenant created:', pm.environment.get('tenantId'));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tenantName\": \"Test Institution {{$timestamp}}\",\n  \"email\": \"admin@testinstitution{{$timestamp}}.com\",\n  \"password\": \"SecurePass@123\",\n  \"type\": \"INSTITUTION\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register/institution",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register",
+            "institution"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Login (Get JWT Token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"token\", jsonData.data.tokens.accessToken || jsonData.tokens.accessToken);",
+              "  pm.environment.set(\"userId\", jsonData.data.user._id || jsonData.user._id);",
+              "  pm.environment.set(\"tenantId\", jsonData.data.tenant._id || jsonData.tenant._id);",
+              "  console.log('✓ Login successful. Token set.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@testinstitution.com\",\n  \"password\": \"SecurePass@123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Create Course",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"courseId\", jsonData._id || jsonData.id);",
+              "  console.log('✓ Course created:', pm.environment.get('courseId'));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Introduction to Web Development\",\n  \"slug\": \"web-dev-intro-{{$timestamp}}\",\n  \"description\": \"Learn the basics of web development\",\n  \"level\": \"beginner\",\n  \"price\": 99.99\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/courses",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "courses"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Create Module",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"moduleId\", jsonData._id || jsonData.id);",
+              "  console.log('✓ Module created:', pm.environment.get('moduleId'));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"title\": \"Module 1: HTML Basics\",\n  \"order\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/courses/modules",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "courses",
+            "modules"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Upload Media File",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"mediaId\", jsonData.mediaId);",
+              "  pm.environment.set(\"signedUrl\", jsonData.signedUrl);",
+              "  pm.environment.set(\"s3Key\", jsonData.s3Key);",
+              "  console.log('✓ Media uploaded:', pm.environment.get('mediaId'));",
+              "  console.log('Status:', jsonData.status);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "<path-to-your-file>",
+              "disabled": false
+            },
+            {
+              "key": "type",
+              "value": "VIDEO",
+              "type": "text",
+              "description": "Optional override: VIDEO | IMAGE | DOCUMENT | AUDIO",
+              "disabled": true
+            },
+            {
+              "key": "isProtected",
+              "value": "true",
+              "type": "text",
+              "description": "true to require signed URLs; false for public access"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/media/upload",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "media",
+            "upload"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Create Lesson with Media",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  var jsonData = pm.response.json();",
+              "  pm.environment.set(\"lessonId\", jsonData._id || jsonData.id);",
+              "  console.log('✓ Lesson created:', pm.environment.get('lessonId'));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"moduleId\": \"{{moduleId}}\",\n  \"title\": \"Lesson 1: Getting Started with HTML\",\n  \"description\": \"Learn the basics of HTML markup\",\n  \"type\": \"VIDEO\",\n  \"contentId\": \"{{mediaId}}\",\n  \"order\": 1,\n  \"isPreview\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/courses/lessons",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "courses",
+            "lessons"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Poll Media Status (Check Processing)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  var jsonData = pm.response.json();",
+              "  console.log('Media Status:', jsonData.status);",
+              "  console.log('Derived:', jsonData.derived);",
+              "  if (jsonData.signedUrl) {",
+              "    console.log('Download URL ready:', jsonData.signedUrl.substring(0, 50) + '...');",
+              "  }",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/media/{{mediaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "media",
+            "{{mediaId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. List Tenant Media",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/media?page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "media"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  var jsonData = pm.response.json();",
+              "  console.log('Total media:', jsonData.pagination.total);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Update Media (Replace or Metadata)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "<optional-path-to-new-file>",
+              "disabled": true,
+              "description": "Enable + choose file to replace existing media"
+            },
+            {
+              "key": "type",
+              "value": "VIDEO",
+              "type": "text",
+              "description": "Optional: change media type"
+            },
+            {
+              "key": "isProtected",
+              "value": "true",
+              "type": "text",
+              "description": "Optional: toggle protection"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/media/{{mediaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "media",
+            "{{mediaId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  console.log('✓ Media updated');",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Delete Media",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/media/{{mediaId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "media",
+            "{{mediaId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  console.log('✓ Media deleted');",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Download Media (Use Signed URL)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{signedUrl}}",
+          "host": [
+            "{{signedUrl}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tenantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "moduleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lessonId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mediaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "signedUrl",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "s3Key",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

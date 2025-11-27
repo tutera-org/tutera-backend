@@ -1,0 +1,37 @@
+{{#> layout
+  title="Content Violation Warning"
+  headerGradientStart="#EF4444"
+  headerGradientEnd="#DC2626"
+  headerText="⚠️ Content Violation Warning"
+  footerNote="This is an automated message from our compliance system."
+}}
+  <h2>Important Notice</h2>
+  <div class="danger">
+    <strong>Action Required:</strong> Content has been flagged for violation of our policies.
+  </div>
+
+  <p>Dear {{tenantName}},</p>
+  <p>We have identified content that violates Tutera Learning Management System policies and international standards.</p>
+
+  <h3>Violation Details:</h3>
+  <ul>
+    <li><strong>Content Type:</strong> {{contentType}}</li>
+    <li><strong>Violation Date:</strong> {{violationDate}}</li>
+    <li><strong>Reason:</strong> {{reason}}</li>
+    <li><strong>Total Violations:</strong> {{violationCount}}</li>
+  </ul>
+
+  <div class="danger">
+    <strong>Status:</strong> The flagged content has been removed from the platform.
+  </div>
+
+  <h3>Next Steps:</h3>
+  <ol>
+    <li>Review our content policies</li>
+    <li>Ensure all future uploads comply with guidelines</li>
+    <li>Contact support if you believe this is an error</li>
+  </ol>
+
+  <p><strong>Warning:</strong> Repeated violations may result in account suspension or termination.</p>
+  <p>For questions or appeals, contact: {{supportEmail}}</p>
+{{/layout}}

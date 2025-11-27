@@ -1,0 +1,25 @@
+{{#> layout
+  title="Welcome to Tutera Learning Management System"
+  headerGradientStart="#3B82F6"
+  headerGradientEnd="#10B981"
+  headerText="Welcome to Tutera Learning Management System"
+  footerNote="You're receiving this email because you created an account on Tutera Learning Management System."
+}}
+<h2>Hello {{firstName}},</h2>
+
+<p>Thank you for joining Tutera Learning Management System. Your account has been successfully created.</p>
+
+<div class="account-details">
+  <ul>
+    <li><strong>Email:</strong> {{email}}</li>
+    <li><strong>Role:</strong> {{role}}</li>
+    <li><strong>Trial Period:</strong> {{trialDays}} days</li>
+  </ul>
+</div>
+
+<p style="text-align: center; margin: 20px 0;">
+  <a href="{{dashboardUrl}}" class="button">Go to Dashboard</a>
+</p>
+
+<p>If you have any questions, contact support at <a href="mailto:support@tuteraafrica.xyz">support@tuteraafrica.xyz</a>.</p>
+{{/layout}}

@@ -1,0 +1,25 @@
+{{#> layout
+  title="Security Alert: Suspicious Activity Detected"
+  headerGradientStart="#F59E0B"
+  headerGradientEnd="#D97706"
+  headerText="⚠️ Security Alert"
+  footerNote="This is an automated security notification from the Tutera Learning Management System."
+}}
+
+<h2>Suspicious Activity Detected</h2>
+
+<p>Dear Administrator,</p>
+<p>We have detected unusual activity associated with the following user account:</p>
+
+<ul>
+  <li><strong>User Email:</strong> {{userEmail}}</li>
+  <li><strong>IP Address:</strong> {{ipAddress}}</li>
+  <li><strong>Timestamp:</strong> {{time}}</li>
+  <li><strong>Event ID:</strong> {{eventId}}</li>
+</ul>
+
+<p>Please review this alert at your earliest convenience and determine whether further action is required.</p>
+
+<p>Thank you for maintaining the security of our platform.</p>
+
+{{/layout}}

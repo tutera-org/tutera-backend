@@ -1,0 +1,40 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/sylva/Desktop/tutera-backend/logs/.90a52688c1334013ffa7016d9fff0cd2ecdf9d80-audit.json",
+    "files": [
+        {
+            "date": 1763235238944,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-15.log",
+            "hash": "774ff2bac4a2510ec4ebbbe07074f4e6e9c2efd5ec3162eeed267c7bcf39cc4e"
+        },
+        {
+            "date": 1763336350441,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-17.log",
+            "hash": "89d8e0e2fb921e9b640f10b96bca8c917e49701ad1b4df140ee202706fbd90ae"
+        },
+        {
+            "date": 1763453128471,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-18.log",
+            "hash": "fe8827b8d5a5ec61c64b52b318d9286e0a9d3f135a5918ad6bcf50a5f8bed461"
+        },
+        {
+            "date": 1763507019102,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-19.log",
+            "hash": "b25b47411a9ff2e0d157b333f2f907a7426cc1a7286d4537858357122255cae6"
+        },
+        {
+            "date": 1763630288999,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-20.log",
+            "hash": "4f15217519d4d29d55767a1ef2a5c7352727c728fa6bc92ab74b066c5727f8a5"
+        },
+        {
+            "date": 1763698186237,
+            "name": "/Users/sylva/Desktop/tutera-backend/logs/error-2025-11-21.log",
+            "hash": "2e9e24a7f2cecb99aa0b0a783f590073ffbf7eb7eeb25eed669679ce3a8881ae"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -19,7 +19,8 @@ export default defineConfig([
       prettier: eslintPluginPrettier,
     },
     rules: {
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['error', { printWidth: 100 }],
+      'max-len': ['warn', { code: 100 }],
     },
   },
 ]);
