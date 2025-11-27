@@ -123,7 +123,6 @@ export class CreatorDashboardController {
       isActive: true,
     });
 
-    // Debug: Show student creation times
     const students = await User.find({
       tenantId,
       role: UserRole.STUDENT,
@@ -190,19 +189,11 @@ export class CreatorDashboardController {
       })
       .lean();
 
-    console.log('All enrollments for earnings:', enrollments.length);
-    console.log('Sample enrollment with course:', enrollments[0]);
-
-    const total = enrollments.reduce((sum, enrollment) => {
+    return enrollments.reduce((sum, enrollment) => {
       const populatedEnrollment = enrollment as EnrollmentWithCoursePrice;
       const coursePrice = populatedEnrollment.courseId?.price || 0;
-      console.log('Course price:', coursePrice);
-      console.log('Populated courseId:', populatedEnrollment.courseId);
       return sum + coursePrice;
     }, 0);
-
-    console.log('Total earnings calculated:', total);
-    return total;
   }
 
   private async getAnalyticsData(
