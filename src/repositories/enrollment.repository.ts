@@ -20,20 +20,23 @@ export const EnrollmentRepository = {
     tenantId: string,
     session: ClientSession | null = null
   ) {
-    console.log('markLessonCompleted called with:', { studentId, courseId, lessonId, tenantId });
-
     try {
-      const result = await EnrollmentModel.findOneAndUpdate(
-        { studentId, courseId, tenantId },
-        {
-          $addToSet: {
-            completedLessons: lessonId,
-          },
-        },
-        { new: true, session }
+      // Use workaround - get all enrollments, find the one, update it manually
+      const allEnrollments = await EnrollmentModel.find({});
+      const enrollment = allEnrollments.find(
+        (e) => e.studentId === studentId && e.courseId === courseId && e.tenantId === tenantId
       );
 
-      console.log('Database update result:', result);
+      if (!enrollment) return null;
+
+      // Check if lesson is already completed
+      if (enrollment.completedLessons.includes(lessonId)) return enrollment;
+
+      // Add lesson to completedLessons
+      enrollment.completedLessons.push(lessonId);
+
+      // Save the updated enrollment
+      const result = await enrollment.save({ session });
       return result;
     } catch (error) {
       console.error('Error in markLessonCompleted:', error);
@@ -55,17 +58,24 @@ export const EnrollmentRepository = {
     );
   },
 
-  findOne(
-    studentId: string,
-    courseId: string,
-    tenantId: string,
-    session: ClientSession | null = null
-  ) {
-    return EnrollmentModel.findOne({ studentId, courseId, tenantId }).session(session);
+  findOne(studentId: string, courseId: string, tenantId: string) {
+    // Use workaround - get all enrollments then filter with JavaScript
+    return EnrollmentModel.find({}).then((allEnrollments) => {
+      const found = allEnrollments.find(
+        (e) => e.studentId === studentId && e.courseId === courseId && e.tenantId === tenantId
+      );
+      return found;
+    });
   },
 
   getStudentCourses(studentId: string, tenantId: string) {
     return EnrollmentModel.find({ studentId, tenantId }).populate('courseId');
+  },
+
+  getEnrollmentsByCourse(courseId: string, tenantId: string) {
+    console.log('Getting enrollments for course:', courseId, 'tenant:', tenantId);
+    // Use the same approach as the working creator dashboard
+    return EnrollmentModel.find({ tenantId, courseId: courseId });
   },
 
   addQuizAttempt(

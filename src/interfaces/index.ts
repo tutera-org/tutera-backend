@@ -378,6 +378,23 @@ export interface ICourseAnalytics {
   averageRating: number;
 }
 
+export interface IStudentAnalytics {
+  studentId: string;
+  studentName: string;
+  quizScore: number;
+  progress: number;
+  status: 'COMPLETED' | 'NOT_COMPLETED';
+}
+
+export interface ICourseAnalyticsResponse {
+  courseId: string;
+  courseTitle: string;
+  totalStudents: number;
+  averageQuizScore: number;
+  completionRate: number;
+  students: IStudentAnalytics[];
+}
+
 export interface ITenantAnalytics {
   totalCourses: number;
   totalStudents: number;

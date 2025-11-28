@@ -1,7 +1,9 @@
-import type { NextFunction, Response, Request } from 'express';
-import { startSession } from 'mongoose';
-import { CourseService } from '../services/course.service.ts';
+import type { Response, NextFunction } from 'express';
 import { ApiResponse } from '../utils/ApiResponse.ts';
+import { CourseService } from '../services/course.service.ts';
+import { startSession } from 'mongoose';
+import type { Request } from 'express';
+
 class CourseController {
   private readonly courseService = new CourseService();
 
@@ -12,6 +14,8 @@ class CourseController {
     this.getCourseDetails = this.getCourseDetails.bind(this);
     this.updateAllCourseProperties = this.updateAllCourseProperties.bind(this);
     this.updateCourseStatus = this.updateCourseStatus.bind(this);
+    this.getCourseAnalytics = this.getCourseAnalytics.bind(this);
+    this.debugEnrollments = this.debugEnrollments.bind(this);
   }
 
   async getAllCourses(req: Request, res: Response, next: NextFunction) {
@@ -149,6 +153,72 @@ class CourseController {
       next(error);
     } finally {
       session.endSession();
+    }
+  }
+
+  async getCourseAnalytics(req: Request, res: Response, next: NextFunction) {
+    const session = await startSession();
+    try {
+      await session.withTransaction(async () => {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
+
+        const analytics = await this.courseService.getCourseAnalytics(tenantId);
+        ApiResponse.success(res, analytics, 'Course analytics retrieved successfully.');
+      });
+    } catch (error) {
+      await session.abortTransaction().catch(() => {});
+      next(error);
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async debugEnrollments(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tenantId = req.user?.tenantId;
+      if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
+
+      const EnrollmentModel = await import('../models/Enrollments.ts').then((m) => m.default);
+
+      const allEnrollmentsNoFilter = await EnrollmentModel.find({});
+
+      const workingEnrollments = allEnrollmentsNoFilter.filter((e) => e.tenantId === tenantId);
+
+      const { User } = await import('../models/User.ts');
+      const CourseModel = await import('../models/Courses.ts');
+
+      const populatedEnrollments = [];
+      for (const enrollment of workingEnrollments) {
+        const student = await User.findById(enrollment.studentId).select('firstName lastName');
+        const course = await CourseModel.default.findById(enrollment.courseId).select('title');
+
+        populatedEnrollments.push({
+          ...enrollment.toObject(),
+          studentId: student,
+          courseId: course,
+        });
+      }
+
+      res.json({
+        tenantId,
+        totalEnrollments: populatedEnrollments.length,
+        enrollments: populatedEnrollments.map((e) => ({
+          enrollmentId: e._id,
+          courseId: e.courseId,
+          courseTitle: (e.courseId as { title?: string })?.title || 'Unknown Course',
+          studentId: e.studentId,
+          studentName: (e.studentId as { firstName?: string; lastName?: string })
+            ? `${(e.studentId as { firstName: string; lastName: string }).firstName}
+               ${(e.studentId as { firstName: string; lastName: string }).lastName}`
+            : 'Unknown Student',
+          enrolledAt: e.enrolledAt,
+          completedLessons: e.completedLessons?.length || 0,
+          quizAttempts: e.quizAttempts?.length || 0,
+        })),
+      });
+    } catch (error) {
+      next(error);
     }
   }
 }

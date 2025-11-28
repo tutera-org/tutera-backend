@@ -74,12 +74,7 @@ export class EnrollmentService {
     return await EnrollmentRepository.enroll(studentId, courseId, tenantId, session ?? null);
   }
   async completeLesson(studentId: string, courseId: string, lessonId: string, tenantId: string) {
-    const foundEnrollment = await EnrollmentRepository.findOne(
-      studentId,
-      courseId,
-      tenantId
-    ).lean();
-    console.log('foundEnrollment: ', foundEnrollment);
+    const foundEnrollment = await EnrollmentRepository.findOne(studentId, courseId, tenantId);
     if (!foundEnrollment) {
       throw new AppError('Not enrolled in this course', 403);
     }
@@ -98,7 +93,6 @@ export class EnrollmentService {
       lessonId,
       tenantId
     );
-    console.log('restgfgh: ', result);
     if (!result) {
       throw new AppError('Failed to mark lesson as completed', 500);
     }
