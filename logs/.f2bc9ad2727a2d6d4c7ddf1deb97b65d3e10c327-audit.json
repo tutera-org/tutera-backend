@@ -6,16 +6,6 @@
     "auditLog": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\.f2bc9ad2727a2d6d4c7ddf1deb97b65d3e10c327-audit.json",
     "files": [
         {
-            "date": 1763031718605,
-            "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-13.log",
-            "hash": "4d9553ec9d62070714c49a087cf7c018f16a35429919cb9264f2449bf099b465"
-        },
-        {
-            "date": 1763091277701,
-            "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-14.log",
-            "hash": "cb1df3c0f96608949d7f83ed0a8f9f21ad1168bfd0ef0bead56d726cf7f27346"
-        },
-        {
             "date": 1763165130359,
             "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-15.log",
             "hash": "d695042202e947f973db7556c6ab57aa71d40b992ac5d64bf7a0b0cccdfe4d50"
@@ -54,6 +44,16 @@
             "date": 1764198000046,
             "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-27.log",
             "hash": "e49b93a944818bf9ad2d0957ccadf4d277792525ee7e8133dc3602193adfb6ee"
+        },
+        {
+            "date": 1764313545179,
+            "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-28.log",
+            "hash": "df9212a498f940bba3f59a0647ded89a6379f603d396cd8a54794b6ceade2f2d"
+        },
+        {
+            "date": 1764371986121,
+            "name": "C:\\Users\\JohnKenoIweh\\OneDrive\\Documents\\tutera\\tutera-backend\\logs\\combined-2025-11-29.log",
+            "hash": "1ddbdd12b08f29062683fe1986553a1c4b242d8a9cc73d503f3b0bd078cd3eaa"
         }
     ],
     "hashType": "sha256"
