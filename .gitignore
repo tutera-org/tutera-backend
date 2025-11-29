@@ -16,3 +16,6 @@ logs/
 logs/
 *.log
 npm-debug.log*
+
+#Ignore windsurf AI rules
+.windsurfrules

@@ -28,15 +28,19 @@ export class EnrollmentService {
       // ✅ Only include published courses
       if (course.status !== 'PUBLISHED') continue;
 
-      const modules = await ModuleRepository.findByCourse(courseId, tenantId);
-      const moduleIds = modules.map((m) => m._id);
+      const modules = await ModuleRepository.findAll(enrollment.courseId.toString(), tenantId);
+      const moduleIds = modules.map((module) => module?._id?.toString() as string);
 
       // total lessons in course
-      const lessons = await LessonRepository.findByModule(moduleIds, tenantId, session ?? null);
+      const lessonPromises = moduleIds.map((moduleId) =>
+        LessonRepository.findByModule(moduleId, tenantId, session ?? null)
+      );
+      const lessonArrays = await Promise.all(lessonPromises);
+      const lessons = lessonArrays.flat();
 
-      // console.log('total lesson: ', lessons);
+      console.log('total lesson: ', lessons);
 
-      console.log('enrollmentCourse: ', course);
+      // console.log('enrollmentCourse: ', course);
 
       const totalLessons = lessons.length;
       const completedLessons = enrollment.completedLessons.length;
