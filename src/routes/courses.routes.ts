@@ -33,4 +33,17 @@ router.delete(
   courseController.deleteCourse
 );
 
+router.get(
+  '/analytics',
+  authenticate as unknown as RequestHandler,
+  courseController.getCourseAnalytics
+);
+
+// GET /debug-enrollments - Debug endpoint to check enrollments
+router.get(
+  '/debug-enrollments',
+  authenticate as unknown as RequestHandler,
+  courseController.debugEnrollments
+);
+
 export default router;
