@@ -81,12 +81,7 @@ export class EnrollmentService {
     return await EnrollmentRepository.enroll(studentId, courseId, tenantId, session ?? null);
   }
   async completeLesson(studentId: string, courseId: string, lessonId: string, tenantId: string) {
-    const foundEnrollment = await EnrollmentRepository.findOne(
-      studentId,
-      courseId,
-      tenantId
-    ).lean();
-
+    const foundEnrollment = await EnrollmentRepository.findOne(studentId, courseId, tenantId);
     if (!foundEnrollment) {
       throw new AppError('Not enrolled in this course', 403);
     }
