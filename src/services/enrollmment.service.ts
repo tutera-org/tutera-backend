@@ -28,12 +28,15 @@ export class EnrollmentService {
       // ✅ Only include published courses
       if (course.status !== 'PUBLISHED') continue;
 
+      const modules = await ModuleRepository.findByCourse(courseId, tenantId);
+      const moduleIds = modules.map((m) => m._id);
+
       // total lessons in course
-      const lessons = await LessonRepository.findByCourse(
-        enrollment.courseId.toString(),
-        tenantId,
-        session ?? null
-      );
+      const lessons = await LessonRepository.findByModule(moduleIds, tenantId, session ?? null);
+
+      // console.log('total lesson: ', lessons);
+
+      console.log('enrollmentCourse: ', course);
 
       const totalLessons = lessons.length;
       const completedLessons = enrollment.completedLessons.length;
@@ -79,7 +82,7 @@ export class EnrollmentService {
       courseId,
       tenantId
     ).lean();
-    console.log('foundEnrollment: ', foundEnrollment);
+
     if (!foundEnrollment) {
       throw new AppError('Not enrolled in this course', 403);
     }
@@ -98,7 +101,7 @@ export class EnrollmentService {
       lessonId,
       tenantId
     );
-    console.log('restgfgh: ', result);
+
     if (!result) {
       throw new AppError('Failed to mark lesson as completed', 500);
     }
