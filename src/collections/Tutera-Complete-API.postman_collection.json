@@ -1,0 +1,1175 @@
+{
+  "info": {
+    "name": "Tutera Complete API Collection - Updated",
+    "description": "Complete API collection for Tutera LMS Backend - All endpoints for testing and development\n\n📚 **Documentation**: https://tutera-backend.onrender.com/api/v1/docs\n\n🏗️ **Architecture**: Multi-tenant Learning Management System with role-based access control\n\n🔐 **Authentication**: JWT-based with refresh tokens\n\n📧 **Support**: support@tutera.com",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "tutera-complete-api-v2"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register Institution/Independent Creator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"tenantId\", jsonData.data.tenant._id || jsonData.data.tenant.id);",
+                  "  pm.environment.set(\"tenantName\", jsonData.data.tenant.name);",
+                  "  pm.environment.set(\"userId\", jsonData.data.user._id || jsonData.data.user.id);",
+                  "  pm.environment.set(\"token\", jsonData.data.tokens.accessToken);",
+                  "  pm.environment.set(\"refreshToken\", jsonData.data.tokens.refreshToken);",
+                  "  console.log(\"✓ Institution registered successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantName\": \"Test Institution {{$timestamp}}\",\n  \"email\": \"admin@testinstitution{{$timestamp}}.com\",\n  \"password\": \"SecurePass@123\",\n  \"role\": \"institution\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"phoneNumber\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register/institution",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register", "institution"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Learner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"userId\", jsonData.data.user._id || jsonData.data.user.id);",
+                  "  pm.environment.set(\"token\", jsonData.data.tokens.accessToken);",
+                  "  pm.environment.set(\"refreshToken\", jsonData.data.tokens.refreshToken);",
+                  "  console.log(\"✓ Learner registered successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"learner{{$timestamp}}@example.com\",\n  \"password\": \"SecurePass@123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register/learner",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register", "learner"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"userId\", jsonData.data.user._id || jsonData.data.user.id);",
+                  "  pm.environment.set(\"tenantId\", jsonData.data.tenant._id || jsonData.data.tenant.id);",
+                  "  pm.environment.set(\"token\", jsonData.data.tokens.accessToken);",
+                  "  pm.environment.set(\"refreshToken\", jsonData.data.tokens.refreshToken);",
+                  "  console.log(\"✓ Login successful\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@testinstitution.com\",\n  \"password\": \"SecurePass@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"token\", jsonData.data.accessToken);",
+                  "  pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+                  "  console.log(\"✓ Token refreshed\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@testinstitution.com\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/request-password-reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "request-password-reset"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@testinstitution.com\",\n  \"otpCode\": \"123456\",\n  \"newPassword\": \"NewSecurePass@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"currentPassword\": \"SecurePass@123\",\n  \"otpCode\": \"654321\",\n  \"newPassword\": \"NewPass@456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"{{userId}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-otp"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Set base URL for production",
+              "if (!pm.environment.get(\"baseUrl\")) {",
+              "  pm.environment.set(\"baseUrl\", \"https://tutera-backend.onrender.com/api/v1\");",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Tenant Management",
+      "item": [
+        {
+          "name": "Get All Tenants",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/tenants?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenants"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Tenant by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/tenants/{{tenantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenants", "{{tenantId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tenant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated University Name\",\n  \"description\": \"Updated description\",\n  \"settings\": {\n    \"primaryColor\": \"#3B82F6\",\n    \"secondaryColor\": \"#10B981\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tenants/{{tenantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenants", "{{tenantId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subscribe to Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscriptionType\": \"monthly\",\n  \"paymentMethodId\": \"pm_1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tenants/{{tenantId}}/subscribe",
+              "host": ["{{baseUrl}}"],
+              "path": ["tenants", "{{tenantId}}", "subscribe"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📚 Course Management",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/search?q=web%20development",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "search"],
+              "query": [{ "key": "q", "value": "web development" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"courseId\", jsonData.data._id || jsonData.data.id);",
+                  "  console.log(\"✓ Course created successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction to Web Development\",\n  \"description\": \"Learn web development from scratch with HTML, CSS, and JavaScript\",\n  \"level\": \"beginner\",\n  \"category\": \"Programming\",\n  \"price\": 99.99,\n  \"currency\": \"USD\",\n  \"requirements\": [\"Basic computer skills\", \"Text editor\"],\n  \"learningOutcomes\": [\"Build responsive websites\", \"Understand web standards\"]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses", "host": ["{{baseUrl}}"], "path": ["courses"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Course Title\",\n  \"description\": \"Updated course description\",\n  \"level\": \"intermediate\",\n  \"category\": \"Programming\",\n  \"price\": 149.99,\n  \"currency\": \"USD\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Publish Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}/publish",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}", "publish"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "analytics"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Debug Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/courses/debug-enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "debug-enrollments"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📖 Module Management",
+      "item": [
+        {
+          "name": "Create Module",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"moduleId\", jsonData.data._id || jsonData.data.id);",
+                  "  console.log(\"✓ Module created successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"title\": \"Module 1: Getting Started\",\n  \"description\": \"Introduction to the course basics\",\n  \"order\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/modules", "host": ["{{baseUrl}}"], "path": ["modules"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Modules",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/modules/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["modules", "course", "{{courseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Module (Courses)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"title\": \"Module 2: Advanced Topics\",\n  \"description\": \"Deep dive into advanced concepts\",\n  \"order\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/modules",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "modules"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📝 Content Management",
+      "item": [
+        {
+          "name": "Create Lesson",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"lessonId\", jsonData.data._id || jsonData.data.id);",
+                  "  console.log(\"✓ Lesson created successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"moduleId\": \"{{moduleId}}\",\n  \"title\": \"Lesson 1: Introduction\",\n  \"description\": \"Introduction to the module\",\n  \"type\": \"VIDEO\",\n  \"contentId\": \"{{mediaId}}\",\n  \"order\": 1,\n  \"isPreview\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "lessons"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎥 Media Management",
+      "item": [
+        {
+          "name": "Upload Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"mediaId\", jsonData.data.mediaId || jsonData.data._id);",
+                  "  console.log(\"✓ Media uploaded successfully\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "/path/to/your/video.mp4" },
+                { "key": "type", "value": "VIDEO", "type": "text" },
+                { "key": "isProtected", "value": "true", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/media/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["media", "upload"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Media",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/media?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["media"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Media",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["media", "{{mediaId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎓 Enrollment Management",
+      "item": [
+        {
+          "name": "Enroll in Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set(\"enrollmentId\", jsonData.data.enrollmentId || jsonData.data._id);",
+                  "  console.log(\"✓ Enrollment successful\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"paymentMethodId\": \"pm_1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll in Course (Alternative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"paymentMethodId\": \"pm_1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "enroll"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Lesson",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentId\": \"{{enrollmentId}}\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"completed\": true,\n  \"timeSpent\": 1800\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/complete-lesson",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "complete-lesson"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rate Course",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"rating\": 5,\n  \"comment\": \"Excellent course! Very well structured.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/rate-course",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "rate-course"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollmentId\": \"{{enrollmentId}}\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"quizId\": \"quiz_123\",\n  \"answers\": [\n    {\"questionId\": \"q1\", \"selectedOption\": \"a\"},\n    {\"questionId\": \"q2\", \"selectedOption\": \"c\"}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/submit-quiz",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "submit-quiz"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Enrollment Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}/details",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}", "details"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📈 Progress Tracking",
+      "item": [
+        {
+          "name": "Update Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contentId\": \"{{lessonId}}\",\n  \"courseId\": \"{{courseId}}\",\n  \"completed\": true,\n  \"timeSpent\": 1800,\n  \"lastPosition\": 300\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/progress", "host": ["{{baseUrl}}"], "path": ["progress"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⭐ Reviews System",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"rating\": 5,\n  \"comment\": \"Excellent course! Very well structured and easy to follow.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "�� Payment History",
+      "item": [
+        {
+          "name": "Get Payment History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/payments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Admin Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?role=all&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                { "key": "role", "value": "all" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Platform Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/admin/statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "statistics"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎨 Creator Dashboard",
+      "item": [
+        {
+          "name": "Get Creator Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/creator/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🌐 Landing Page Management",
+      "item": [
+        {
+          "name": "Get Landing Page",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Landing Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"University of Technology - Online Courses\",\n  \"description\": \"Transform your career with our cutting-edge online courses\",\n  \"sections\": [\n    {\n      \"type\": \"hero\",\n      \"content\": {\n        \"headline\": \"Learn from Industry Experts\",\n        \"subheading\": \"Join thousands of students advancing their careers\"\n      }\n    },\n    {\n      \"type\": \"features\",\n      \"content\": {\n        \"title\": \"Why Choose Us\",\n        \"features\": [\n          {\n            \"title\": \"Expert Instructors\",\n            \"description\": \"Learn from industry professionals\"\n          }\n        ]\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Landing Page",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Landing Page Title\",\n  \"description\": \"Updated description\",\n  \"sections\": [\n    {\n      \"type\": \"hero\",\n      \"content\": {\n        \"headline\": \"Learn from Industry Experts\",\n        \"subheading\": \"Join thousands of students advancing their careers\"\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Landing Page",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Title Only\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Landing Page",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Landing Page Image",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "/path/to/your/hero-image.jpg" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page/upload-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page", "upload-image"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Landing Page Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"active\": true\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/creator/landing-page/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["creator", "landing-page", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🌍 Public Endpoints",
+      "item": [
+        {
+          "name": "Get Public Landing Page",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/landing-page/university-of-technology",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "landing-page", "university-of-technology"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📧 Email Management",
+      "item": [
+        {
+          "name": "Get Failed Emails",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/admin/failed?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "failed"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Email Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 System & Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          },
+          "response": []
+        },
+        {
+          "name": "API Documentation",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/docs", "host": ["{{baseUrl}}"], "path": ["docs"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Global pre-request script",
+          "// Set base URL for production if not already set",
+          "if (!pm.environment.get(\"baseUrl\")) {",
+          "  pm.environment.set(\"baseUrl\", \"https://tutera-backend.onrender.com/api/v1\");",
+          "}",
+          "",
+          "// Log request details for debugging",
+          "console.log(\"\\n=== \" + pm.info.requestName + \" ===\");",
+          "console.log(\"Method: \" + pm.request.method);",
+          "console.log(\"URL: \" + pm.request.url.toString());",
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Global test script",
+          "// Log response details for debugging",
+          "console.log(\"Response Code: \" + pm.response.code);",
+          "console.log(\"Response Time: \" + pm.response.responseTime + \"ms\");",
+          "console.log(\"Response Size: \" + pm.response.responseSize + \" bytes\");",
+          "",
+          "// Check for common error patterns",
+          "if (pm.response.code >= 400) {",
+          "  try {",
+          "    var jsonData = pm.response.json();",
+          "    console.log(\"Error Message: \" + (jsonData.message || \"Unknown error\"));",
+          "    if (jsonData.error) {",
+          "      console.log(\"Error Code: \" + jsonData.error);",
+          "    }",
+          "  } catch (e) {",
+          "    console.log(\"Response body: \" + pm.response.text());",
+          "  }",
+          "}",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "https://tutera-backend.onrender.com/api/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "tenantId", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "courseId", "value": "", "type": "string" },
+    { "key": "moduleId", "value": "", "type": "string" },
+    { "key": "lessonId", "value": "", "type": "string" },
+    { "key": "mediaId", "value": "", "type": "string" },
+    { "key": "enrollmentId", "value": "", "type": "string" }
+  ]
+}
