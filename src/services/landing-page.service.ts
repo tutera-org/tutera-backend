@@ -371,20 +371,80 @@ export class LandingPageService {
   ): Promise<ILandingPage> {
     const defaultLandingPage = new LandingPage({
       tenantId,
-      logo: '',
-      brandName: '',
+      logo: 'tenants/default/logo-placeholder.png',
+      brandName: 'Your Learning Academy',
       sections: {
-        section1: { image: '' },
-        section2: { description: '', image: '' },
-        section3: { description: '', image: '' },
-        section4: { title: '', description: '', image: '' },
-        section5: { testimonials: [] },
+        section1: {
+          image: 'tenants/default/hero-banner.jpg',
+        },
+        section2: {
+          description:
+            'Transform your learning journey with our comprehensive educational platform. ' +
+            'Designed to help you achieve your goals through engaging online courses, ' +
+            'personalized learning paths, ' +
+            "and a supportive community. Whether you're looking to advance your career " +
+            'or explore new interests, we provide the tools and guidance you need to ' +
+            'succeed in your ' +
+            'learning journey.',
+          image: 'tenants/default/feature-showcase.jpg',
+        },
+        section3: {
+          description:
+            'Join thousands of learners who have transformed their lives with our courses. ' +
+            'Our platform combines expert instruction with interactive learning experiences, ' +
+            'making it easy to master new skills, ' +
+            'advance your career, and connect with a global community ' +
+            'of like-minded learners dedicated to ' +
+            'personal and professional growth.',
+          image: 'tenants/default/platform-overview.jpg',
+        },
+        section4: {
+          title: 'Start Your Learning Journey Today',
+          description:
+            'Ready to transform your future? Get started in minutes with our ' +
+            'intuitive learning platform. Access expert-led courses, interactive projects, ' +
+            'and personalized feedback - all designed to help you achieve your goals. ' +
+            'Plus, connect with mentors and peers who will support you every step of the way ' +
+            'toward success in your chosen field.',
+          image: 'tenants/default/cta-banner.jpg',
+        },
+        section5: {
+          testimonials: [
+            {
+              image: 'tenants/default/testimonial-1.jpg',
+              name: 'Sarah Johnson',
+              jobTitle: 'Marketing Professional',
+              remark:
+                'This platform completely transformed my career. The courses are practical and ' +
+                'the instructors are amazing. I landed my dream job within 3 months of ' +
+                'completing the digital marketing program!',
+            },
+            {
+              image: 'tenants/default/testimonial-2.jpg',
+              name: 'Dr. Michael Chen',
+              jobTitle: 'Healthcare Manager',
+              remark:
+                "The quality of instruction here is outstanding. I've taken several courses " +
+                'to upgrade my skills, and each one has directly contributed to my ' +
+                'professional growth and confidence at work.',
+            },
+            {
+              image: 'tenants/default/testimonial-3.jpg',
+              name: 'Emily Rodriguez',
+              jobTitle: 'Software Developer',
+              remark:
+                'I love how flexible and comprehensive the learning experience is. The projects ' +
+                'are real-world relevant, and the community support helped me overcome every ' +
+                'challenge I faced while learning to code.',
+            },
+          ],
+        },
       },
       socialLinks: {
-        twitter: '',
-        linkedin: '',
-        youtube: '',
-        instagram: '',
+        twitter: 'https://twitter.com/tutera',
+        linkedin: 'https://linkedin.com/company/tutera',
+        youtube: 'https://youtube.com/c/tutera',
+        instagram: 'https://instagram.com/tutera',
       },
       isActive: true,
     });
