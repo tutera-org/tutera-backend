@@ -41,10 +41,8 @@ class CourseController {
       await session.withTransaction(async () => {
         const tenantId = req.user?.tenantId;
         const { courseId } = req.params;
-        console.log('Tenant ID in getCourseDetails:', tenantId);
         if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
-        if (!courseId) return res.status(400).json({ message: 'Course ID is required.' });
-        const courseDetails = await this.courseService.getCourseDetails(courseId, tenantId);
+        const courseDetails = await this.courseService.getCourseDetails(courseId!, tenantId);
         ApiResponse.success(res, courseDetails, 'Course details retrieved successfully.');
       });
     } catch (error) {
@@ -123,7 +121,6 @@ class CourseController {
         );
       });
 
-      console.log('Updated Course:', updatedCourse);
       ApiResponse.success(res, updatedCourse, 'Course updated successfully.');
     } catch (error) {
       await session.abortTransaction().catch(() => {});

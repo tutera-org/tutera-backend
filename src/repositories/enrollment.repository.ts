@@ -20,28 +20,11 @@ export const EnrollmentRepository = {
     tenantId: string,
     session: ClientSession | null = null
   ) {
-    try {
-      // Use workaround - get all enrollments, find the one, update it manually
-      const allEnrollments = await EnrollmentModel.find({});
-      const enrollment = allEnrollments.find(
-        (e) => e.studentId === studentId && e.courseId === courseId && e.tenantId === tenantId
-      );
-
-      if (!enrollment) return null;
-
-      // Check if lesson is already completed
-      if (enrollment.completedLessons.includes(lessonId)) return enrollment;
-
-      // Add lesson to completedLessons
-      enrollment.completedLessons.push(lessonId);
-
-      // Save the updated enrollment
-      const result = await enrollment.save({ session });
-      return result;
-    } catch (error) {
-      console.error('Error in markLessonCompleted:', error);
-      throw error;
-    }
+    return EnrollmentModel.findOneAndUpdate(
+      { studentId, courseId, tenantId },
+      { $addToSet: { completedLessons: lessonId } },
+      { new: true, session }
+    );
   },
 
   rateCourse(
@@ -59,13 +42,7 @@ export const EnrollmentRepository = {
   },
 
   findOne(studentId: string, courseId: string, tenantId: string) {
-    // Use workaround - get all enrollments then filter with JavaScript
-    return EnrollmentModel.find({}).then((allEnrollments) => {
-      const found = allEnrollments.find(
-        (e) => e.studentId === studentId && e.courseId === courseId && e.tenantId === tenantId
-      );
-      return found;
-    });
+    return EnrollmentModel.findOne({ studentId, courseId, tenantId });
   },
 
   getStudentCourses(studentId: string, tenantId: string) {

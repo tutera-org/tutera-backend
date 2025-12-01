@@ -86,9 +86,16 @@ export class EnrollmentService {
       throw new AppError('Not enrolled in this course', 403);
     }
 
+    // Check if lesson exists
+    const lesson = await LessonRepository.findById(lessonId, tenantId);
+    console.log('lesson: ', lesson);
+    if (!lesson) {
+      throw new AppError('Lesson not found', 404);
+    }
+
     // Check if lesson is already completed
     const isAlreadyCompleted = foundEnrollment.completedLessons.some(
-      (lesson) => lesson.lessonId === lessonId
+      (lesson) => lesson === lessonId
     );
     if (isAlreadyCompleted) {
       throw new AppError('Lesson already completed', 400);
@@ -102,7 +109,7 @@ export class EnrollmentService {
     );
 
     if (!result) {
-      throw new AppError('Failed to mark lesson as completed', 500);
+      throw new AppError('Failed to update lesson completion status', 403);
     }
 
     return result;
