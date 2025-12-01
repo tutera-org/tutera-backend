@@ -371,11 +371,11 @@ export class LandingPageService {
   ): Promise<ILandingPage> {
     const defaultLandingPage = new LandingPage({
       tenantId,
-      logo: 'tenants/default/logo-placeholder.png',
+      logo: '',
       brandName: 'Your Learning Academy',
       sections: {
         section1: {
-          image: 'tenants/default/hero-banner.jpg',
+          image: '',
         },
         section2: {
           description:
@@ -386,7 +386,7 @@ export class LandingPageService {
             'or explore new interests, we provide the tools and guidance you need to ' +
             'succeed in your ' +
             'learning journey.',
-          image: 'tenants/default/feature-showcase.jpg',
+          image: '',
         },
         section3: {
           description:
@@ -396,7 +396,7 @@ export class LandingPageService {
             'advance your career, and connect with a global community ' +
             'of like-minded learners dedicated to ' +
             'personal and professional growth.',
-          image: 'tenants/default/platform-overview.jpg',
+          image: '',
         },
         section4: {
           title: 'Start Your Learning Journey Today',
@@ -406,12 +406,12 @@ export class LandingPageService {
             'and personalized feedback - all designed to help you achieve your goals. ' +
             'Plus, connect with mentors and peers who will support you every step of the way ' +
             'toward success in your chosen field.',
-          image: 'tenants/default/cta-banner.jpg',
+          image: '',
         },
         section5: {
           testimonials: [
             {
-              image: 'tenants/default/testimonial-1.jpg',
+              image: '',
               name: 'Sarah Johnson',
               jobTitle: 'Marketing Professional',
               remark:
@@ -420,7 +420,7 @@ export class LandingPageService {
                 'completing the digital marketing program!',
             },
             {
-              image: 'tenants/default/testimonial-2.jpg',
+              image: '',
               name: 'Dr. Michael Chen',
               jobTitle: 'Healthcare Manager',
               remark:
@@ -429,7 +429,7 @@ export class LandingPageService {
                 'professional growth and confidence at work.',
             },
             {
-              image: 'tenants/default/testimonial-3.jpg',
+              image: '',
               name: 'Emily Rodriguez',
               jobTitle: 'Software Developer',
               remark:
