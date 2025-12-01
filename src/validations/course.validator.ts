@@ -78,9 +78,6 @@ export const updateCourseSchema = z.object({
   isActive: z.boolean().optional(),
   slug: z.string().optional(),
   modules: z.array(ModuleSchema).min(1, 'Course must have at least one module'),
-  createdAt: z.string().optional(), // Usually set by backend
-  updatedAt: z.string().optional(), // Usually set by backend
-  __v: z.number().optional(), // MongoDB version key
 });
 
 // Course Partial Update Schema (PATCH)

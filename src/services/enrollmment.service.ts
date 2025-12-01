@@ -5,6 +5,7 @@ import { QuizRepository } from '../repositories/quiz.repository.ts';
 import { LessonRepository } from '../repositories/lesson.repository.ts';
 import { ModuleRepository } from '../repositories/module.repository.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
+import { CourseStatus } from '../interfaces/index.ts';
 
 export class EnrollmentService {
   /**
@@ -26,7 +27,7 @@ export class EnrollmentService {
       if (!course) continue;
 
       // ✅ Only include published courses
-      if (course.status !== 'PUBLISHED') continue;
+      if (course.status !== CourseStatus.PUBLISHED) continue;
 
       const modules = await ModuleRepository.findAll(enrollment.courseId.toString(), tenantId);
       const moduleIds = modules.map((module) => module?._id?.toString() as string);
