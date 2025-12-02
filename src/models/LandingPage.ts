@@ -7,7 +7,6 @@ const LandingPageSchema = new Schema<ILandingPage>(
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
       required: true,
-      index: true,
     },
     logo: {
       type: String,

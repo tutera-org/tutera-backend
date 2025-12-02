@@ -42,8 +42,6 @@ export class SocketManager {
   }
 
   private async handleSocketConnection(socket: Socket) {
-    console.log(`Socket connected: ${socket.id}`);
-
     const user = socket.data.user;
     const userId = user.userId;
     const tenantId = user.tenantId;
@@ -66,15 +64,11 @@ export class SocketManager {
       });
     }, 1000);
 
-    console.log('onlineUsers: ', this.onlineUsers);
-
     socket.on('pingTest', (msg) => {
-      console.log('📨 Received ping from client:', msg);
       socket.emit('pongTest', `Pong from server! message received loud and clear. --> ${msg}`);
     });
 
     socket.on('disconnect', () => {
-      console.log(`Socket disconnected: ${socket.id}`);
       if (userId && this.onlineUsers.has(userId)) {
         const sockets = this.onlineUsers.get(userId)!;
         sockets.delete(socket.id);

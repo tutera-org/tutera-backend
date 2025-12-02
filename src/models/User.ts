@@ -32,7 +32,6 @@ const UserSchema = new Schema<IUser, IUserModel>(
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
-      index: true,
     },
     tenantName: {
       type: String,
