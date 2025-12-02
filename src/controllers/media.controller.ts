@@ -12,6 +12,7 @@ declare module 'express-serve-static-core' {
     user?: {
       tenantId: string;
       userId: string;
+      role: string;
     };
     file?: {
       buffer: Buffer;

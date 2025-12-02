@@ -1,10 +1,11 @@
 import type { ClientSession } from 'mongoose';
-import type {
-  Course,
+import {
+  type Course,
   CourseStatus,
-  Module,
-  ICourseAnalyticsResponse,
-  IStudentAnalytics,
+  type Module,
+  type ICourseAnalyticsResponse,
+  type IStudentAnalytics,
+  UserRole,
 } from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
@@ -17,8 +18,15 @@ import { slugify } from '../utils/slugify.ts';
 
 export class CourseService {
   // Get All Courses
-  async getAllCourses(tenantId: string, session?: ClientSession) {
-    return await CourseRepository.findAll(tenantId, session ?? null);
+  async getAllCourses(tenantId: string, role: string, session?: ClientSession) {
+    const allCourses = await CourseRepository.findAll(tenantId, session ?? null);
+
+    // Only return published courses for non-institution roles
+    if (role !== UserRole.INSTITUTION) {
+      return allCourses.filter((course) => course.status === CourseStatus.PUBLISHED);
+    }
+
+    return allCourses;
   }
 
   async getCourseDetails(courseId: string, tenantId: string, session?: ClientSession) {

@@ -23,8 +23,9 @@ class CourseController {
     try {
       await session.withTransaction(async () => {
         const tenantId = req.user?.tenantId;
+        const role = req.user?.role;
         if (!tenantId) return res.status(400).json({ message: 'Tenant ID is required.' });
-        const courses = await this.courseService.getAllCourses(tenantId);
+        const courses = await this.courseService.getAllCourses(tenantId, role, session);
         ApiResponse.success(res, courses, 'Courses retrieved successfully.');
       });
     } catch (error) {
