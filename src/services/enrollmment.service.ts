@@ -39,10 +39,6 @@ export class EnrollmentService {
       const lessonArrays = await Promise.all(lessonPromises);
       const lessons = lessonArrays.flat();
 
-      console.log('total lesson: ', lessons);
-
-      // console.log('enrollmentCourse: ', course);
-
       const totalLessons = lessons.length;
       const completedLessons = enrollment.completedLessons.length;
       const progressPercent =
@@ -89,7 +85,6 @@ export class EnrollmentService {
 
     // Check if lesson exists
     const lesson = await LessonRepository.findById(lessonId, tenantId);
-    console.log('lesson: ', lesson);
     if (!lesson) {
       throw new AppError('Lesson not found', 404);
     }

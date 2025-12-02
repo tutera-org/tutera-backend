@@ -50,7 +50,6 @@ export const EnrollmentRepository = {
   },
 
   getEnrollmentsByCourse(courseId: string, tenantId: string) {
-    console.log('Getting enrollments for course:', courseId, 'tenant:', tenantId);
     // Use the same approach as the working creator dashboard
     return EnrollmentModel.find({ tenantId, courseId: courseId });
   },
