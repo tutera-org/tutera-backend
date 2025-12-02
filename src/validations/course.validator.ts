@@ -45,7 +45,7 @@ export const ModuleSchema = z.object({
   title: z.string().min(1, 'Module title is required'),
   order: z.number().int().min(1, 'Module order must be a positive integer'),
   lessons: z.array(LessonContentSchema).min(1, 'Module must have at least one lesson'),
-  quiz: QuizSchema,
+  quiz: QuizSchema.optional(),
 });
 
 // Course Creation Schema (minimal required fields for creation)
@@ -77,7 +77,7 @@ export const updateCourseSchema = z.object({
   averageRating: z.number().min(0).max(5).optional(),
   isActive: z.boolean().optional(),
   slug: z.string().optional(),
-  modules: z.array(ModuleSchema).min(1, 'Course must have at least one module'),
+  modules: z.array(ModuleSchema).min(1, 'Course must have at least one module').optional(),
 });
 
 // Course Partial Update Schema (PATCH)

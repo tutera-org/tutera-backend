@@ -1,11 +1,11 @@
 import { Router, type RequestHandler } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.ts';
-import { RequestValidator, ParamsValidator } from '../middlewares/validators.middleware.ts';
+import { ParamsValidator } from '../middlewares/validators.middleware.ts';
 import {
-  createCourseSchema,
-  updateCourseSchema,
+  // createCourseSchema,
+  // updateCourseSchema,
   // patchCourseSchema,
-  updateCourseStatusSchema,
+  // updateCourseStatusSchema,
   courseIdParamSchema,
 } from '../validations/course.validator.ts';
 import courseController from '../controllers/courses.controller.ts';
@@ -26,7 +26,7 @@ router.get(
 router.post(
   '/',
   authenticate as unknown as RequestHandler,
-  RequestValidator(createCourseSchema),
+  // RequestValidator(createCourseSchema),
   courseController.createCourse
 );
 
@@ -34,7 +34,7 @@ router.patch(
   '/:courseId/publish',
   authenticate as unknown as RequestHandler,
   ParamsValidator(courseIdParamSchema),
-  RequestValidator(updateCourseStatusSchema),
+  // RequestValidator(updateCourseStatusSchema),
   courseController.updateAllCourseProperties
 );
 
@@ -42,7 +42,7 @@ router.put(
   '/:courseId',
   authenticate as unknown as RequestHandler,
   ParamsValidator(courseIdParamSchema),
-  RequestValidator(updateCourseSchema),
+  // RequestValidator(updateCourseSchema),
   courseController.updateAllCourseProperties
 );
 router.delete(
