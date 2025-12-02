@@ -28,12 +28,19 @@ export class EnrollmentService {
       // ✅ Only include published courses
       if (course.status !== 'PUBLISHED') continue;
 
+      const modules = await ModuleRepository.findAll(enrollment.courseId.toString(), tenantId);
+      const moduleIds = modules.map((module) => module?._id?.toString() as string);
+
       // total lessons in course
-      const lessons = await LessonRepository.findByCourse(
-        enrollment.courseId.toString(),
-        tenantId,
-        session ?? null
+      const lessonPromises = moduleIds.map((moduleId) =>
+        LessonRepository.findByModule(moduleId, tenantId, session ?? null)
       );
+      const lessonArrays = await Promise.all(lessonPromises);
+      const lessons = lessonArrays.flat();
+
+      console.log('total lesson: ', lessons);
+
+      // console.log('enrollmentCourse: ', course);
 
       const totalLessons = lessons.length;
       const completedLessons = enrollment.completedLessons.length;
@@ -74,12 +81,7 @@ export class EnrollmentService {
     return await EnrollmentRepository.enroll(studentId, courseId, tenantId, session ?? null);
   }
   async completeLesson(studentId: string, courseId: string, lessonId: string, tenantId: string) {
-    const foundEnrollment = await EnrollmentRepository.findOne(
-      studentId,
-      courseId,
-      tenantId
-    ).lean();
-    console.log('foundEnrollment: ', foundEnrollment);
+    const foundEnrollment = await EnrollmentRepository.findOne(studentId, courseId, tenantId);
     if (!foundEnrollment) {
       throw new AppError('Not enrolled in this course', 403);
     }
@@ -98,7 +100,7 @@ export class EnrollmentService {
       lessonId,
       tenantId
     );
-    console.log('restgfgh: ', result);
+
     if (!result) {
       throw new AppError('Failed to mark lesson as completed', 500);
     }

@@ -1,5 +1,11 @@
 import type { ClientSession } from 'mongoose';
-import type { Course, CourseStatus, Module } from '../interfaces/index.ts';
+import type {
+  Course,
+  CourseStatus,
+  Module,
+  ICourseAnalyticsResponse,
+  IStudentAnalytics,
+} from '../interfaces/index.ts';
 import { AppError } from '../utils/AppError.ts';
 import { CourseRepository } from '../repositories/course.repository.ts';
 import { ModuleRepository } from '../repositories/module.repository.ts';
@@ -223,5 +229,140 @@ export class CourseService {
     if (!updatedCourse) throw new AppError('Failed to update course status', 500);
 
     return updatedCourse.toObject();
+  }
+
+  /**
+   * Get analytics for all published courses
+   */
+  async getCourseAnalytics(
+    tenantId: string,
+    session?: ClientSession
+  ): Promise<ICourseAnalyticsResponse[]> {
+    // Get all published courses
+    const publishedCourses = await CourseRepository.findAll(tenantId, session ?? null).then(
+      (courses) => courses.filter((course) => course.status === 'PUBLISHED')
+    );
+
+    publishedCourses.forEach(() => {});
+
+    const analyticsResponses: ICourseAnalyticsResponse[] = [];
+
+    for (const course of publishedCourses) {
+      const courseAnalytics = await this.getSingleCourseAnalytics(
+        course._id as string,
+        course.title,
+        tenantId,
+        session ?? undefined
+      );
+      analyticsResponses.push(courseAnalytics);
+    }
+
+    return analyticsResponses;
+  }
+
+  /**
+   * Get analytics for a single course
+   */
+  private async getSingleCourseAnalytics(
+    courseId: string,
+    courseTitle: string,
+    tenantId: string,
+    session?: ClientSession
+  ): Promise<ICourseAnalyticsResponse> {
+    const EnrollmentModel = await import('../models/Enrollments.ts').then((m) => m.default);
+
+    // Convert courseId to string for comparison since enrollments store courseId as string
+    const courseIdString = courseId.toString();
+
+    // Use workaround - get all enrollments then filter with JavaScript
+    const allEnrollments = await EnrollmentModel.find({});
+    const enrollments = allEnrollments.filter(
+      (e) => e.tenantId === tenantId && e.courseId === courseIdString
+    );
+
+    // Manually populate student data
+    const { User } = await import('../models/User.ts');
+    const populatedEnrollments = [];
+
+    for (const enrollment of enrollments) {
+      const student = await User.findById(enrollment.studentId).select('firstName lastName');
+      if (student) {
+        populatedEnrollments.push({
+          ...enrollment.toObject(),
+          studentId: student,
+        });
+      }
+    }
+
+    // Get total lessons in course for progress calculation
+    const modules = await ModuleRepository.findAll(courseId, tenantId, session ?? undefined);
+    let totalLessons = 0;
+
+    for (const module of modules) {
+      const lessons = await LessonRepository.findByModule(
+        module._id as string,
+        tenantId,
+        session ?? undefined
+      );
+      totalLessons += lessons.length;
+    }
+
+    // Get student details and analytics
+    const students: IStudentAnalytics[] = [];
+
+    for (const enrollment of populatedEnrollments) {
+      const student = enrollment.studentId as {
+        firstName: string;
+        lastName: string;
+        _id: { toString(): string };
+      };
+      if (!student) continue;
+
+      const studentName = `${student.firstName} ${student.lastName}`;
+
+      // Calculate progress
+      const completedLessonsCount = enrollment.completedLessons?.length || 0;
+      const progressPercent =
+        totalLessons > 0 ? Math.round((completedLessonsCount / totalLessons) * 100) : 0;
+
+      // Get quiz scores (average of all attempts)
+      const quizScores = enrollment.quizAttempts?.map((attempt) => attempt.score) || [];
+      const averageQuizScore =
+        quizScores.length > 0
+          ? Math.round(quizScores.reduce((sum, score) => sum + score, 0) / quizScores.length)
+          : 0;
+
+      // Determine completion status
+      const status: 'COMPLETED' | 'NOT_COMPLETED' =
+        progressPercent === 100 ? 'COMPLETED' : 'NOT_COMPLETED';
+
+      students.push({
+        studentId: student._id?.toString() || enrollment.studentId.toString(),
+        studentName,
+        quizScore: averageQuizScore,
+        progress: progressPercent,
+        status,
+      });
+    }
+
+    // Calculate course-level metrics
+    const completedStudents = students.filter((s) => s.status === 'COMPLETED').length;
+    const completionRate =
+      students.length > 0 ? Math.round((completedStudents / students.length) * 100) : 0;
+
+    const allQuizScores = students.map((s) => s.quizScore).filter((score) => score > 0);
+    const averageQuizScore =
+      allQuizScores.length > 0
+        ? Math.round(allQuizScores.reduce((sum, score) => sum + score, 0) / allQuizScores.length)
+        : 0;
+
+    return {
+      courseId,
+      courseTitle,
+      totalStudents: students.length,
+      averageQuizScore,
+      completionRate,
+      students,
+    };
   }
 }
