@@ -12,7 +12,6 @@ const auditLogSchema = new Schema<IAuditLog>(
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: 'Tenant',
-      index: true,
     },
     action: {
       type: String,
