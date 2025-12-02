@@ -23,7 +23,7 @@ export interface IMedia extends Document {
 
 const MediaSchema = new Schema<IMedia>(
   {
-    tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, required: true },
     uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     fileName: { type: String, required: false },
     originalName: { type: String },

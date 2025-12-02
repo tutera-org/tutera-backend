@@ -16,7 +16,7 @@ export interface ILesson extends Document {
 
 const lessonSchema = new Schema<ILesson>(
   {
-    tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, required: true },
     moduleId: { type: Schema.Types.ObjectId, required: true, ref: 'Module' },
     title: { type: String, required: true },
     description: { type: String },

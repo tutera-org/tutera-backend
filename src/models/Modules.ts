@@ -12,7 +12,7 @@ export interface IModule extends Document {
 
 const ModuleSchema = new Schema<IModule>(
   {
-    tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
+    tenantId: { type: Schema.Types.ObjectId, required: true },
     courseId: { type: Schema.Types.ObjectId, required: true, ref: 'Course' },
     title: { type: String, required: true },
     order: { type: Number, required: true },
