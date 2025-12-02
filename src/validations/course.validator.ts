@@ -45,7 +45,7 @@ export const ModuleSchema = z.object({
   title: z.string().min(1, 'Module title is required'),
   order: z.number().int().min(1, 'Module order must be a positive integer'),
   lessons: z.array(LessonContentSchema).min(1, 'Module must have at least one lesson'),
-  quiz: QuizSchema,
+  quiz: QuizSchema.optional(),
 });
 
 // Course Creation Schema (minimal required fields for creation)
