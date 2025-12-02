@@ -6,7 +6,7 @@ export interface IEnrollment extends Document {
   courseId: string;
   enrolledAt: Date;
   rating?: number;
-  completedLessons: { lessonId: string }[];
+  completedLessons: string[];
   quizAttempts: {
     quizId: string | Types.ObjectId;
     score: number;

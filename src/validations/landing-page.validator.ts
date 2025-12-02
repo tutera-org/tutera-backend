@@ -11,7 +11,7 @@ export const testimonialSchema = z.object({
 });
 
 export const createLandingPageSchema = z.object({
-  logo: z.string().url().optional().default(''),
+  logo: z.url().optional().default(''),
   brandName: z.string().max(100, 'Brand name cannot exceed 100 characters').optional().default(''),
   sections: z
     .object({
@@ -65,32 +65,32 @@ export const createLandingPageSchema = z.object({
 });
 
 export const updateLandingPageSchema = z.object({
-  logo: z.string().url().optional(),
+  logo: z.url().optional(),
   brandName: z.string().max(100, 'Brand name cannot exceed 100 characters').optional(),
   sections: z
     .object({
       section1: z
         .object({
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section2: z
         .object({
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section3: z
         .object({
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section4: z
         .object({
           title: z.string().max(200, 'Title cannot exceed 200 characters').optional(),
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section5: z
@@ -106,42 +106,42 @@ export const updateLandingPageSchema = z.object({
   isActive: z.boolean().optional(),
   socialLinks: z
     .object({
-      twitter: z.string().url().optional(),
-      linkedin: z.string().url().optional(),
-      youtube: z.string().url().optional(),
-      instagram: z.string().url().optional(),
+      twitter: z.url().optional(),
+      linkedin: z.url().optional(),
+      youtube: z.url().optional(),
+      instagram: z.url().optional(),
     })
     .optional(),
 });
 
 // Partial update schema for PATCH endpoint
 export const patchLandingPageSchema = z.object({
-  logo: z.string().url().optional(),
+  logo: z.url().optional(),
   brandName: z.string().max(100, 'Brand name cannot exceed 100 characters').optional(),
   sections: z
     .object({
       section1: z
         .object({
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section2: z
         .object({
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section3: z
         .object({
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section4: z
         .object({
           title: z.string().max(200, 'Title cannot exceed 200 characters').optional(),
           description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
-          image: z.string().url().optional(),
+          image: z.url().optional(),
         })
         .optional(),
       section5: z
@@ -156,10 +156,10 @@ export const patchLandingPageSchema = z.object({
     .optional(),
   socialLinks: z
     .object({
-      twitter: z.string().url().optional(),
-      linkedin: z.string().url().optional(),
-      youtube: z.string().url().optional(),
-      instagram: z.string().url().optional(),
+      twitter: z.url().optional(),
+      linkedin: z.url().optional(),
+      youtube: z.url().optional(),
+      instagram: z.url().optional(),
     })
     .optional(),
   isActive: z.boolean().optional(),
